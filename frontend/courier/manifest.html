@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>المانيفست - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/courier/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/courier/shipments" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>شحناتي</span>
+                </a>
+                <a href="/courier/manifest" class="nav-link active">
+                    <i class="fas fa-list-alt"></i>
+                    <span>المانيفست</span>
+                </a>
+                <a href="/courier/shipment-details" class="nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>تفاصيل الشحنة</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="header-title">مانيفست اليوم</h1>
+                    <p class="header-subtitle">قائمة الشحنات المخصصة للتسليم</p>
+                    <small class="text-muted">السائق</small>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary" id="printManifestBtn">
+                        <i class="fas fa-print"></i>
+                        طباعة المانيفست
+                    </button>
+                    <button class="btn btn-primary" id="startDeliveryBtn">
+                        <i class="fas fa-play"></i>
+                        بدء التسليم
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Manifest Summary -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">مانيفست التسليم - 16 يناير 2024</h5>
+                                <div class="card-actions">
+                                    <span class="badge bg-primary">12 شحنة</span>
+                                    <span class="badge bg-success">8 مكتملة</span>
+                                    <span class="badge bg-warning">4 متبقية</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="manifest-list">
+                                    <div class="manifest-item completed">
+                                        <div class="item-number">1</div>
+                                        <div class="item-info">
+                                            <div class="tracking-number">#123456789</div>
+                                            <div class="recipient-name">أحمد محمد</div>
+                                            <div class="delivery-address">شارع الملك فهد، الرياض</div>
+                                            <div class="delivery-time">09:30 - تم التسليم</div>
+                                        </div>
+                                        <div class="item-status">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="manifest-item completed">
+                                        <div class="item-number">2</div>
+                                        <div class="item-info">
+                                            <div class="tracking-number">#123456790</div>
+                                            <div class="recipient-name">سارة أحمد</div>
+                                            <div class="delivery-address">شارع التحلية، جدة</div>
+                                            <div class="delivery-time">10:15 - تم التسليم</div>
+                                        </div>
+                                        <div class="item-status">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="manifest-item in-progress">
+                                        <div class="item-number">3</div>
+                                        <div class="item-info">
+                                            <div class="tracking-number">#123456791</div>
+                                            <div class="recipient-name">محمد علي</div>
+                                            <div class="delivery-address">شارع العليا، الرياض</div>
+                                            <div class="delivery-time">11:00 - في الطريق</div>
+                                        </div>
+                                        <div class="item-status">
+                                            <i class="fas fa-truck text-primary"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="manifest-item pending">
+                                        <div class="item-number">4</div>
+                                        <div class="item-info">
+                                            <div class="tracking-number">#123456792</div>
+                                            <div class="recipient-name">فاطمة حسن</div>
+                                            <div class="delivery-address">شارع الأمير محمد، الدمام</div>
+                                            <div class="delivery-time">12:30 - مجدول</div>
+                                        </div>
+                                        <div class="item-status">
+                                            <i class="fas fa-clock text-warning"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="manifest-item pending">
+                                        <div class="item-number">5</div>
+                                        <div class="item-info">
+                                            <div class="tracking-number">#123456793</div>
+                                            <div class="recipient-name">علي محمود</div>
+                                            <div class="delivery-address">شارع النخيل، الخبر</div>
+                                            <div class="delivery-time">13:00 - مجدول</div>
+                                        </div>
+                                        <div class="item-status">
+                                            <i class="fas fa-clock text-warning"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Delivery Stats -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">إحصائيات التسليم</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="delivery-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">8</div>
+                                            <div class="stat-label">تم التسليم</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-item">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">1</div>
+                                            <div class="stat-label">في الطريق</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-item">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">3</div>
+                                            <div class="stat-label">متبقية</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-item">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-percentage"></i>
+                                        </div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">67%</div>
+                                            <div class="stat-label">معدل الإنجاز</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Route Information -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title">معلومات المسار</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="route-info">
+                                    <div class="route-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div>
+                                            <div class="route-label">المسافة الإجمالية</div>
+                                            <div class="route-value">45 كم</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="route-item">
+                                        <i class="fas fa-clock"></i>
+                                        <div>
+                                            <div class="route-label">الوقت المتوقع</div>
+                                            <div class="route-value">2.5 ساعة</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="route-item">
+                                        <i class="fas fa-gas-pump"></i>
+                                        <div>
+                                            <div class="route-label">استهلاك الوقود</div>
+                                            <div class="route-value">15 لتر</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="route-item">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        <div>
+                                            <div class="route-label">الأرباح المتوقعة</div>
+                                            <div class="route-value">180 جنيه</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title">إجراءات سريعة</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-actions">
+                                    <button class="btn btn-outline-primary btn-sm view-route-btn" data-shipment-id="TSW-001">
+                                        <i class="fas fa-map"></i>
+                                        عرض المسار
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm mark-delivered-btn" data-shipment-id="TSW-001">
+                                        <i class="fas fa-check"></i>
+                                        تم التسليم
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm report-issue-btn" data-shipment-id="TSW-001">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        إبلاغ عن مشكلة
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm contact-support-btn" data-shipment-id="TSW-001">
+                                        <i class="fas fa-headset"></i>
+                                        الدعم الفني
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Progress -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title">تقدم التسليم</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-timeline">
+                            <div class="timeline-item completed">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">بدء المناوبة</div>
+                                    <div class="timeline-time">08:00</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item completed">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">تسليم الشحنة الأولى</div>
+                                    <div class="timeline-time">09:30</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item completed">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">تسليم الشحنة الثانية</div>
+                                    <div class="timeline-time">10:15</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item active">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">تسليم الشحنة الثالثة</div>
+                                    <div class="timeline-time">11:00 - جاري</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">تسليم الشحنة الرابعة</div>
+                                    <div class="timeline-time">12:30 - قادم</div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">انتهاء المناوبة</div>
+                                    <div class="timeline-time">17:00 - متوقع</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    
+    <script>
+        // Initialize manifest page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeManifestPage();
+        });
+
+        function initializeManifestPage() {
+            // Load manifest data
+            loadManifestData();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        async function loadManifestData() {
+            try {
+                const manifestData = await apiService.getCourierManifest();
+                updateManifest(manifestData);
+            } catch (error) {
+                
+                
+            }
+        }
+
+        function updateManifest(data) {
+            // Update manifest with real data
+            
+        }
+
+        function setupEventListeners() {
+            // Add event listeners for manifest interactions
+        }
+
+        function printManifest() {
+            
+            // This would typically trigger a print dialog
+            setTimeout(() => {
+                
+            }, 2000);
+        }
+
+        function startDelivery() {
+            Swal.fire({
+                title: 'بدء التسليم',
+                text: 'هل تريد بدء جولة التسليم الآن؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'نعم، ابدأ',
+                cancelButtonText: 'إلغاء'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await apiService.startDelivery();
+                        
+                        loadManifestData();
+                    } catch (error) {
+                        
+                    }
+                }
+            });
+        }
+
+        function viewRoute() {
+            
+        }
+
+        function markDelivered() {
+            
+        }
+
+        function reportIssue() {
+            
+        }
+
+        function contactSupport() {
+            
+        }
+    </script>
+
+    <style>
+        .manifest-list {
+            space-y: 15px;
+        }
+
+        .manifest-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .manifest-item.completed {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+        }
+
+        .manifest-item.in-progress {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .manifest-item.pending {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .item-number {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .tracking-number {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .recipient-name {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .delivery-address {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .delivery-time {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .item-status {
+            font-size: 1.5rem;
+        }
+
+        .delivery-stats {
+            space-y: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .route-info {
+            space-y: 15px;
+        }
+
+        .route-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .route-item:last-child {
+            border-bottom: none;
+        }
+
+        .route-item i {
+            color: #3b82f6;
+            font-size: 1.2rem;
+        }
+
+        .route-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .route-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .progress-timeline {
+            position: relative;
+            padding-right: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            right: 7px;
+            top: 20px;
+            bottom: -30px;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-item.completed::before {
+            background: #10b981;
+        }
+
+        .timeline-item.active::before {
+            background: linear-gradient(to bottom, #10b981 0%, #e5e7eb 50%);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #e5e7eb;
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: #10b981;
+            box-shadow: 0 0 0 2px #10b981;
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6;
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-item:not(.completed):not(.active) .timeline-dot {
+            background: #9ca3af;
+            box-shadow: 0 0 0 2px #9ca3af;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        .timeline-content {
+            margin-right: 30px;
+        }
+
+        .timeline-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #1f2937;
+        }
+
+        .timeline-time {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+    </style>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../src/js/shared/NotificationService.js"></script>
+
+    <script src="../src/js/services/auth_service.js"></script>
+    <script src="../src/js/services/api_service.js"></script>
+    <script src="../src/js/app.js"></script>
+    <script src="../src/js/pages/courier-manifest-page.js"></script>
+</body>
+</html>

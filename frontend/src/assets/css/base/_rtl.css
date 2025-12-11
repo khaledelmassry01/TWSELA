@@ -1,0 +1,66 @@
+/* RTL Support */
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .app-sidebar {
+    right: 0;
+    left: auto;
+}
+
+[dir="rtl"] .app-main {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+}
+
+[dir="rtl"] .form-group label {
+    text-align: right;
+}
+
+[dir="rtl"] .alert {
+    padding-right: 1rem;
+    padding-left: 0.5rem;
+}
+
+[dir="rtl"] .alert-icon {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+[dir="rtl"] .table th,
+[dir="rtl"] .table td {
+    text-align: right;
+}
+
+[dir="rtl"] .dropdown-menu {
+    right: 0;
+    left: auto;
+    text-align: right;
+}
+
+[dir="rtl"] .input-group .input-group-prepend {
+    margin-left: -1px;
+    margin-right: 0;
+}
+
+[dir="rtl"] .input-group .input-group-append {
+    margin-right: -1px;
+    margin-left: 0;
+}
+
+[dir="rtl"] .modal-header .close {
+    margin: -1rem auto -1rem -1rem;
+}
+
+[dir="rtl"] .pagination {
+    padding-right: 0;
+}
+
+[dir="rtl"] .page-item:first-child .page-link {
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+[dir="rtl"] .page-item:last-child .page-link {
+    border-radius: 0.25rem 0 0 0.25rem;
+}

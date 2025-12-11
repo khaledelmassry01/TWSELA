@@ -1,0 +1,48 @@
+/* Admin Layout Styles */
+.admin-header {
+    background: var(--primary-gradient);
+    color: var(--white-color);
+    padding: var(--spacing-4);
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+}
+
+.admin-card {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-table-wrapper {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.admin-filters {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+    flex-wrap: wrap;
+}
+
+.admin-pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-4);
+}
+
+/* RTL Support */
+[dir="rtl"] .admin-pagination {
+    justify-content: flex-start;
+}

@@ -1,0 +1,38 @@
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    /* Colors */
+    --primary-color: #7f9cf5;
+    --primary-color-light: #2d3748;
+    --secondary-color: #9f7aea;
+    --success-color: #68d391;
+    --success-color-light: #1a4731;
+    --warning-color: #f6e05e;
+    --warning-color-light: #744210;
+    --danger-color: #fc8181;
+    --danger-color-light: #742a2a;
+    --info-color: #63b3ed;
+    --info-color-light: #2a4365;
+
+    /* Neutral Colors */
+    --white-color: #1a202c;
+    --black-color: #ffffff;
+    --dark-color: #f7fafc;
+    
+    /* Gray Scale */
+    --gray-50: #2d3748;
+    --gray-100: #2d3748;
+    --gray-200: #4a5568;
+    --gray-300: #718096;
+    --gray-400: #a0aec0;
+    --gray-500: #cbd5e0;
+    --gray-600: #e2e8f0;
+    --gray-700: #edf2f7;
+    --gray-800: #f7fafc;
+    --gray-900: #ffffff;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.36);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.34);
+}

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>اتصل بنا - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="contact-page">
+        <!-- Header -->
+        <header class="contact-header">
+            <div class="container">
+                <nav class="navbar">
+                    <div class="navbar-brand">
+                        <a href="/index.html" class="brand-link">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Twsela</span>
+                        </a>
+                    </div>
+                    <div class="navbar-nav">
+                        <a href="/login.html" class="nav-link">تسجيل الدخول</a>
+                        <a href="/contact.html" class="nav-link active">اتصل بنا</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="contact-hero">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="hero-content">
+                            <h1>نحن هنا لمساعدتك</h1>
+                            <p>هل لديك سؤال أو تحتاج إلى مساعدة؟ فريقنا متاح على مدار الساعة لخدمتك. تواصل معنا عبر أي من القنوات المتاحة.</p>
+                            <div class="hero-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">24/7</div>
+                                    <div class="stat-label">دعم فني</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">&lt; 5 دقائق</div>
+                                    <div class="stat-label">وقت الاستجابة</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">98%</div>
+                                    <div class="stat-label">معدل الرضا</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="hero-image">
+                            <div class="placeholder-image placeholder-blue">
+                                Contact Us
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Methods -->
+        <section class="contact-methods">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <h4>اتصل بنا</h4>
+                            <p>تواصل معنا مباشرة عبر الهاتف</p>
+                            <div class="contact-info">
+                                <a href="tel:+966112345678" class="contact-link">
+                                    <i class="fas fa-phone"></i>
+                                    +966 11 234 5678
+                                </a>
+                                <a href="tel:+966501234567" class="contact-link">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    +966 50 123 4567
+                                </a>
+                            </div>
+                            <div class="contact-hours">
+                                <small>متاح من السبت إلى الخميس: 8 صباحاً - 6 مساءً</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h4>راسلنا</h4>
+                            <p>أرسل لنا رسالة وسنرد عليك في أقرب وقت</p>
+                            <div class="contact-info">
+                                <a href="mailto:info@localhost" class="contact-link">
+                                    <i class="fas fa-envelope"></i>
+                                    info@localhost
+                                </a>
+                                <a href="mailto:support@localhost" class="contact-link">
+                                    <i class="fas fa-headset"></i>
+                                    support@localhost
+                                </a>
+                            </div>
+                            <div class="contact-hours">
+                                <small>نرد على جميع الرسائل خلال 24 ساعة</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="contact-card">
+                            <div class="contact-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h4>الدردشة المباشرة</h4>
+                            <p>تحدث معنا مباشرة عبر الدردشة</p>
+                            <div class="contact-info">
+                                <button class="btn btn-primary" id="startChatBtn">
+                                    <i class="fas fa-comment-dots"></i>
+                                    ابدأ المحادثة
+                                </button>
+                            </div>
+                            <div class="contact-hours">
+                                <small>متاح على مدار الساعة</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Form -->
+        <section class="contact-form-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="contact-form-card">
+                            <div class="card-header">
+                                <h3>أرسل لنا رسالة</h3>
+                                <p>املأ النموذج أدناه وسنتواصل معك في أقرب وقت ممكن</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="contactForm" class="contact-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="firstName" class="form-label">الاسم الأول *</label>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="lastName" class="form-label">الاسم الأخير *</label>
+                                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="email" class="form-label">البريد الإلكتروني *</label>
+                                                <input type="email" class="form-control" id="email" name="email" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="phone" class="form-label">رقم الهاتف</label>
+                                                <input type="tel" class="form-control" id="phone" name="phone">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="subject" class="form-label">الموضوع *</label>
+                                        <select class="form-select" id="subject" name="subject" required>
+                                            <option value="">اختر الموضوع</option>
+                                            <option value="general">استفسار عام</option>
+                                            <option value="support">دعم فني</option>
+                                            <option value="billing">الفواتير والدفع</option>
+                                            <option value="partnership">شراكة تجارية</option>
+                                            <option value="feedback">ملاحظات واقتراحات</option>
+                                            <option value="complaint">شكوى</option>
+                                            <option value="other">أخرى</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="priority" class="form-label">الأولوية</label>
+                                        <select class="form-select" id="priority" name="priority">
+                                            <option value="low">منخفضة</option>
+                                            <option value="medium" selected>متوسطة</option>
+                                            <option value="high">عالية</option>
+                                            <option value="urgent">عاجلة</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="message" class="form-label">الرسالة *</label>
+                                        <textarea class="form-control" id="message" name="message" rows="6" placeholder="اكتب رسالتك هنا..." required></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                                            <label class="form-check-label" for="newsletter">
+                                                أريد تلقي النشرة الإخبارية والتحديثات
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-paper-plane"></i>
+                                            إرسال الرسالة
+                                        </button>
+                                        <button type="reset" class="btn btn-outline-secondary btn-lg">
+                                            <i class="fas fa-undo"></i>
+                                            إعادة تعيين
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="section-header text-center">
+                            <h2>الأسئلة الشائعة</h2>
+                            <p>إجابات على أكثر الأسئلة شيوعاً</p>
+                        </div>
+
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        كيف يمكنني تتبع شحنتي؟
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        يمكنك تتبع شحنتك باستخدام رقم التتبع المرفق مع طلبك. أدخل الرقم في صفحة التتبع أو استخدم تطبيقنا المحمول للحصول على تحديثات فورية.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        ما هي أوقات التسليم المتاحة؟
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        نقدم خدمات تسليم متعددة تشمل التسليم السريع (نفس اليوم)، التسليم العادي (1-2 أيام عمل)، والتسليم المجدول. يمكنك اختيار الوقت المناسب لك عند إنشاء الطلب.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        كيف يمكنني إلغاء طلبي؟
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        يمكنك إلغاء طلبك من خلال حسابك الشخصي أو الاتصال بنا مباشرة. يرجى ملاحظة أن رسوم الإلغاء قد تنطبق حسب وقت الإلغاء ونوع الخدمة المختارة.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        ما هي طرق الدفع المتاحة؟
+                                    </button>
+                                </h2>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        نقبل جميع طرق الدفع الرئيسية بما في ذلك البطاقات الائتمانية، المحافظ الإلكترونية، التحويل البنكي، والدفع عند الاستلام في بعض المناطق.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        هل تقدمون خدمة التوصيل الدولي؟
+                                    </button>
+                                </h2>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        نعم، نقدم خدمات التوصيل الدولي إلى معظم دول العالم. يرجى الاتصال بنا للحصول على تفاصيل الأسعار والأوقات المتوقعة للتوصيل الدولي.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Office Locations -->
+        <section class="office-locations">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2>مكاتبنا</h2>
+                    <p>زورونا في أحد مكاتبنا</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="office-card">
+                            <div class="office-image">
+                                <div class="placeholder-image placeholder-blue small">
+                                    Riyadh Office
+                                </div>
+                            </div>
+                            <div class="office-info">
+                                <h4>مكتب الرياض</h4>
+                                <div class="office-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>شارع الملك فهد، الرياض 12345</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>+966 11 234 5678</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>السبت - الخميس: 8 ص - 6 م</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-primary" id="getDirectionsRiyadhBtn" data-city="riyadh">
+                                    <i class="fas fa-directions"></i>
+                                    احصل على الاتجاهات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="office-card">
+                            <div class="office-image">
+                                <div class="placeholder-image placeholder-green small">
+                                    Jeddah Office
+                                </div>
+                            </div>
+                            <div class="office-info">
+                                <h4>مكتب جدة</h4>
+                                <div class="office-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>شارع التحلية، جدة 21432</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>+966 12 345 6789</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>السبت - الخميس: 8 ص - 6 م</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-primary" id="getDirectionsJeddahBtn" data-city="jeddah">
+                                    <i class="fas fa-directions"></i>
+                                    احصل على الاتجاهات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="office-card">
+                            <div class="office-image">
+                                <div class="placeholder-image placeholder-purple small">
+                                    Dammam Office
+                                </div>
+                            </div>
+                            <div class="office-info">
+                                <h4>مكتب الدمام</h4>
+                                <div class="office-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>شارع الملك عبدالعزيز، الدمام 31441</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>+966 13 456 7890</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>السبت - الخميس: 8 ص - 6 م</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-primary" id="getDirectionsDammamBtn" data-city="dammam">
+                                    <i class="fas fa-directions"></i>
+                                    احصل على الاتجاهات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="contact-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="footer-brand">
+                            <div class="brand-logo">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Twsela</span>
+                            </div>
+                            <p>نحن نقدم أفضل خدمات الشحن والتوصيل في المملكة العربية السعودية</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الخدمات</h6>
+                            <ul>
+                                <li><a href="#">الشحن السريع</a></li>
+                                <li><a href="#">الشحن العادي</a></li>
+                                <li><a href="#">الشحن المجدول</a></li>
+                                <li><a href="#">الشحن الدولي</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الدعم</h6>
+                            <ul>
+                                <li><a href="#">مركز المساعدة</a></li>
+                                <li><a href="#">اتصل بنا</a></li>
+                                <li><a href="#">الأسئلة الشائعة</a></li>
+                                <li><a href="#">الدعم الفني</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الشركة</h6>
+                            <ul>
+                                <li><a href="#">من نحن</a></li>
+                                <li><a href="#">الوظائف</a></li>
+                                <li><a href="#">الأخبار</a></li>
+                                <li><a href="#">الشراكات</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>تابعنا</h6>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <p>&copy; 2024 Twsela. جميع الحقوق محفوظة.</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="footer-legal">
+                                <a href="#">سياسة الخصوصية</a>
+                                <a href="#">شروط الاستخدام</a>
+                                <a href="#">ملفات تعريف الارتباط</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/shared/SharedDataUtils.js"></script>
+    <script src="src/js/shared/GlobalUIHandler.js"></script>
+    <script src="src/js/shared/NotificationService.js"></script>
+
+    <script src="src/js/services/auth_service.js"></script>
+    <script src="src/js/services/api_service.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/pages/contact.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+/* Main CSS Entry Point */
+
+/* Import Themes (First to define variables) */
+@import './themes/index.css';
+
+/* Import Base Styles */
+@import './base/index.css';
+
+/* Import Components */
+@import './components/index.css';
+
+/* Import Layouts */
+@import './layouts/index.css';
+
+/* Global Styles */
+html {
+    font-size: 16px;
+    direction: rtl;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.5;
+    color: var(--gray-900);
+    background-color: var(--gray-50);
+}
+
+/* Utility Classes */
+.rtl {
+    direction: rtl;
+}
+
+.ltr {
+    direction: ltr;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}

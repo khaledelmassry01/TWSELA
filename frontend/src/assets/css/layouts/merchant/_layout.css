@@ -1,0 +1,78 @@
+/* Merchant Layout Styles */
+.merchant-dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-4);
+}
+
+.merchant-orders-list {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.merchant-sidebar {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    height: fit-content;
+}
+
+.merchant-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+}
+
+.merchant-stat-card {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.merchant-filters {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+    flex-wrap: wrap;
+}
+
+.merchant-order-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-6);
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .merchant-dashboard {
+        grid-template-columns: 1fr;
+    }
+    
+    .merchant-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .merchant-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* RTL Support */
+[dir="rtl"] .merchant-filters {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .merchant-order-form {
+    text-align: right;
+}

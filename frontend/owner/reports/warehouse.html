@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>تقرير المستودع - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../../src/css/styles.css" rel="stylesheet">
+    <link href="../../../src/css/main.css" rel="stylesheet">
+    <link href="../../../src/css/twsela-design.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/owner/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/owner/shipments" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/owner/employees" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+                <a href="/owner/merchants.html" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>التجار</span>
+                </a>
+                <a href="/owner/zones" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/owner/pricing" class="nav-link">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>التسعير</span>
+                </a>
+                <a href="/owner/reports" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="header-title">تقرير المستودع</h1>
+                    <p class="header-subtitle">تحليل أداء المستودع والعمليات</p>
+                    <small class="text-muted">المالك</small>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary" id="exportReportCsvBtn" data-format="csv">
+                        <i class="fas fa-file-csv"></i>
+                        تصدير CSV
+                    </button>
+                    <button class="btn btn-outline-primary" id="exportReportPdfBtn" data-format="pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        تصدير PDF
+                    </button>
+                    <button class="btn btn-primary" id="refreshReportBtn">
+                        <i class="fas fa-sync"></i>
+                        تحديث التقرير
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Filter Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">فلترة البيانات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="dateFrom" class="form-label">من تاريخ</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateTo" class="form-label">إلى تاريخ</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="warehouseSelect" class="form-label">المستودع</label>
+                                <select class="form-select" id="warehouseSelect">
+                                    <option value="">جميع المستودعات</option>
+                                    <option value="1">مستودع الرياض</option>
+                                    <option value="2">مستودع جدة</option>
+                                    <option value="3">مستودع الدمام</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="operationSelect" class="form-label">نوع العملية</label>
+                                <select class="form-select" id="operationSelect">
+                                    <option value="">جميع العمليات</option>
+                                    <option value="receive">استلام</option>
+                                    <option value="dispatch">إرسال</option>
+                                    <option value="inventory">جرد</option>
+                                    <option value="reconcile">مطابقة</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="applyFiltersBtn">
+                                    <i class="fas fa-filter"></i>
+                                    تطبيق الفلاتر
+                                </button>
+                                <button class="btn btn-outline-secondary" id="clearFiltersBtn">
+                                    <i class="fas fa-times"></i>
+                                    مسح الفلاتر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card blue" data-card="0">
+                        <div class="stat-label">إجمالي الشحنات المستلمة</div>
+                        <div class="stat-value">1,245</div>
+                        <div class="stat-icon blue">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +15%
+                        </div>
+                    </div>
+
+                    <div class="stat-card green" data-card="1">
+                        <div class="stat-label">الشحنات المرسلة</div>
+                        <div class="stat-value">1,198</div>
+                        <div class="stat-icon green">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +12%
+                        </div>
+                    </div>
+
+                    <div class="stat-card orange" data-card="2">
+                        <div class="stat-label">الشحنات في المستودع</div>
+                        <div class="stat-value">47</div>
+                        <div class="stat-icon orange">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            -3%
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple" data-card="3">
+                        <div class="stat-label">معدل الكفاءة</div>
+                        <div class="stat-value">96.2%</div>
+                        <div class="stat-icon purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +2%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">أداء المستودع - العمليات اليومية</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="warehouseOperationsChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">توزيع العمليات</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="operationsDistributionChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warehouse Performance -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">أداء المستودعات</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="warehouse-performance">
+                                    <div class="warehouse-item">
+                                        <div class="warehouse-info">
+                                            <div class="warehouse-name">مستودع الرياض</div>
+                                            <div class="warehouse-location">الرياض، المملكة العربية السعودية</div>
+                                        </div>
+                                        <div class="warehouse-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-label">الشحنات</span>
+                                                <span class="stat-value">456</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">الكفاءة</span>
+                                                <span class="stat-value">98.5%</span>
+                                            </div>
+                                        </div>
+                                        <div class="warehouse-status">
+                                            <span class="badge bg-success">ممتاز</span>
+                                        </div>
+                                    </div>
+                                    <div class="warehouse-item">
+                                        <div class="warehouse-info">
+                                            <div class="warehouse-name">مستودع جدة</div>
+                                            <div class="warehouse-location">جدة، المملكة العربية السعودية</div>
+                                        </div>
+                                        <div class="warehouse-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-label">الشحنات</span>
+                                                <span class="stat-value">389</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">الكفاءة</span>
+                                                <span class="stat-value">94.2%</span>
+                                            </div>
+                                        </div>
+                                        <div class="warehouse-status">
+                                            <span class="badge bg-warning">جيد</span>
+                                        </div>
+                                    </div>
+                                    <div class="warehouse-item">
+                                        <div class="warehouse-info">
+                                            <div class="warehouse-name">مستودع الدمام</div>
+                                            <div class="warehouse-location">الدمام، المملكة العربية السعودية</div>
+                                        </div>
+                                        <div class="warehouse-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-label">الشحنات</span>
+                                                <span class="stat-value">400</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">الكفاءة</span>
+                                                <span class="stat-value">96.8%</span>
+                                            </div>
+                                        </div>
+                                        <div class="warehouse-status">
+                                            <span class="badge bg-success">ممتاز</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">تحليل الأخطاء والمشاكل</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="errorsChart" height="250"></canvas>
+                                <div class="mt-3">
+                                    <div class="error-item">
+                                        <div class="error-type">
+                                            <i class="fas fa-exclamation-triangle text-warning"></i>
+                                            <span>تأخير في المعالجة</span>
+                                        </div>
+                                        <div class="error-count">12</div>
+                                    </div>
+                                    <div class="error-item">
+                                        <div class="error-type">
+                                            <i class="fas fa-times-circle text-danger"></i>
+                                            <span>أخطاء في التصنيف</span>
+                                        </div>
+                                        <div class="error-count">8</div>
+                                    </div>
+                                    <div class="error-item">
+                                        <div class="error-type">
+                                            <i class="fas fa-question-circle text-info"></i>
+                                            <span>مشاكل في التتبع</span>
+                                        </div>
+                                        <div class="error-count">5</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Table -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title">تفاصيل عمليات المستودع</h5>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-primary btn-sm" id="exportTableBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير الجدول
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table" id="warehouseTable">
+                                <thead>
+                                    <tr>
+                                        <th>الوقت</th>
+                                        <th>نوع العملية</th>
+                                        <th>رقم الشحنة</th>
+                                        <th>المستودع</th>
+                                        <th>الموظف</th>
+                                        <th>الحالة</th>
+                                        <th>الملاحظات</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-01-16 09:30</td>
+                                        <td><span class="badge bg-primary">استلام</span></td>
+                                        <td>#123456789</td>
+                                        <td>مستودع الرياض</td>
+                                        <td>أحمد محمد</td>
+                                        <td><span class="badge bg-success">مكتمل</span></td>
+                                        <td>تم الاستلام بنجاح</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn view" data-id="1" title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn edit" data-id="1" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-01-16 09:15</td>
+                                        <td><span class="badge bg-success">إرسال</span></td>
+                                        <td>#123456788</td>
+                                        <td>مستودع الرياض</td>
+                                        <td>سارة أحمد</td>
+                                        <td><span class="badge bg-success">مكتمل</span></td>
+                                        <td>تم الإرسال بنجاح</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn view" data-id="2" title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn edit" data-id="2" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-01-16 08:45</td>
+                                        <td><span class="badge bg-warning">جرد</span></td>
+                                        <td>#123456787</td>
+                                        <td>مستودع جدة</td>
+                                        <td>محمد علي</td>
+                                        <td><span class="badge bg-warning">قيد المعالجة</span></td>
+                                        <td>جرد دوري</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn view" data-id="3" title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn edit" data-id="3" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-01-16 08:30</td>
+                                        <td><span class="badge bg-info">مطابقة</span></td>
+                                        <td>#123456786</td>
+                                        <td>مستودع الدمام</td>
+                                        <td>فاطمة حسن</td>
+                                        <td><span class="badge bg-success">مكتمل</span></td>
+                                        <td>تمت المطابقة بنجاح</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn view" data-id="4" title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn edit" data-id="4" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="pagination-info">
+                                <span class="text-muted">عرض 1-4 من 1,245 عملية</span>
+                            </div>
+                            <div class="pagination">
+                                <button class="page-btn" disabled>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Operation Details Modal -->
+    <div class="modal fade" id="operationDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تفاصيل العملية</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>معلومات العملية</h6>
+                            <p><strong>نوع العملية:</strong> استلام</p>
+                            <p><strong>رقم الشحنة:</strong> #123456789</p>
+                            <p><strong>المستودع:</strong> مستودع الرياض</p>
+                            <p><strong>الموظف:</strong> أحمد محمد</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>التوقيت</h6>
+                            <p><strong>وقت البداية:</strong> 2024-01-16 09:30</p>
+                            <p><strong>وقت الانتهاء:</strong> 2024-01-16 09:35</p>
+                            <p><strong>المدة:</strong> 5 دقائق</p>
+                            <p><strong>الحالة:</strong> <span class="badge bg-success">مكتمل</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6>الملاحظات</h6>
+                        <p>تم استلام الشحنة بنجاح وفحصها. جميع العناصر سليمة ومطابقة للبيانات المسجلة.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary">تعديل العملية</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../../src/js/shared/NotificationService.js"></script>
+
+    <script src="../../../src/js/services/auth_service.js"></script>
+    <script src="../../../src/js/services/api_service.js"></script>
+    <script src="../../../src/js/app.js"></script>
+    <script src="../../../src/js/pages/owner-reports-warehouse-page.js"></script>
+    
+    <script>
+        // Initialize warehouse report page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWarehouseReportPage();
+        });
+
+        function initializeWarehouseReportPage() {
+            // Load warehouse data
+            loadWarehouseData();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        async function loadWarehouseData() {
+            try {
+                const operations = await apiService.getWarehouseOperations();
+                updateWarehouseTable(operations);
+            } catch (error) {
+                
+                
+            }
+        }
+
+        function updateWarehouseTable(operations) {
+            const tbody = document.querySelector('#warehouseTable tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            
+            operations.forEach(operation => {
+                const row = createOperationRow(operation);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createOperationRow(operation) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${operation.timestamp}</td>
+                <td><span class="badge bg-${getOperationBadgeClass(operation.type)}">${getOperationText(operation.type)}</span></td>
+                <td>${operation.shipmentNumber}</td>
+                <td>${operation.warehouse}</td>
+                <td>${operation.employee}</td>
+                <td><span class="badge bg-${getStatusBadgeClass(operation.status)}">${getStatusText(operation.status)}</span></td>
+                <td>${operation.notes || '-'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn view" data-id="${operation.id}" title="عرض التفاصيل">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit" data-id="${operation.id}" title="تعديل">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            return row;
+        }
+
+        function getOperationBadgeClass(type) {
+            const typeMap = {
+                'RECEIVE': 'primary',
+                'DISPATCH': 'success',
+                'INVENTORY': 'warning',
+                'RECONCILE': 'info'
+            };
+            return typeMap[type] || 'secondary';
+        }
+
+        function getOperationText(type) {
+            const typeMap = {
+                'RECEIVE': 'استلام',
+                'DISPATCH': 'إرسال',
+                'INVENTORY': 'جرد',
+                'RECONCILE': 'مطابقة'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                'COMPLETED': 'success',
+                'IN_PROGRESS': 'warning',
+                'PENDING': 'info',
+                'FAILED': 'danger'
+            };
+            return statusMap[status] || 'secondary';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'COMPLETED': 'مكتمل',
+                'IN_PROGRESS': 'قيد المعالجة',
+                'PENDING': 'معلق',
+                'FAILED': 'فشل'
+            };
+            return statusMap[status] || status;
+        }
+
+        function initializeCharts() {
+            // Warehouse Operations Chart
+            const operationsCtx = document.getElementById('warehouseOperationsChart');
+            if (operationsCtx) {
+                // Load warehouse operations data from API
+                const operationsData = await loadWarehouseOperationsData();
+                
+                new Chart(operationsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: operationsData.labels || [],
+                        datasets: [{
+                            label: 'استلام',
+                            data: operationsData.receiving || [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'إرسال',
+                            data: operationsData.shipping || [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'جرد',
+                            data: operationsData.inventory || [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Operations Distribution Chart
+            const distributionCtx = document.getElementById('operationsDistributionChart');
+            if (distributionCtx) {
+                // Load operations distribution data from API
+                const distributionData = await loadOperationsDistributionData();
+                
+                new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: distributionData.labels || [],
+                        datasets: [{
+                            data: distributionData.values || [],
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Errors Chart
+            const errorsCtx = document.getElementById('errorsChart');
+            if (errorsCtx) {
+                // Load errors data from API
+                const errorsData = await loadErrorsData();
+                
+                new Chart(errorsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: errorsData.labels || [],
+                        datasets: [{
+                            label: 'عدد الأخطاء',
+                            data: errorsData.values || [],
+                            backgroundColor: ['#f59e0b', '#ef4444', '#3b82f6', '#6b7280']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // API Data Loading Functions
+        async function loadWarehouseOperationsData() {
+            try {
+                const response = await window.apiService.getWarehouseOperationsData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], receiving: [], shipping: [], inventory: [] };
+        }
+
+        async function loadOperationsDistributionData() {
+            try {
+                const response = await window.apiService.getOperationsDistributionData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], values: [] };
+        }
+
+        async function loadErrorsData() {
+            try {
+                const response = await window.apiService.getErrorsData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], values: [] };
+        }
+
+        function setupEventListeners() {
+            // Action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn.view')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    viewOperationDetails(id);
+                } else if (e.target.closest('.action-btn.edit')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    editOperation(id);
+                }
+            });
+        }
+
+        function viewOperationDetails(id) {
+            const modal = new bootstrap.Modal(document.getElementById('operationDetailsModal'));
+            modal.show();
+        }
+
+        function editOperation(id) {
+            
+            
+        }
+
+        function applyFilters() {
+            const filters = {
+                dateFrom: document.getElementById('dateFrom').value,
+                dateTo: document.getElementById('dateTo').value,
+                warehouse: document.getElementById('warehouseSelect').value,
+                operation: document.getElementById('operationSelect').value
+            };
+            
+            
+            
+            loadWarehouseData();
+        }
+
+        function clearFilters() {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            document.getElementById('warehouseSelect').value = '';
+            document.getElementById('operationSelect').value = '';
+            
+            loadWarehouseData();
+        }
+
+        function exportReport(format) {
+            showNotification(`جاري تصدير التقرير بصيغة ${format.toUpperCase()}...`, 'info');
+            // This would typically call an API to export the report
+            setTimeout(() => {
+                
+            }, 2000);
+        }
+
+        function exportTable() {
+            
+            // This would typically call an API to export the table
+            setTimeout(() => {
+                
+            }, 2000);
+        }
+
+        function refreshReport() {
+            
+            loadWarehouseData();
+            setTimeout(() => {
+                
+            }, 1000);
+        }
+    </script>
+
+    <style>
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .warehouse-performance {
+            space-y: 15px;
+        }
+
+        .warehouse-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .warehouse-info {
+            flex: 1;
+        }
+
+        .warehouse-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .warehouse-location {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .warehouse-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .error-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .error-item:last-child {
+            border-bottom: none;
+        }
+
+        .error-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-count {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .page-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</body>
+</html>

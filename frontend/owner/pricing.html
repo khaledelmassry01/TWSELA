@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>إدارة الأسعار - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/owner/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/owner/shipments" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/owner/employees" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+                <a href="/owner/merchants.html" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>التجار</span>
+                </a>
+                <a href="/owner/zones" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/owner/pricing" class="nav-link active">
+                    <i class="fas fa-tags"></i>
+                    <span>الأسعار</span>
+                </a>
+                <a href="/owner/reports" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="header-title">إدارة الأسعار</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="البحث في الأسعار...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-filter"></i>
+                        فلتر
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPricingPlanModal">
+                        <i class="fas fa-plus"></i>
+                        خطة تسعير جديدة
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Global Pricing Rules -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">قواعد التسعير العامة</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="globalPricingForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="baseDeliveryFee" class="form-label">رسوم التسليم الأساسية (جنيه)</label>
+                                        <input type="number" class="form-control" id="baseDeliveryFee" name="baseDeliveryFee" value="15.00" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="additionalWeightFee" class="form-label">رسوم الوزن الإضافي</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="additionalWeightFee" name="additionalWeightFee" value="5.00" step="0.01">
+                                            <button class="btn btn-outline-secondary" type="button">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="additionalWeightFeePerKg" class="form-label">رسوم الوزن الإضافي (جنيه/كيلو)</label>
+                                        <input type="number" class="form-control" id="additionalWeightFeePerKg" name="additionalWeightFeePerKg" value="2.50" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="serviceFee" class="form-label">رسوم الخدمة (رسوم CSAMI)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="serviceFee" name="serviceFee" value="5.00" step="0.01">
+                                            <button class="btn btn-outline-secondary" type="button">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="deliveryTime" class="form-label">أوقات التسليم</label>
+                                        <input type="number" class="form-control" id="deliveryTime" name="deliveryTime" value="5.00" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" id="saveGlobalRulesBtn">
+                                    <i class="fas fa-save"></i>
+                                    حفظ القواعد العامة
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Custom Pricing Plans -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">خطط التسعير المخصصة</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table" id="pricingPlansTable">
+                                <thead>
+                                    <tr>
+                                        <th>اسم المنطقة</th>
+                                        <th>المنطقة</th>
+                                        <th>الرسوم الأساسية (جنيه)</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="plan-icon me-2">
+                                                    <i class="fas fa-tag"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">1 الخطة القياسية</div>
+                                                    <small class="text-muted">Standard Plan</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">الكل</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">-</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-text active">
+                                                <span class="status-dot active"></span>
+                                                نشط
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn edit" data-id="1" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="action-btn delete" data-id="1" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="plan-icon me-2">
+                                                    <i class="fas fa-tag"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">2 خطة سريعة</div>
+                                                    <small class="text-muted">Express Plan</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="status-text delivered">
+                                                <span class="status-dot delivered"></span>
+                                                المنطقة الوسطى
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">L</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">L</span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn edit" data-id="2" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="action-btn delete" data-id="2" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="plan-icon me-2">
+                                                    <i class="fas fa-tag"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">4 CoRTIUER_UFDrieT</div>
+                                                    <small class="text-muted">Custom Plan</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="status-text delivered">
+                                                <span class="status-dot delivered"></span>
+                                                المنطقة الشمالية
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-text pending">
+                                                <span class="status-dot pending"></span>
+                                                معلق
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="status-dot pending"></span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn edit" data-id="3" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="action-btn delete" data-id="3" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Actions -->
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Pricing Plan Modal -->
+    <div class="modal fade" id="addPricingPlanModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة خطة تسعير جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPricingPlanForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="planName" class="form-label">اسم الخطة</label>
+                                    <input type="text" class="form-control" id="planName" name="planName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="planType" class="form-label">نوع الخطة</label>
+                                    <select class="form-control" id="planType" name="planType" required>
+                                        <option value="">اختر نوع الخطة</option>
+                                        <option value="STANDARD">قياسي</option>
+                                        <option value="EXPRESS">سريع</option>
+                                        <option value="PREMIUM">مميز</option>
+                                        <option value="CUSTOM">مخصص</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="zoneId" class="form-label">المنطقة</label>
+                                    <select class="form-control" id="zoneId" name="zoneId" required>
+                                        <option value="">اختر المنطقة</option>
+                                        <option value="all">الكل</option>
+                                        <option value="central">المنطقة الوسطى</option>
+                                        <option value="north">المنطقة الشمالية</option>
+                                        <option value="south">المنطقة الجنوبية</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="baseFee" class="form-label">الرسوم الأساسية (جنيه)</label>
+                                    <input type="number" class="form-control" id="baseFee" name="baseFee" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="weightFee" class="form-label">رسوم الوزن (جنيه/كيلو)</label>
+                                    <input type="number" class="form-control" id="weightFee" name="weightFee" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="status" class="form-label">الحالة</label>
+                                    <select class="form-control" id="status" name="status" required>
+                                        <option value="ACTIVE">نشط</option>
+                                        <option value="INACTIVE">غير نشط</option>
+                                        <option value="PENDING">معلق</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="description" class="form-label">الوصف</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="addPricingPlanBtn">إضافة خطة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Pricing Plan Modal -->
+    <div class="modal fade" id="editPricingPlanModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعديل خطة التسعير</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPricingPlanForm">
+                        <input type="hidden" id="editPlanId" name="planId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editPlanName" class="form-label">اسم الخطة</label>
+                                    <input type="text" class="form-control" id="editPlanName" name="planName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editPlanType" class="form-label">نوع الخطة</label>
+                                    <select class="form-control" id="editPlanType" name="planType" required>
+                                        <option value="STANDARD">قياسي</option>
+                                        <option value="EXPRESS">سريع</option>
+                                        <option value="PREMIUM">مميز</option>
+                                        <option value="CUSTOM">مخصص</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editZoneId" class="form-label">المنطقة</label>
+                                    <select class="form-control" id="editZoneId" name="zoneId" required>
+                                        <option value="all">الكل</option>
+                                        <option value="central">المنطقة الوسطى</option>
+                                        <option value="north">المنطقة الشمالية</option>
+                                        <option value="south">المنطقة الجنوبية</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editBaseFee" class="form-label">الرسوم الأساسية (جنيه)</label>
+                                    <input type="number" class="form-control" id="editBaseFee" name="baseFee" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editWeightFee" class="form-label">رسوم الوزن (جنيه/كيلو)</label>
+                                    <input type="number" class="form-control" id="editWeightFee" name="weightFee" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="editStatus" class="form-label">الحالة</label>
+                                    <select class="form-control" id="editStatus" name="status" required>
+                                        <option value="ACTIVE">نشط</option>
+                                        <option value="INACTIVE">غير نشط</option>
+                                        <option value="PENDING">معلق</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="editDescription" class="form-label">الوصف</label>
+                                    <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="updatePricingPlanBtn">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../src/js/shared/NotificationService.js"></script>
+    <script src="../src/js/shared/BasePageHandler.js"></script>
+    <script src="../src/js/services/auth_service.js"></script>
+    <script src="../src/js/services/api_service.js"></script>
+    <script src="../src/js/app.js"></script>
+    <script src="../src/js/pages/owner-pricing-page.js"></script>
+    
+    <script>
+        // Initialize pricing page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePricingPage();
+        });
+
+        function initializePricingPage() {
+            // Load pricing data
+            loadPricingData();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        async function loadPricingData() {
+            try {
+                // Load global pricing rules
+                loadGlobalPricingRules();
+                
+                // Load custom pricing plans
+                loadCustomPricingPlans();
+            } catch (error) {
+                
+                
+            }
+        }
+
+        function loadGlobalPricingRules() {
+            // Load global pricing rules from API or local storage
+            // This would typically come from an API call
+            
+        }
+
+        function loadCustomPricingPlans() {
+            // Load custom pricing plans from API
+            // This would typically come from an API call
+            
+        }
+
+        function setupEventListeners() {
+            // Action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn.edit')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    editPricingPlan(id);
+                } else if (e.target.closest('.action-btn.delete')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    deletePricingPlan(id);
+                }
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value;
+                    filterPricingPlans(searchTerm);
+                });
+            }
+        }
+
+        function editPricingPlan(id) {
+            // Load plan data and populate edit form
+            loadPlanForEdit(id);
+            const modal = new bootstrap.Modal(document.getElementById('editPricingPlanModal'));
+            modal.show();
+        }
+
+        async function loadPlanForEdit(id) {
+            try {
+                // This would typically load plan data from API
+                
+            } catch (error) {
+                
+            }
+        }
+
+        function deletePricingPlan(id) {
+            Swal.fire({
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف خطة التسعير هذه؟ لا يمكن التراجع عن هذا الإجراء.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // This would typically call an API to delete the plan
+                        
+                        
+                        loadPricingData();
+                    } catch (error) {
+                        
+                    }
+                }
+            });
+        }
+
+        function filterPricingPlans(searchTerm) {
+            const rows = document.querySelectorAll('#pricingPlansTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const matches = text.includes(searchTerm.toLowerCase());
+                row.style.display = matches ? '' : 'none';
+            });
+        }
+
+        async function saveGlobalRules() {
+            const form = document.getElementById('globalPricingForm');
+            const formData = new FormData(form);
+            
+            const globalRules = {
+                baseDeliveryFee: parseFloat(formData.get('baseDeliveryFee')),
+                additionalWeightFee: parseFloat(formData.get('additionalWeightFee')),
+                additionalWeightFeePerKg: parseFloat(formData.get('additionalWeightFeePerKg')),
+                serviceFee: parseFloat(formData.get('serviceFee')),
+                deliveryTime: parseFloat(formData.get('deliveryTime'))
+            };
+
+            try {
+                // This would typically call an API to save global rules
+                
+                
+            } catch (error) {
+                
+            }
+        }
+
+        async function addPricingPlan() {
+            const form = document.getElementById('addPricingPlanForm');
+            const formData = new FormData(form);
+            
+            const planData = {
+                name: formData.get('planName'),
+                type: formData.get('planType'),
+                zoneId: formData.get('zoneId'),
+                baseFee: parseFloat(formData.get('baseFee')),
+                weightFee: parseFloat(formData.get('weightFee')) || 0,
+                status: formData.get('status'),
+                description: formData.get('description')
+            };
+
+            try {
+                // This would typically call an API to create the plan
+                
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addPricingPlanModal'));
+                modal.hide();
+                form.reset();
+                loadPricingData();
+            } catch (error) {
+                
+            }
+        }
+
+        async function updatePricingPlan() {
+            const form = document.getElementById('editPricingPlanForm');
+            const formData = new FormData(form);
+            
+            const planData = {
+                name: formData.get('planName'),
+                type: formData.get('planType'),
+                zoneId: formData.get('zoneId'),
+                baseFee: parseFloat(formData.get('baseFee')),
+                weightFee: parseFloat(formData.get('weightFee')) || 0,
+                status: formData.get('status'),
+                description: formData.get('description')
+            };
+
+            try {
+                // This would typically call an API to update the plan
+                
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editPricingPlanModal'));
+                modal.hide();
+                form.reset();
+                loadPricingData();
+            } catch (error) {
+                
+            }
+        }
+    </script>
+
+    <style>
+        .plan-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group .btn {
+            border-color: #d1d5db;
+        }
+
+        .input-group .btn:hover {
+            background-color: #f9fafb;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>إنشاء شحنة جديدة - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/merchant/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/merchant/create-shipment" class="nav-link active">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء شحنة</span>
+                </a>
+                <a href="/merchant/shipments" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/merchant/shipment-details" class="nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>تفاصيل الشحنة</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إنشاء شحنة جديدة</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">التاجر</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+
+                <!-- Create Shipment Form -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>تفاصيل الشحنة</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="createShipmentForm" class="needs-validation" novalidate>
+                            <!-- Recipient Information -->
+                            <div class="form-section">
+                                <h4 class="section-title">معلومات المستلم</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="recipientName" class="form-label">اسم المستلم *</label>
+                                            <input type="text" class="form-control" id="recipientName" name="recipientName" required>
+                                            <div class="invalid-feedback">يرجى إدخال اسم المستلم</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="recipientPhone" class="form-label">رقم هاتف المستلم *</label>
+                                            <input type="tel" class="form-control" id="recipientPhone" name="recipientPhone" required>
+                                            <div class="invalid-feedback">يرجى إدخال رقم هاتف المستلم</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="address" class="form-label">عنوان المستلم *</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                    <div class="invalid-feedback">يرجى إدخال عنوان المستلم</div>
+                                </div>
+                            </div>
+
+                            <!-- Package Information -->
+                            <div class="form-section">
+                                <h4 class="section-title">معلومات الطرد</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="itemDescription" class="form-label">وصف الطرد *</label>
+                                            <input type="text" class="form-control" id="itemDescription" name="itemDescription" required>
+                                            <div class="invalid-feedback">يرجى إدخال وصف الطرد</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="weight" class="form-label">الوزن (كيلو) *</label>
+                                            <input type="number" class="form-control" id="weight" name="weight" step="0.1" min="0" required>
+                                            <div class="invalid-feedback">يرجى إدخال وزن الطرد</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Information -->
+                            <div class="form-section">
+                                <h4 class="section-title">معلومات الدفع</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="itemValue" class="form-label">قيمة الطرد (جنيه)</label>
+                                            <input type="number" class="form-control" id="itemValue" name="itemValue" step="0.01" min="0">
+                                            <small class="form-text text-muted">سيتم استخدام هذه القيمة لحساب مبلغ COD</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="codAmount" class="form-label">مبلغ COD (جنيه)</label>
+                                            <input type="number" class="form-control" id="codAmount" name="codAmount" step="0.01" min="0" readonly>
+                                            <small class="form-text text-muted">يتم حسابه تلقائياً من قيمة الطرد</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="shippingFeePaidBy" class="form-label">من يدفع رسوم الشحن *</label>
+                                    <select class="form-select" id="shippingFeePaidBy" name="shippingFeePaidBy" required>
+                                        <option value="">اختر من يدفع الرسوم</option>
+                                        <option value="MERCHANT">التاجر</option>
+                                        <option value="RECIPIENT">المستلم</option>
+                                    </select>
+                                    <div class="invalid-feedback">يرجى اختيار من يدفع رسوم الشحن</div>
+                                </div>
+                            </div>
+
+                            <!-- Zone Selection -->
+                            <div class="form-section">
+                                <h4 class="section-title">المنطقة والتسعير</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="zoneId" class="form-label">المنطقة *</label>
+                                            <select class="form-select" id="zoneId" name="zoneId" required>
+                                                <option value="">اختر المنطقة</option>
+                                            </select>
+                                            <div class="invalid-feedback">يرجى اختيار المنطقة</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="shippingFee" class="form-label">رسوم الشحن</label>
+                                            <input type="text" class="form-control" id="shippingFee" readonly>
+                                            <small class="form-text text-muted">رسوم الشحن الأساسية</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="codFee" class="form-label">رسوم الدفع عند الاستلام</label>
+                                            <input type="text" class="form-control" id="codFee" readonly>
+                                            <small class="form-text text-muted">رسوم COD</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="totalFee" class="form-label">إجمالي الرسوم</label>
+                                            <input type="text" class="form-control" id="totalFee" readonly>
+                                            <small class="form-text text-muted">المجموع الكلي</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="weightDisplay" class="form-label">الوزن المحدد</label>
+                                            <input type="text" class="form-control" id="weightDisplay" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="codAmountDisplay" class="form-label">مبلغ COD المحدد</label>
+                                            <input type="text" class="form-control" id="codAmountDisplay" readonly>
+                                        </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="form-section">
+                                <h4 class="section-title">معلومات إضافية</h4>
+                                <div class="form-group">
+                                    <label for="specialInstructions" class="form-label">تعليمات خاصة</label>
+                                    <textarea class="form-control" id="specialInstructions" name="specialInstructions" rows="3"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <a href="/merchant/dashboard" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <span>إلغاء</span>
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span>إنشاء الشحنة</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../src/js/shared/NotificationService.js"></script>
+
+    <script src="../src/js/services/auth_service.js"></script>
+    <script src="../src/js/services/api_service.js"></script>
+    <script src="../src/js/app.js"></script>
+    <script src="../src/js/pages/merchant-create-shipment.js"></script>
+</body>
+</html>

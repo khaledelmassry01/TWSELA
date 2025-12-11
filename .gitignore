@@ -1,0 +1,121 @@
+# Twsela - Ignore Files
+
+# Backend (Java/Maven)
+twsela/target/
+twsela/.mvn/
+twsela/mvnw
+twsela/mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.ctxt
+.mtj.tmp/
+hs_err_pid*
+
+# Frontend (Node/NPM)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+node_modules/
+dist/
+.vite/
+
+# Build outputs
+target/
+build/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.project
+.classpath
+.factorypath
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+twsela/.env
+twsela/.env.local
+twsela/.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+twsela/logs/
+frontend/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database
+*.db
+*.sqlite
+*.sql
+
+# Certificates and Keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+ssl/
+twsela/ssl/
+
+# Backup files
+*.bak
+*.backup
+*.old
+backup/*.sql
+backup/*.tar.gz
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Package files
+*.tgz
+
+# Redis
+dump.rdb
+
+# Docker
+.dockerignore
+
+# Monitoring
+monitoring/data/
+prometheus/data/
+grafana/data/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Testing
+.jest/
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Application specific
+uploaded_files/
+generated_reports/

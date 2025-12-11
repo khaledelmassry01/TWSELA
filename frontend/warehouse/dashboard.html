@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>لوحة تحكم المستودع - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/warehouse/dashboard.html" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/warehouse/incoming.html" class="nav-link">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>الشحنات الواردة</span>
+                </a>
+                <a href="/warehouse/outgoing.html" class="nav-link">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>الشحنات الصادرة</span>
+                </a>
+                <a href="/warehouse/inventory.html" class="nav-link">
+                    <i class="fas fa-boxes"></i>
+                    <span>المخزون</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">لوحة تحكم المستودع</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">مدير المستودع</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-success quick-action-btn" data-action="processIncoming">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>معالجة الوارد</span>
+                    </button>
+                    <button class="btn btn-primary quick-action-btn" data-action="releaseOutgoing">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>إطلاق الصادر</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="generateReport">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>إنشاء تقرير</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="updateInventory">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>تحديث المخزون</span>
+                    </button>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">إجمالي الوارد</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">إجمالي الصادر</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">قيد المعالجة</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">عدد المخزون</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Incoming Shipments -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>الشحنات الواردة</h3>
+                            <div class="card-actions">
+                                <input type="text" class="form-control search-input" placeholder="البحث..." data-table="incomingShipmentsTable">
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="table" id="incomingShipmentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>رقم التتبع</th>
+                                            <th>التاجر</th>
+                                            <th>المستلم</th>
+                                            <th>الحالة</th>
+                                            <th>تاريخ الإنشاء</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Incoming shipments data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outgoing Shipments -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>الشحنات الصادرة</h3>
+                            <div class="card-actions">
+                                <input type="text" class="form-control search-input" placeholder="البحث..." data-table="outgoingShipmentsTable">
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="table" id="outgoingShipmentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>رقم التتبع</th>
+                                            <th>المستلم</th>
+                                            <th>السائق</th>
+                                            <th>الحالة</th>
+                                            <th>تاريخ التحديث</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Outgoing shipments data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>المخزون</h3>
+                            <div class="card-actions">
+                                <input type="text" class="form-control search-input" placeholder="البحث..." data-table="inventoryTable">
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="table" id="inventoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>رقم التتبع</th>
+                                            <th>التاجر</th>
+                                            <th>المستلم</th>
+                                            <th>الحالة</th>
+                                            <th>تاريخ الاستلام</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Inventory data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>النشاط الأخير</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="activity-list" id="recentActivity">
+                                <!-- Activity data will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/app.js"></script>
+</body>
+</html>

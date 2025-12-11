@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>لوحة تحكم التاجر - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/merchant/dashboard.html" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/merchant/create-shipment.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء شحنة</span>
+                </a>
+                <a href="/merchant/shipments.html" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/merchant/shipment-details.html" class="nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>تفاصيل الشحنة</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">لوحة تحكم التاجر</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">التاجر</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-primary quick-action-btn" data-action="createShipment">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>إنشاء شحنة</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="viewShipments">
+                        <i class="fas fa-shipping-fast"></i>
+                        <span>عرض الشحنات</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="viewReports">
+                        <i class="fas fa-chart-line"></i>
+                        <span>عرض التقارير</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="manageProfile">
+                        <i class="fas fa-user"></i>
+                        <span>إدارة الملف الشخصي</span>
+                    </button>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">إجمالي الشحنات</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">شحنات اليوم</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">الشحنات المسلمة</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3 class="kpi-value">0</h3>
+                            <p class="kpi-label">إجمالي الإيرادات</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Shipments Table -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>الشحنات الأخيرة</h3>
+                            <div class="card-actions">
+                                <input type="text" class="form-control search-input" placeholder="البحث..." data-table="shipmentsTable">
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="table" id="shipmentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>رقم التتبع</th>
+                                            <th>المستلم</th>
+                                            <th>رقم الهاتف</th>
+                                            <th>الحالة</th>
+                                            <th>رسوم التوصيل</th>
+                                            <th>تاريخ الإنشاء</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Shipments data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Shipment Form -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>إنشاء شحنة جديدة</h3>
+                        </div>
+                        <div class="card-content">
+                            <form id="createShipmentForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="recipientName" class="form-label">اسم المستلم</label>
+                                            <input type="text" class="form-control" id="recipientName" name="recipientName" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="recipientPhone" class="form-label">رقم هاتف المستلم</label>
+                                            <input type="tel" class="form-control" id="recipientPhone" name="recipientPhone" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="recipientAddress" class="form-label">عنوان المستلم</label>
+                                    <textarea class="form-control" id="recipientAddress" name="recipientAddress" rows="3" required></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="packageDescription" class="form-label">وصف الطرد</label>
+                                            <input type="text" class="form-control" id="packageDescription" name="packageDescription" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="packageWeight" class="form-label">الوزن (كجم)</label>
+                                            <input type="number" class="form-control" id="packageWeight" name="packageWeight" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="itemValue" class="form-label">قيمة السلعة</label>
+                                            <input type="number" class="form-control" id="itemValue" name="itemValue" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="codAmount" class="form-label">مبلغ الدفع عند الاستلام</label>
+                                            <input type="number" class="form-control" id="codAmount" name="codAmount" step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zone" class="form-label">المنطقة</label>
+                                    <select class="form-select" id="zone" name="zone" required>
+                                        <option value="">اختر المنطقة</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    <span>إنشاء الشحنة</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>النشاط الأخير</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="activity-list" id="recentActivity">
+                                <!-- Activity data will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+
+    <script src="../../src/js/shared/BasePageHandler.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/merchant-dashboard-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+/* Basic Components */
+
+/* Buttons */
+.btn-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    color: white;
+    transition: all var(--transition-fast) ease;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--border-radius-md);
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* Cards */
+.card {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-3);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.card-hover {
+    transition: all var(--transition-fast) ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Forms */
+.form-control {
+    width: 100%;
+    padding: var(--spacing-2);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-md);
+    transition: border-color var(--transition-fast) ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* Tables */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-2);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table th {
+    background-color: var(--gray-100);
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Alerts */
+.alert {
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-3);
+}
+
+.alert-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.alert-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.alert-warning {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.alert-info {
+    background-color: var(--info-color);
+    color: white;
+}

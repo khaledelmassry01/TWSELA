@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' http://localhost:8080 https://cdn.jsdelivr.net;">
+    <title>Twsela - نظام إدارة الشحنات</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-page">
+        <!-- Header -->
+        <header class="landing-header">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container">
+                    <a class="navbar-brand" href="#">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Twsela</span>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#features">المميزات</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#about">من نحن</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#contact">اتصل بنا</a>
+                            </li>
+                        </ul>
+                        <div class="navbar-nav">
+                            <a href="login.html" class="btn btn-outline-primary me-2">تسجيل الدخول</a>
+                            <a href="contact.html" class="btn btn-primary">ابدأ الآن</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="hero-content">
+                            <h1 class="hero-title">نظام إدارة الشحنات الأكثر تطوراً</h1>
+                            <p class="hero-subtitle">إدارة شاملة لجميع عمليات الشحن والتوصيل مع تتبع فوري وميزات متقدمة</p>
+                            <div class="hero-actions">
+                                <a href="login.html" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-rocket"></i>
+                                    ابدأ الآن
+                                </a>
+                                <a href="#features" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-play"></i>
+                                    شاهد العرض التوضيحي
+                                </a>
+                            </div>
+                            <div class="hero-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">10,000+</div>
+                                    <div class="stat-label">شحنة يومياً</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">500+</div>
+                                    <div class="stat-label">عميل راضي</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">99.9%</div>
+                                    <div class="stat-label">معدل النجاح</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="hero-image">
+                            <div class="placeholder-image placeholder-blue">
+                                Twsela Dashboard
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2>مميزات النظام</h2>
+                    <p>نظام متكامل لإدارة جميع عمليات الشحن والتوصيل</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <h4>تتبع فوري</h4>
+                            <p>تتبع الشحنات في الوقت الفعلي مع تحديثات فورية للحالة والموقع</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h4>إدارة المستخدمين</h4>
+                            <p>إدارة شاملة لجميع المستخدمين مع نظام أدوار متقدم</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h4>تقارير متقدمة</h4>
+                            <p>تقارير تفصيلية وإحصائيات شاملة لجميع العمليات</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h4>متجاوب تماماً</h4>
+                            <p>يعمل بشكل مثالي على جميع الأجهزة والشاشات</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h4>أمان متقدم</h4>
+                            <p>نظام أمان متقدم مع تشفير البيانات وحماية شاملة</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <h4>دعم فني 24/7</h4>
+                            <p>دعم فني متاح على مدار الساعة لمساعدتك</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section class="demo-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="demo-content">
+                            <h2>جرب النظام الآن</h2>
+                            <p>قم بتجربة النظام مع بيانات تجريبية لترى كيف يمكن أن يساعدك في إدارة عمليات الشحن</p>
+                            <div class="demo-features">
+                                <div class="demo-feature">
+                                    <i class="fas fa-check text-success"></i>
+                                    <span>لوحات تحكم تفاعلية</span>
+                                </div>
+                                <div class="demo-feature">
+                                    <i class="fas fa-check text-success"></i>
+                                    <span>تتبع الشحنات المباشر</span>
+                                </div>
+                                <div class="demo-feature">
+                                    <i class="fas fa-check text-success"></i>
+                                    <span>تقارير وإحصائيات</span>
+                                </div>
+                                <div class="demo-feature">
+                                    <i class="fas fa-check text-success"></i>
+                                    <span>إدارة المستخدمين</span>
+                                </div>
+                            </div>
+                            <a href="login.html" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i>
+                                ابدأ التجربة المجانية
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="demo-image">
+                            <div class="placeholder-image placeholder-green">
+                                Demo Interface
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="footer-brand">
+                            <div class="brand-logo">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Twsela</span>
+                            </div>
+                            <p>نظام إدارة الشحنات الأكثر تطوراً في المنطقة</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الخدمات</h6>
+                            <ul>
+                                <li><a href="#">الشحن السريع</a></li>
+                                <li><a href="#">الشحن العادي</a></li>
+                                <li><a href="#">الشحن المجدول</a></li>
+                                <li><a href="#">الشحن الدولي</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الدعم</h6>
+                            <ul>
+                                <li><a href="#">مركز المساعدة</a></li>
+                                <li><a href="contact.html">اتصل بنا</a></li>
+                                <li><a href="#">الأسئلة الشائعة</a></li>
+                                <li><a href="#">الدعم الفني</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>الشركة</h6>
+                            <ul>
+                                <li><a href="#">من نحن</a></li>
+                                <li><a href="#">الوظائف</a></li>
+                                <li><a href="#">الأخبار</a></li>
+                                <li><a href="#">الشراكات</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="footer-links">
+                            <h6>تابعنا</h6>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <p>&copy; 2024 Twsela. جميع الحقوق محفوظة.</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="footer-legal">
+                                <a href="#">سياسة الخصوصية</a>
+                                <a href="#">شروط الاستخدام</a>
+                                <a href="#">ملفات تعريف الارتباط</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/shared/SharedDataUtils.js"></script>
+    <script src="src/js/shared/GlobalUIHandler.js"></script>
+    <script src="src/js/shared/NotificationService.js"></script>
+
+    <script src="src/js/services/auth_service.js"></script>
+    <script src="src/js/services/api_service.js"></script>
+    <script src="src/js/app.js"></script>
+    
+
+</body>
+</html>

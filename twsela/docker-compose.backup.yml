@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: twsela-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: twsela
+      MYSQL_USER: twsela
+      MYSQL_PASSWORD: twsela123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./twsela/src/main/resources/db/migration/twsela.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backup/mysql-backup.sh:/usr/local/bin/backup.sh
+    restart: unless-stopped
+    networks:
+      - twsela-network
+
+  # Backup Service
+  backup:
+    image: mysql:8.0
+    container_name: twsela-backup
+    depends_on:
+      - mysql
+    volumes:
+      - backup_data:/backups
+      - ./backup/backup-script.sh:/backup-script.sh
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: twsela
+      BACKUP_PATH: /backups
+    command: /bin/bash -c "chmod +x /backup-script.sh && /backup-script.sh"
+    restart: "no"
+    networks:
+      - twsela-network
+
+  # Redis for Caching
+  redis:
+    image: redis:alpine
+    container_name: twsela-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - twsela-network
+
+volumes:
+  mysql_data:
+  backup_data:
+  redis_data:
+
+networks:
+  twsela-network:
+    driver: bridge

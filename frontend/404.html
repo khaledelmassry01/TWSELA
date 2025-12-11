@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>الصفحة غير موجودة - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/pages/404-page.css" rel="stylesheet">
+</head>
+<body class="error-page">
+    <div class="error-container">
+        <div class="error-content">
+            <!-- Error Illustration -->
+            <div class="error-illustration">
+                <div class="error-number">404</div>
+                <div class="error-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message">
+                <h1>عذراً، الصفحة غير موجودة</h1>
+                <p>لا يمكننا العثور على الصفحة التي تبحث عنها. قد تكون الصفحة قد تم نقلها أو حذفها أو أن الرابط غير صحيح.</p>
+            </div>
+
+            <!-- Error Actions -->
+            <div class="error-actions">
+                <button class="btn btn-primary btn-lg" id="goHomeBtn">
+                    <i class="fas fa-home"></i>
+                    العودة للرئيسية
+                </button>
+                <button class="btn btn-outline-primary btn-lg" id="goBackBtn">
+                    <i class="fas fa-arrow-right"></i>
+                    العودة للخلف
+                </button>
+            </div>
+
+            <!-- Helpful Links -->
+            <div class="helpful-links">
+                <h6>ربما تبحث عن:</h6>
+                <div class="links-grid">
+                    <a href="/login.html" class="help-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>تسجيل الدخول</span>
+                    </a>
+                    <a href="/contact.html" class="help-link">
+                        <i class="fas fa-envelope"></i>
+                        <span>اتصل بنا</span>
+                    </a>
+                    <a href="#" class="help-link" id="showHelpLink">
+                        <i class="fas fa-question-circle"></i>
+                        <span>مركز المساعدة</span>
+                    </a>
+                    <a href="#" class="help-link" id="reportErrorLink">
+                        <i class="fas fa-bug"></i>
+                        <span>الإبلاغ عن خطأ</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <h6>ابحث عما تريد:</h6>
+                <div class="search-input-group">
+                    <input type="text" class="form-control" id="searchInput" placeholder="اكتب ما تبحث عنه...">
+                    <button class="btn btn-primary" id="performSearchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Background Elements -->
+        <div class="error-background">
+            <div class="bg-shape shape-1"></div>
+            <div class="bg-shape shape-2"></div>
+            <div class="bg-shape shape-3"></div>
+            <div class="bg-shape shape-4"></div>
+        </div>
+    </div>
+
+    <!-- Report Error Modal -->
+    <div class="modal fade" id="reportErrorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">الإبلاغ عن خطأ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="errorReportForm">
+                        <div class="mb-3">
+                            <label for="errorDescription" class="form-label">وصف المشكلة</label>
+                            <textarea class="form-control" id="errorDescription" rows="4" placeholder="اكتب وصفاً مفصلاً للمشكلة التي واجهتها..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">البريد الإلكتروني (اختياري)</label>
+                            <input type="email" class="form-control" id="userEmail" placeholder="أدخل بريدك الإلكتروني للتواصل معك">
+                        </div>
+                        <div class="mb-3">
+                            <label for="browserInfo" class="form-label">معلومات المتصفح</label>
+                            <input type="text" class="form-control" id="browserInfo" readonly>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="submitErrorReportBtn">إرسال التقرير</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/shared/SharedDataUtils.js"></script>
+    <script src="src/js/shared/GlobalUIHandler.js"></script>
+    <script src="src/js/shared/NotificationService.js"></script>
+
+    <script src="src/js/services/auth_service.js"></script>
+    <script src="src/js/services/api_service.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/pages/404-page.js"></script>
+    
+
+</body>
+</html>

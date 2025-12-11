@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>إدارة الشحنات - تسيلا</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/owner/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/owner/shipments.html" class="nav-link active">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/owner/employees.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+                <a href="/owner/zones.html" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/owner/pricing.html" class="nav-link">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>التسعير</span>
+                </a>
+                <a href="/owner/reports.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إدارة الشحنات</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">المالك</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- KPI Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-value" id="totalShipments">0</div>
+                        <div class="stat-label">إجمالي الشحنات</div>
+                        <div class="stat-icon blue">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-value" id="pendingShipments">0</div>
+                        <div class="stat-label">الشحنات المعلقة</div>
+                        <div class="stat-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-value" id="deliveredShipments">0</div>
+                        <div class="stat-label">الشحنات المسلمة</div>
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-value" id="totalRevenue">0</div>
+                        <div class="stat-label">إجمالي الإيرادات</div>
+                        <div class="stat-icon purple">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Actions -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h3>فلترة الشحنات</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-primary" id="refreshBtn">
+                                <i class="fas fa-sync"></i>
+                                تحديث
+                            </button>
+                            <button class="btn btn-success" id="exportBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control search-input" id="searchInput" placeholder="البحث في الشحنات...">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary filter-btn active" data-status="all">الكل</button>
+                                    <button type="button" class="btn btn-outline-warning filter-btn" data-status="PENDING">في الانتظار</button>
+                                    <button type="button" class="btn btn-outline-info filter-btn" data-status="IN_TRANSIT">في الطريق</button>
+                                    <button type="button" class="btn btn-outline-success filter-btn" data-status="DELIVERED">مسلمة</button>
+                                    <button type="button" class="btn btn-outline-danger filter-btn" data-status="CANCELLED">ملغاة</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipments Table -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>قائمة الشحنات</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="table" id="shipmentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>رقم التتبع</th>
+                                        <th>التاجر</th>
+                                        <th>المستلم</th>
+                                        <th>رقم الهاتف</th>
+                                        <th>الحالة</th>
+                                        <th>رسوم التوصيل</th>
+                                        <th>تاريخ الإنشاء</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Shipments data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- Pagination will be generated here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="content-grid mt-4">
+                    <!-- Status Chart -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>توزيع الشحنات حسب الحالة</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="statusChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Chart -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>الإيرادات الشهرية</h3>
+                                </div>
+                        <div class="card-content">
+                            <canvas id="revenueChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../src/js/shared/NotificationService.js"></script>
+
+    <script src="../src/js/shared/BasePageHandler.js"></script>
+    <script src="../src/js/services/auth_service.js"></script>
+    <script src="../src/js/services/api_service.js"></script>
+    <script src="../src/js/app.js"></script>
+    <script src="../src/js/pages/owner-shipments-page.js"></script>
+</body>
+</html>

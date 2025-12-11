@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>الإعدادات - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/pages/settings-page.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="#" class="nav-link" id="logoutLink">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="header-title">الإعدادات</h1>
+                    <p class="header-subtitle">إدارة إعدادات النظام والتفضيلات</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary" id="resetSettingsBtn">
+                        <i class="fas fa-undo"></i>
+                        إعادة تعيين
+                    </button>
+                    <button class="btn btn-primary" id="saveSettingsBtn">
+                        <i class="fas fa-save"></i>
+                        حفظ الإعدادات
+                    </button>
+                </div>
+            </header>
+
+            <!-- Settings Content -->
+            <div class="settings-content">
+                <div class="row">
+                    <!-- Settings Navigation -->
+                    <div class="col-md-3">
+                        <div class="settings-nav">
+                            <div class="nav-item active" data-tab="general">
+                                <i class="fas fa-cog"></i>
+                                <span>عام</span>
+                            </div>
+                            <div class="nav-item" data-tab="notifications">
+                                <i class="fas fa-bell"></i>
+                                <span>الإشعارات</span>
+                            </div>
+                            <div class="nav-item" data-tab="security">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>الأمان</span>
+                            </div>
+                            <div class="nav-item" data-tab="appearance">
+                                <i class="fas fa-palette"></i>
+                                <span>المظهر</span>
+                            </div>
+                            <div class="nav-item" data-tab="integrations">
+                                <i class="fas fa-plug"></i>
+                                <span>التكاملات</span>
+                            </div>
+                            <div class="nav-item" data-tab="advanced">
+                                <i class="fas fa-sliders-h"></i>
+                                <span>متقدم</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Panels -->
+                    <div class="col-md-9">
+                        <!-- General Settings -->
+                        <div class="settings-panel active" id="general-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">الإعدادات العامة</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>اللغة</h6>
+                                            <p>اختر اللغة المفضلة للواجهة</p>
+                                        </div>
+                                        <select class="form-select" id="language" name="language">
+                                            <option value="ar" selected>العربية</option>
+                                            <option value="en">English</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>المنطقة الزمنية</h6>
+                                            <p>اختر المنطقة الزمنية المناسبة</p>
+                                        </div>
+                                        <select class="form-select" id="timezone" name="timezone">
+                                            <option value="Asia/Riyadh" selected>الرياض (GMT+3)</option>
+                                            <option value="Asia/Dubai">دبي (GMT+4)</option>
+                                            <option value="UTC">UTC (GMT+0)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>تنسيق التاريخ</h6>
+                                            <p>اختر تنسيق عرض التاريخ</p>
+                                        </div>
+                                        <select class="form-select" id="dateFormat" name="dateFormat">
+                                            <option value="dd/mm/yyyy" selected>يوم/شهر/سنة</option>
+                                            <option value="mm/dd/yyyy">شهر/يوم/سنة</option>
+                                            <option value="yyyy-mm-dd">سنة-شهر-يوم</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>تنسيق الوقت</h6>
+                                            <p>اختر تنسيق عرض الوقت</p>
+                                        </div>
+                                        <select class="form-select" id="timeFormat" name="timeFormat">
+                                            <option value="12" selected>12 ساعة (AM/PM)</option>
+                                            <option value="24">24 ساعة</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>العملة</h6>
+                                            <p>اختر العملة المستخدمة</p>
+                                        </div>
+                                        <select class="form-select" id="currency" name="currency">
+                                            <option value="SAR" selected>جنيه سعودي (SAR)</option>
+                                            <option value="USD">دولار أمريكي (USD)</option>
+                                            <option value="EUR">يورو (EUR)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Settings -->
+                        <div class="settings-panel" id="notifications-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">إعدادات الإشعارات</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>إشعارات البريد الإلكتروني</h6>
+                                            <p>تلقي الإشعارات عبر البريد الإلكتروني</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                            <label class="form-check-label" for="emailNotifications">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>إشعارات الرسائل النصية</h6>
+                                            <p>تلقي الإشعارات عبر الرسائل النصية</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                            <label class="form-check-label" for="smsNotifications">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>الإشعارات المباشرة</h6>
+                                            <p>تلقي الإشعارات المباشرة في المتصفح</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+                                            <label class="form-check-label" for="pushNotifications">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <h6 class="mb-3">أنواع الإشعارات</h6>
+
+                                    <div class="notification-types">
+                                        <div class="notification-type">
+                                            <div class="type-info">
+                                                <h6>إشعارات الشحنات</h6>
+                                                <p>تحديثات حالة الشحنات</p>
+                                            </div>
+                                            <div class="type-options">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="shipmentEmail" checked>
+                                                    <label class="form-check-label" for="shipmentEmail">
+                                                        بريد إلكتروني
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="shipmentSms">
+                                                    <label class="form-check-label" for="shipmentSms">
+                                                        رسالة نصية
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="shipmentPush" checked>
+                                                    <label class="form-check-label" for="shipmentPush">
+                                                        إشعار مباشر
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="notification-type">
+                                            <div class="type-info">
+                                                <h6>إشعارات النظام</h6>
+                                                <p>تحديثات النظام والصيانة</p>
+                                            </div>
+                                            <div class="type-options">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="systemEmail" checked>
+                                                    <label class="form-check-label" for="systemEmail">
+                                                        بريد إلكتروني
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="systemSms">
+                                                    <label class="form-check-label" for="systemSms">
+                                                        رسالة نصية
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="systemPush" checked>
+                                                    <label class="form-check-label" for="systemPush">
+                                                        إشعار مباشر
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="notification-type">
+                                            <div class="type-info">
+                                                <h6>إشعارات الأمان</h6>
+                                                <p>تسجيلات الدخول والأنشطة الأمنية</p>
+                                            </div>
+                                            <div class="type-options">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="securityEmail" checked>
+                                                    <label class="form-check-label" for="securityEmail">
+                                                        بريد إلكتروني
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="securitySms" checked>
+                                                    <label class="form-check-label" for="securitySms">
+                                                        رسالة نصية
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="securityPush" checked>
+                                                    <label class="form-check-label" for="securityPush">
+                                                        إشعار مباشر
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="settings-panel" id="security-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">إعدادات الأمان</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Password Reset Section -->
+                                    <div class="password-reset-section">
+                                        <h6 class="mb-3">إعادة تعيين كلمة المرور</h6>
+                                        <form id="passwordResetForm" class="password-reset-form">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="resetPhone" class="form-label">رقم الهاتف</label>
+                                                        <input type="tel" class="form-control" id="resetPhone" name="phone" placeholder="أدخل رقم هاتفك" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="resetOtp" class="form-label">رمز التحقق (OTP)</label>
+                                                        <input type="text" class="form-control" id="resetOtp" name="otp" placeholder="أدخل رمز التحقق" maxlength="6">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
+                                                        <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="أدخل كلمة المرور الجديدة">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="confirmNewPassword" class="form-label">تأكيد كلمة المرور الجديدة</label>
+                                                        <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword" placeholder="أكد كلمة المرور الجديدة">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-actions">
+                                                <button type="button" class="btn btn-outline-primary" id="sendOtpBtn">
+                                                    <i class="fas fa-sms"></i>
+                                                    إرسال رمز التحقق
+                                                </button>
+                                                <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
+                                                    <i class="fas fa-key"></i>
+                                                    إعادة تعيين كلمة المرور
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>التحقق بخطوتين</h6>
+                                            <p>إضافة طبقة أمان إضافية لحسابك</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="twoFactorAuth" checked>
+                                            <label class="form-check-label" for="twoFactorAuth">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>جلسات متعددة</h6>
+                                            <p>السماح بتسجيل الدخول من أجهزة متعددة</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="multiSession">
+                                            <label class="form-check-label" for="multiSession">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>انتهاء الجلسة التلقائي</h6>
+                                            <p>تسجيل الخروج التلقائي بعد فترة عدم نشاط</p>
+                                        </div>
+                                        <select class="form-select" id="sessionTimeout" name="sessionTimeout">
+                                            <option value="15">15 دقيقة</option>
+                                            <option value="30" selected>30 دقيقة</option>
+                                            <option value="60">ساعة واحدة</option>
+                                            <option value="120">ساعتان</option>
+                                            <option value="0">لا ينتهي</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>تسجيل أنشطة الحساب</h6>
+                                            <p>تسجيل جميع الأنشطة المهمة</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="activityLogging" checked>
+                                            <label class="form-check-label" for="activityLogging">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="security-actions">
+                                        <button class="btn btn-outline-primary" id="viewLoginHistoryBtn">
+                                            <i class="fas fa-history"></i>
+                                            عرض سجل تسجيل الدخول
+                                        </button>
+                                        <button class="btn btn-outline-warning" id="changePasswordBtn">
+                                            <i class="fas fa-key"></i>
+                                            تغيير كلمة المرور
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="revokeAllSessionsBtn">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            إنهاء جميع الجلسات
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Appearance Settings -->
+                        <div class="settings-panel" id="appearance-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">إعدادات المظهر</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>الوضع المظلم</h6>
+                                            <p>تبديل بين الوضع المضيء والمظلم</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="darkMode">
+                                            <label class="form-check-label" for="darkMode">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>لون المظهر</h6>
+                                            <p>اختر لون المظهر المفضل</p>
+                                        </div>
+                                        <div class="theme-colors">
+                                            <div class="color-option color-blue" data-color="blue"></div>
+                                            <div class="color-option color-green active" data-color="green"></div>
+                                            <div class="color-option color-purple" data-color="purple"></div>
+                                            <div class="color-option color-red" data-color="red"></div>
+                                            <div class="color-option color-orange" data-color="orange"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>حجم الخط</h6>
+                                            <p>اختر حجم الخط المناسب</p>
+                                        </div>
+                                        <div class="font-sizes">
+                                            <div class="size-option" data-size="small">صغير</div>
+                                            <div class="size-option active" data-size="medium">متوسط</div>
+                                            <div class="size-option" data-size="large">كبير</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>كثافة المعلومات</h6>
+                                            <p>اختر مستوى تفاصيل المعلومات المعروضة</p>
+                                        </div>
+                                        <select class="form-select" id="infoDensity" name="infoDensity">
+                                            <option value="compact">مضغوط</option>
+                                            <option value="normal" selected>عادي</option>
+                                            <option value="comfortable">مريح</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Integrations Settings -->
+                        <div class="settings-panel" id="integrations-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">التكاملات</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <div class="integration-icon">
+                                                <i class="fab fa-google"></i>
+                                            </div>
+                                            <div>
+                                                <h6>Google Drive</h6>
+                                                <p>مزامنة الملفات مع Google Drive</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="googleDrive">
+                                            <label class="form-check-label" for="googleDrive">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <div class="integration-icon">
+                                                <i class="fab fa-microsoft"></i>
+                                            </div>
+                                            <div>
+                                                <h6>Microsoft Office</h6>
+                                                <p>تكامل مع Microsoft Office</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="microsoftOffice">
+                                            <label class="form-check-label" for="microsoftOffice">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <div class="integration-icon">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                            <div>
+                                                <h6>Outlook</h6>
+                                                <p>تكامل مع Microsoft Outlook</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="outlook">
+                                            <label class="form-check-label" for="outlook">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="integration-item">
+                                        <div class="integration-info">
+                                            <div class="integration-icon">
+                                                <i class="fab fa-slack"></i>
+                                            </div>
+                                            <div>
+                                                <h6>Slack</h6>
+                                                <p>إرسال الإشعارات إلى Slack</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="slack">
+                                            <label class="form-check-label" for="slack">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings -->
+                        <div class="settings-panel" id="advanced-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">الإعدادات المتقدمة</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>وضع المطور</h6>
+                                            <p>تفعيل أدوات المطور والوضع التجريبي</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="developerMode">
+                                            <label class="form-check-label" for="developerMode">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>تخزين البيانات محلياً</h6>
+                                            <p>تخزين البيانات في المتصفح لتحسين الأداء</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="localStorage" checked>
+                                            <label class="form-check-label" for="localStorage">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>ضغط البيانات</h6>
+                                            <p>ضغط البيانات المرسلة لتوفير عرض النطاق</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="dataCompression" checked>
+                                            <label class="form-check-label" for="dataCompression">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h6>إحصائيات الاستخدام</h6>
+                                            <p>إرسال إحصائيات الاستخدام لتحسين الخدمة</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="usageStats" checked>
+                                            <label class="form-check-label" for="usageStats">
+                                                تفعيل
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="advanced-actions">
+                                        <button class="btn btn-outline-primary" id="exportSettingsBtn">
+                                            <i class="fas fa-download"></i>
+                                            تصدير الإعدادات
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="importSettingsBtn">
+                                            <i class="fas fa-upload"></i>
+                                            استيراد الإعدادات
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="clearCacheBtn">
+                                            <i class="fas fa-trash"></i>
+                                            مسح الذاكرة المؤقتة
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="src/js/services/auth_service.js"></script>
+    <script src="src/js/services/api_service.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/pages/settings.js"></script>
+
+</body>
+</html>

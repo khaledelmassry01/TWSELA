@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>لوحة تحكم الساعي - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/courier/dashboard.html" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/courier/manifest.html" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>قائمة التسليم</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">لوحة تحكم الساعي</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">الساعي</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-primary quick-action-btn" data-action="startShift">
+                        <i class="fas fa-play"></i>
+                        <span>بدء الدوام</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="endShift">
+                        <i class="fas fa-stop"></i>
+                        <span>إنهاء الدوام</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="viewManifest">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>عرض القائمة</span>
+                    </button>
+                    <button class="btn btn-outline-primary quick-action-btn" data-action="updateLocation">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>تحديث الموقع</span>
+                    </button>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card orange">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="pendingDeliveries">0</h3>
+                            <p class="stat-label">تسليمات معلقة</p>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="inTransitDeliveries">0</h3>
+                            <p class="stat-label">في الطريق</p>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="deliveredToday">0</h3>
+                            <p class="stat-label">تم التسليم اليوم</p>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="earningsToday">0</h3>
+                            <p class="stat-label">الأرباح اليوم</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="content-grid">
+                    <!-- Today's Deliveries -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>تسليمات اليوم</h3>
+                            <div class="card-actions">
+                                <button class="btn btn-outline-primary btn-sm" id="refreshDeliveriesBtn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>تحديث</span>
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" id="downloadManifestBtn">
+                                    <i class="fas fa-download"></i>
+                                    <span>تحميل القائمة</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="table" id="deliveriesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>رقم التتبع</th>
+                                            <th>المستلم</th>
+                                            <th>الهاتف</th>
+                                            <th>العنوان</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Status -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>حالة الموقع</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">الموقع الحالي</label>
+                                        <p id="currentLocation" class="text-muted">جاري تحديد الموقع...</p>
+                                        <button class="btn btn-primary btn-sm" id="updateLocationBtn">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>تحديث الموقع</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">حالة الدوام</label>
+                                        <p id="shiftStatus" class="text-muted">غير محدد</p>
+                                        <button class="btn btn-success btn-sm" id="toggleShiftBtn">
+                                            <i class="fas fa-play"></i>
+                                            <span>بدء الدوام</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Location Modal -->
+    <div class="modal" id="updateLocationModal" class="d-none">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تحديث الموقع</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="locationAddress" class="form-label">العنوان</label>
+                        <input type="text" class="form-control" id="locationAddress" placeholder="أدخل عنوانك الحالي">
+                    </div>
+                    <div class="form-group">
+                        <label for="locationNotes" class="form-label">ملاحظات</label>
+                        <textarea class="form-control" id="locationNotes" rows="3" placeholder="أي ملاحظات إضافية"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveLocationBtn">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js?v=20250112-5"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js?v=20250112-5"></script>
+    <script src="../src/js/shared/NotificationService.js?v=20250112-5"></script>
+
+    <script src="../src/js/shared/BasePageHandler.js?v=20250112-5"></script>
+    <script src="../src/js/services/auth_service.js?v=20250112-5"></script>
+    <script src="../src/js/services/api_service.js?v=20250112-5"></script>
+    <script src="../src/js/app.js?v=20250112-5"></script>
+    <script src="../src/js/pages/courier-dashboard-page.js?v=20250112-5"></script>
+</body>
+</html>

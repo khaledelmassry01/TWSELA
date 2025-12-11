@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">`n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`n    <meta http-equiv="Pragma" content="no-cache">`n    <meta http-equiv="Expires" content="0">
+    <title>تقرير التجار - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/src/css/styles.css" rel="stylesheet">
+    <link href="/src/css/main.css" rel="stylesheet">
+    <link href="/src/css/twsela-design.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/owner/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/owner/shipments" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/owner/employees" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+                <a href="/owner/merchants.html" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>التجار</span>
+                </a>
+                <a href="/owner/zones" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/owner/pricing" class="nav-link">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>التسعير</span>
+                </a>
+                <a href="/owner/reports" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="header-title">تقرير التجار</h1>
+                    <p class="header-subtitle">تحليل أداء التجار والإحصائيات المالية</p>
+                    <small class="text-muted">المالك</small>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary" id="exportReportCsvBtn" data-format="csv">
+                        <i class="fas fa-file-csv"></i>
+                        تصدير CSV
+                    </button>
+                    <button class="btn btn-outline-primary" id="exportReportPdfBtn" data-format="pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        تصدير PDF
+                    </button>
+                    <button class="btn btn-primary" id="refreshReportBtn">
+                        <i class="fas fa-sync"></i>
+                        تحديث التقرير
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Filter Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">فلترة البيانات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="dateFrom" class="form-label">من تاريخ</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateTo" class="form-label">إلى تاريخ</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="merchantSelect" class="form-label">التاجر</label>
+                                <select class="form-select" id="merchantSelect">
+                                    <option value="">جميع التجار</option>
+                                    <option value="1">شركة أكمي</option>
+                                    <option value="2">متجر التقنية</option>
+                                    <option value="3">بقالة النخيل</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="statusSelect" class="form-label">الحالة</label>
+                                <select class="form-select" id="statusSelect">
+                                    <option value="">جميع الحالات</option>
+                                    <option value="active">نشط</option>
+                                    <option value="inactive">غير نشط</option>
+                                    <option value="suspended">معلق</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="applyFiltersBtn">
+                                    <i class="fas fa-filter"></i>
+                                    تطبيق الفلاتر
+                                </button>
+                                <button class="btn btn-outline-secondary" id="clearFiltersBtn">
+                                    <i class="fas fa-times"></i>
+                                    مسح الفلاتر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card blue" data-card="0">
+                        <div class="stat-label">إجمالي التجار</div>
+                        <div class="stat-value">45</div>
+                        <div class="stat-icon blue">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +18%
+                        </div>
+                    </div>
+
+                    <div class="stat-card green" data-card="1">
+                        <div class="stat-label">التجار النشطين</div>
+                        <div class="stat-value">38</div>
+                        <div class="stat-icon green">
+                            <i class="fas fa-store-alt"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +12%
+                        </div>
+                    </div>
+
+                    <div class="stat-card orange" data-card="2">
+                        <div class="stat-label">متوسط الشحنات/تاجر</div>
+                        <div class="stat-value">125</div>
+                        <div class="stat-icon orange">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +22%
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple" data-card="3">
+                        <div class="stat-label">إجمالي الإيرادات</div>
+                        <div class="stat-value">125,000 جنيه</div>
+                        <div class="stat-icon purple">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +28%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">أداء التجار - الشحنات والإيرادات</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="merchantPerformanceChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">توزيع التجار</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="merchantDistributionChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Analysis -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">تحليل الإيرادات الشهرية</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="revenueChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">أعلى التجار أداءً</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="top-merchants">
+                                    <div class="merchant-item">
+                                        <div class="merchant-rank">1</div>
+                                        <div class="merchant-info">
+                                            <div class="merchant-name">شركة أكمي</div>
+                                            <div class="merchant-stats">156 شحنة - 12,500 جنيه</div>
+                                        </div>
+                                        <div class="merchant-rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <span>4.9</span>
+                                        </div>
+                                    </div>
+                                    <div class="merchant-item">
+                                        <div class="merchant-rank">2</div>
+                                        <div class="merchant-info">
+                                            <div class="merchant-name">متجر التقنية</div>
+                                            <div class="merchant-stats">142 شحنة - 11,200 جنيه</div>
+                                        </div>
+                                        <div class="merchant-rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <span>4.7</span>
+                                        </div>
+                                    </div>
+                                    <div class="merchant-item">
+                                        <div class="merchant-rank">3</div>
+                                        <div class="merchant-info">
+                                            <div class="merchant-name">بقالة النخيل</div>
+                                            <div class="merchant-stats">128 شحنة - 9,800 جنيه</div>
+                                        </div>
+                                        <div class="merchant-rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <span>4.5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Table -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title">تفاصيل أداء التجار</h5>
+                        <div class="card-actions">
+                            <button class="btn btn-outline-primary btn-sm" id="exportTableBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير الجدول
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table" id="merchantsTable">
+                                <thead>
+                                    <tr>
+                                        <th>التاجر</th>
+                                        <th>رقم الهاتف</th>
+                                        <th>الحالة</th>
+                                        <th>إجمالي الشحنات</th>
+                                        <th>الشحنات المنجزة</th>
+                                        <th>الشحنات المعلقة</th>
+                                        <th>الإيرادات</th>
+                                        <th>التقييم</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="merchantsTableBody">
+                                    <!-- البيانات ستُحمل من API -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="pagination-info">
+                                <span class="text-muted">عرض 1-3 من 45 تاجر</span>
+                            </div>
+                            <div class="pagination">
+                                <button class="page-btn" disabled>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Merchant Details Modal -->
+    <div class="modal fade" id="merchantDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تفاصيل التاجر</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>معلومات التاجر</h6>
+                            <p><strong>الاسم:</strong> شركة أكمي</p>
+                            <p><strong>رقم الهاتف:</strong> +966 50 123 4567</p>
+                            <p><strong>الحالة:</strong> <span class="badge bg-success">نشط</span></p>
+                            <p><strong>تاريخ الانضمام:</strong> 2023-01-15</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>إحصائيات الأداء</h6>
+                            <p><strong>إجمالي الشحنات:</strong> 156</p>
+                            <p><strong>الشحنات المنجزة:</strong> 148</p>
+                            <p><strong>الإيرادات:</strong> 12,500 جنيه</p>
+                            <p><strong>التقييم:</strong> 4.9/5</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6>رسم بياني للأداء الشهري</h6>
+                        <canvas id="merchantMonthlyChart" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary">تعديل التاجر</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/src/js/shared/SharedDataUtils.js?v=20250112-12"></script>
+    <script src="/src/js/shared/GlobalUIHandler.js?v=20250112-12"></script>
+    <script src="/src/js/shared/NotificationService.js?v=20250112-12"></script>
+
+    <script src="/src/js/services/auth_service.js?v=20250112-12"></script>
+    <script src="/src/js/services/api_service.js?v=20250112-12"></script>
+    <script src="/src/js/app.js?v=20250112-12"></script>
+    <script src="/src/js/pages/owner-reports-merchants-page.js?v=20250112-12"></script>
+    
+    <script>
+        // Initialize merchants report page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMerchantsReportPage();
+        });
+
+        function initializeMerchantsReportPage() {
+            // Load merchants data
+            loadMerchantsData();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        async function loadMerchantsData() {
+            try {
+                const merchants = await apiService.getMerchantsReport();
+                updateMerchantsTable(merchants);
+            } catch (error) {
+                
+                
+            }
+        }
+
+        function updateMerchantsTable(merchants) {
+            const tbody = document.querySelector('#merchantsTable tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            
+            merchants.forEach(merchant => {
+                const row = createMerchantRow(merchant);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createMerchantRow(merchant) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                            ${merchant.name.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="fw-bold">${merchant.name}</div>
+                            <small class="text-muted">ID: ${merchant.id}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${merchant.phone}</td>
+                <td><span class="badge bg-${getStatusBadgeClass(merchant.status)}">${getStatusText(merchant.status)}</span></td>
+                <td>${merchant.totalShipments}</td>
+                <td>${merchant.completedShipments}</td>
+                <td>${merchant.pendingShipments}</td>
+                <td>${merchant.revenue} جنيه</td>
+                <td>
+                    <div class="rating">
+                        ${generateStars(merchant.rating)}
+                        <span class="ms-1">${merchant.rating}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn view" data-id="${merchant.id}" title="عرض التفاصيل">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit" data-id="${merchant.id}" title="تعديل">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn chart" data-id="${merchant.id}" title="عرض الرسم البياني">
+                            <i class="fas fa-chart-line"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            return row;
+        }
+
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                'ACTIVE': 'success',
+                'INACTIVE': 'secondary',
+                'SUSPENDED': 'warning'
+            };
+            return statusMap[status] || 'secondary';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'ACTIVE': 'نشط',
+                'INACTIVE': 'غير نشط',
+                'SUSPENDED': 'معلق'
+            };
+            return statusMap[status] || status;
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star text-warning"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt text-warning"></i>';
+            }
+            
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star text-warning"></i>';
+            }
+            
+            return stars;
+        }
+
+        function initializeCharts() {
+            // Merchant Performance Chart
+            const performanceCtx = document.getElementById('merchantPerformanceChart');
+            if (performanceCtx) {
+                // Load performance data from API
+                const performanceData = await loadMerchantsPerformanceData();
+                
+                new Chart(performanceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: performanceData.labels || [],
+                        datasets: [{
+                            label: 'الشحنات المنجزة',
+                            data: performanceData.completedShipments || [],
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#2563eb',
+                            borderWidth: 1
+                        }, {
+                            label: 'الإيرادات (×100)',
+                            data: performanceData.revenues || [],
+                            backgroundColor: '#10b981',
+                            borderColor: '#059669',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Merchant Distribution Chart
+            const distributionCtx = document.getElementById('merchantDistributionChart');
+            if (distributionCtx) {
+                // Load distribution data from API
+                const distributionData = await loadMerchantsDistributionData();
+                
+                new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: distributionData.labels || [],
+                        datasets: [{
+                            data: distributionData.values || [],
+                            backgroundColor: ['#10b981', '#6b7280', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                // Load revenue data from API
+                const revenueData = await loadMerchantsRevenueData();
+                
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: revenueData.labels || [],
+                        datasets: [{
+                            label: 'الإيرادات (جنيه)',
+                            data: revenueData.values || [],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // API Data Loading Functions
+        async function loadMerchantsPerformanceData() {
+            try {
+                const response = await window.apiService.getMerchantsPerformanceData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], completedShipments: [], revenues: [] };
+        }
+
+        async function loadMerchantsDistributionData() {
+            try {
+                const response = await window.apiService.getMerchantsDistributionData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], values: [] };
+        }
+
+        async function loadMerchantsRevenueData() {
+            try {
+                const response = await window.apiService.getMerchantsRevenueData();
+                if (response.success) {
+                    return response.data;
+                }
+            } catch (error) {
+                // Return empty data on error
+            }
+            return { labels: [], values: [] };
+        }
+
+        function setupEventListeners() {
+            // Action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn.view')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    viewMerchantDetails(id);
+                } else if (e.target.closest('.action-btn.edit')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    editMerchant(id);
+                } else if (e.target.closest('.action-btn.chart')) {
+                    const id = e.target.closest('.action-btn').getAttribute('data-id');
+                    showMerchantChart(id);
+                }
+            });
+        }
+
+        function viewMerchantDetails(id) {
+            const modal = new bootstrap.Modal(document.getElementById('merchantDetailsModal'));
+            modal.show();
+        }
+
+        function editMerchant(id) {
+            
+            
+        }
+
+        function showMerchantChart(id) {
+            
+            
+        }
+
+        function applyFilters() {
+            const filters = {
+                dateFrom: document.getElementById('dateFrom').value,
+                dateTo: document.getElementById('dateTo').value,
+                merchant: document.getElementById('merchantSelect').value,
+                status: document.getElementById('statusSelect').value
+            };
+            
+            
+            
+            loadMerchantsData();
+        }
+
+        function clearFilters() {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            document.getElementById('merchantSelect').value = '';
+            document.getElementById('statusSelect').value = '';
+            
+            loadMerchantsData();
+        }
+
+        function exportReport(format) {
+            showNotification(`جاري تصدير التقرير بصيغة ${format.toUpperCase()}...`, 'info');
+            // This would typically call an API to export the report
+            setTimeout(() => {
+                
+            }, 2000);
+        }
+
+        function exportTable() {
+            
+            // This would typically call an API to export the table
+            setTimeout(() => {
+                
+            }, 2000);
+        }
+
+        function refreshReport() {
+            
+            loadMerchantsData();
+            setTimeout(() => {
+                
+            }, 1000);
+        }
+    </script>
+
+    <style>
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .top-merchants {
+            space-y: 15px;
+        }
+
+        .merchant-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .merchant-rank {
+            width: 30px;
+            height: 30px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .merchant-info {
+            flex: 1;
+        }
+
+        .merchant-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .merchant-stats {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .merchant-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .page-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</body>
+</html>

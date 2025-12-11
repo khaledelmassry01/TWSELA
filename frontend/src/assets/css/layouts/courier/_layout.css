@@ -1,0 +1,67 @@
+/* Courier Layout Styles */
+.courier-map-container {
+    height: calc(100vh - 200px);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--spacing-4);
+}
+
+.courier-orders {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.courier-order-card {
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.courier-order-status {
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.courier-order-status.pending {
+    background: var(--warning-color-light);
+    color: var(--warning-color);
+}
+
+.courier-order-status.in-progress {
+    background: var(--info-color-light);
+    color: var(--info-color);
+}
+
+.courier-order-status.completed {
+    background: var(--success-color-light);
+    color: var(--success-color);
+}
+
+.courier-stats-bar {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+    padding: var(--spacing-4);
+    background: var(--white-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.courier-stat {
+    flex: 1;
+    text-align: center;
+}
+
+/* RTL Support */
+[dir="rtl"] .courier-order-card {
+    text-align: right;
+}
+
+[dir="rtl"] .courier-stats-bar {
+    flex-direction: row-reverse;
+}
