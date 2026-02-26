@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "إدارة المصادقة وتسجيل الدخول")
 public class AuthController {
 

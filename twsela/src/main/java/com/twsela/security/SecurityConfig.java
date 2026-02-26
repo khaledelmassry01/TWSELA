@@ -100,6 +100,10 @@ public class SecurityConfig {
         // In production, specify exact domains instead of "*"
         // For development, allow localhost and common development ports
         configuration.setAllowedOrigins(List.of(
+            "http://localhost:5173",  // Vite dev server
+            "http://localhost:5174",  // Vite dev server (fallback port)
+            "http://127.0.0.1:5173", // Vite dev server (127.0.0.1)
+            "http://127.0.0.1:5174", // Vite dev server (127.0.0.1 fallback)
             "http://localhost:8000",  // Frontend development server (HTTP)
             "https://localhost:8000", // Frontend development server (HTTPS)
             "http://127.0.0.1:8000",  // Frontend development server (127.0.0.1)
