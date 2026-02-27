@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('login');
+
 /**
  * Twsela CMS - Login Page Handler
  * Handles all login page functionality including form validation, authentication, and UI interactions
@@ -163,7 +166,7 @@ class LoginPageHandler {
      * Check if user is already authenticated
      */
     checkExistingAuth() {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         if (token) {
             // Only validate token if we're not on login page AND login is not in progress
             if (!window.location.pathname.includes('login.html') && 
@@ -185,7 +188,7 @@ class LoginPageHandler {
             const response = await fetch(`${apiBaseUrl}/api/auth/me`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -199,23 +202,17 @@ class LoginPageHandler {
                         this.redirectToDashboard(userRole);
                     } else {
 
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('userData');
-                    }
-                } else {
-                    // Invalid response, clear auth data
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('userData');
-                }
+                        sessionStorage.removeItem('authToken');
+                        sessionStorage.removeItem('userData');
             } else {
                 // Token is invalid, clear it
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userData');
+                sessionStorage.removeItem('authToken');
+                sessionStorage.removeItem('userData');
             }
         } catch (error) {
 
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('userData');
         }
     }
 
@@ -250,7 +247,7 @@ class LoginPageHandler {
             }
         } catch (error) {
 
-            this.handleLoginError('حدث خطأ في الاتصال بالخادم');
+            this.handleLoginError('Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…');
         } finally {
             this.isSubmitting = false;
             this.setSubmitButtonLoading(false);
@@ -272,10 +269,10 @@ class LoginPageHandler {
         if (phoneInput) {
             const phoneValue = phoneInput.value.trim();
             if (!phoneValue) {
-                this.showFieldError(phoneInput, 'رقم الهاتف مطلوب');
+                this.showFieldError(phoneInput, 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ Ù…Ø·Ù„ÙˆØ¨');
                 isValid = false;
             } else if (!this.validatePhone(phoneValue)) {
-                this.showFieldError(phoneInput, 'رقم الهاتف غير صحيح');
+                this.showFieldError(phoneInput, 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ØºÙŠØ± ØµØ­ÙŠØ­');
                 isValid = false;
             }
         }
@@ -285,10 +282,10 @@ class LoginPageHandler {
         if (passwordInput) {
             const passwordValue = passwordInput.value;
             if (!passwordValue) {
-                this.showFieldError(passwordInput, 'كلمة المرور مطلوبة');
+                this.showFieldError(passwordInput, 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø·Ù„ÙˆØ¨Ø©');
                 isValid = false;
             } else if (!this.validatePassword(passwordValue)) {
-                this.showFieldError(passwordInput, 'كلمة المرور مطلوبة');
+                this.showFieldError(passwordInput, 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø·Ù„ÙˆØ¨Ø©');
                 isValid = false;
             }
         }
@@ -342,10 +339,10 @@ class LoginPageHandler {
 
         if (field.hasAttribute('required') && !value) {
             isValid = false;
-            errorMessage = 'هذا الحقل مطلوب';
+            errorMessage = 'Ù‡Ø°Ø§ Ø§Ù„Ø­Ù‚Ù„ Ù…Ø·Ù„ÙˆØ¨';
         } else if (field.type === 'tel' && value && !this.validatePhone(value)) {
             isValid = false;
-            errorMessage = 'رقم الهاتف غير صحيح';
+            errorMessage = 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ØºÙŠØ± ØµØ­ÙŠØ­';
         }
 
         if (isValid) {
@@ -493,17 +490,17 @@ class LoginPageHandler {
             } else {
                 return {
                     success: false,
-                    message: data.message || 'فشل في تسجيل الدخول',
+                    message: data.message || 'ÙØ´Ù„ ÙÙŠ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„',
                     errors: data.errors || []
                 };
             }
         } catch (error) {
-            let errorMessage = 'حدث خطأ في الاتصال بالخادم';
+            let errorMessage = 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…';
             
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                errorMessage = 'لا يمكن الاتصال بالخادم. تأكد من أن الباك إند يعمل على المنفذ 8080';
+                errorMessage = 'Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…. ØªØ£ÙƒØ¯ Ù…Ù† Ø£Ù† Ø§Ù„Ø¨Ø§Ùƒ Ø¥Ù†Ø¯ ÙŠØ¹Ù…Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ù†ÙØ° 8080';
             } else if (error.name === 'NetworkError') {
-                errorMessage = 'خطأ في الشبكة. تحقق من اتصالك بالإنترنت';
+                errorMessage = 'Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø´Ø¨ÙƒØ©. ØªØ­Ù‚Ù‚ Ù…Ù† Ø§ØªØµØ§Ù„Ùƒ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª';
             }
             
             return {
@@ -518,7 +515,7 @@ class LoginPageHandler {
      * @returns {string} API base URL
      */
     getApiBaseUrl() {
-        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
+        return window.getApiBaseUrl();
     }
 
     /**
@@ -545,15 +542,15 @@ class LoginPageHandler {
         } else {
             // Fallback if AuthService not available
             if (data.token) {
-                localStorage.setItem('authToken', data.token);
+                sessionStorage.setItem('authToken', data.token);
             }
             if (data.user) {
-                localStorage.setItem('userData', JSON.stringify(data.user));
+                sessionStorage.setItem('userData', JSON.stringify(data.user));
             }
         }
 
         // Show success message
-        this.showSuccessMessage('تم تسجيل الدخول بنجاح');
+        this.showSuccessMessage('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø¨Ù†Ø¬Ø§Ø­');
 
         // Set login in progress flag to prevent double redirect
         if (window.authService) {
@@ -748,8 +745,8 @@ class LoginPageHandler {
 
         try {
             // Here you would implement the password reset logic
-            this.showSuccessMessage('تم إرسال رمز إعادة تعيين كلمة المرور');
-        } catch (error) { console.error('Unhandled error:', error); }
+            this.showSuccessMessage('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ù…Ø² Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
+        } catch (error) { log.error('Unhandled error:', error); }
     }
 
     /**
@@ -757,7 +754,7 @@ class LoginPageHandler {
      */
     handleRegisterClick() {
         // For now, just show a message
-        this.showInfoMessage('ميزة إنشاء الحساب ستكون متاحة قريباً');
+        this.showInfoMessage('Ù…ÙŠØ²Ø© Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨ Ø³ØªÙƒÙˆÙ† Ù…ØªØ§Ø­Ø© Ù‚Ø±ÙŠØ¨Ø§Ù‹');
     }
 
     /**

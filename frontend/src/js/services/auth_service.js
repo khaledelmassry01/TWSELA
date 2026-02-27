@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('auth_service');
+
 /**
  * Twsela CMS - Unified Authentication Service
  * Consolidated authentication service handling all auth operations
@@ -33,10 +36,10 @@ class AuthService {
     }
 
     /**
-     * Get API base URL - Use centralized config
+     * Get API base URL - delegates to global config utility
      */
     getApiBaseUrl() {
-        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
+        return window.getApiBaseUrl();
     }
 
     /**
@@ -66,7 +69,7 @@ class AuthService {
                 // Store authentication data
                 this.storeAuthData(data.data);
                 
-                UIUtils.showSuccess('تم تسجيل الدخول بنجاح');
+                UIUtils.showSuccess('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø¨Ù†Ø¬Ø§Ø­');
                 
                 // Don't redirect here - let LoginPageHandler handle it
                 // This prevents double redirect
@@ -80,12 +83,12 @@ class AuthService {
                 
                 return {
                     success: false,
-                    message: data.message || 'فشل في تسجيل الدخول',
+                    message: data.message || 'ÙØ´Ù„ ÙÙŠ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„',
                     errors: data.errors || []
                 };
             }
         } catch (error) {
-            console.error('🔐 Auth Service Error - Login:', {
+            log.error('ðŸ” Auth Service Error - Login:', {
                 method: 'login',
                 error: error.message,
                 stack: error.stack,
@@ -95,7 +98,7 @@ class AuthService {
             
             return {
                 success: false,
-                message: 'حدث خطأ في الاتصال بالخادم'
+                message: 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…'
             };
         } finally {
             this.isLoginInProgress = false;
@@ -121,7 +124,7 @@ class AuthService {
                 });
             }
         } catch (error) {
-            console.error('🔐 Auth Service Error - Logout:', {
+            log.error('ðŸ” Auth Service Error - Logout:', {
                 method: 'logout',
                 error: error.message,
                 stack: error.stack,
@@ -130,7 +133,7 @@ class AuthService {
         } finally {
             // Clear local storage regardless of backend response
             this.clearAuthData();
-            UIUtils.showSuccess('تم تسجيل الخروج بنجاح');
+            UIUtils.showSuccess('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬ Ø¨Ù†Ø¬Ø§Ø­');
             this.redirectToLogin();
         }
     }
@@ -187,26 +190,26 @@ class AuthService {
                 return true;
             }
             
-            // فحص الـ global flag لمنع الاستدعاءات المتعددة
+            // ÙØ­Øµ Ø§Ù„Ù€ global flag Ù„Ù…Ù†Ø¹ Ø§Ù„Ø§Ø³ØªØ¯Ø¹Ø§Ø¡Ø§Øª Ø§Ù„Ù…ØªØ¹Ø¯Ø¯Ø©
             if (window.authCheckInProgress) {
-                console.log('⏳ Global auth check already in progress, waiting...');
+                log.debug('â³ Global auth check already in progress, waiting...');
                 let attempts = 0;
                 while (window.authCheckInProgress && attempts < 50) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     attempts++;
                 }
                 
-                // فحص النتيجة بعد الانتظار
+                // ÙØ­Øµ Ø§Ù„Ù†ØªÙŠØ¬Ø© Ø¨Ø¹Ø¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
                 const localUser = this.getCurrentUser();
                 if (localUser && localUser.id) {
-                    console.log('✅ Auth verified after waiting for global check');
+                    log.debug('âœ… Auth verified after waiting for global check');
                     return true;
                 }
             }
             
-            // منع الاستدعاءات المتعددة المتزامنة
+            // Ù…Ù†Ø¹ Ø§Ù„Ø§Ø³ØªØ¯Ø¹Ø§Ø¡Ø§Øª Ø§Ù„Ù…ØªØ¹Ø¯Ø¯Ø© Ø§Ù„Ù…ØªØ²Ø§Ù…Ù†Ø©
             if (this.authCheckInProgress && this.authCheckPromise) {
-                console.log('⏳ Auth check already in progress, waiting for result...');
+                log.debug('â³ Auth check already in progress, waiting for result...');
                 return await this.authCheckPromise;
             }
             
@@ -216,47 +219,47 @@ class AuthService {
                 return false;
             }
 
-            // فحص الـ cache أولاً
+            // ÙØ­Øµ Ø§Ù„Ù€ cache Ø£ÙˆÙ„Ø§Ù‹
             if (this.isAuthCacheValid()) {
-                console.log('✅ Using cached auth data, skipping auth/me call');
+                log.debug('âœ… Using cached auth data, skipping auth/me call');
                 return true;
             }
 
-            // فحص البيانات المحلية كبديل للـ cache
+            // ÙØ­Øµ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ© ÙƒØ¨Ø¯ÙŠÙ„ Ù„Ù„Ù€ cache
             const localUser = this.getCurrentUser();
             if (localUser && localUser.id) {
-                console.log('✅ Using local user data, updating cache');
+                log.debug('âœ… Using local user data, updating cache');
                 this.updateAuthCache(localUser, true);
                 return true;
             }
 
-            // بدء عملية فحص المصادقة مع منع الاستدعاءات المتعددة
+            // Ø¨Ø¯Ø¡ Ø¹Ù…Ù„ÙŠØ© ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ù…Ø¹ Ù…Ù†Ø¹ Ø§Ù„Ø§Ø³ØªØ¯Ø¹Ø§Ø¡Ø§Øª Ø§Ù„Ù…ØªØ¹Ø¯Ø¯Ø©
             this.authCheckInProgress = true;
-            window.authCheckInProgress = true; // تعيين الـ global flag
+            window.authCheckInProgress = true; // ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù€ global flag
             this.authCheckPromise = this.performAuthCheck();
             
             const result = await this.authCheckPromise;
             this.authCheckInProgress = false;
-            window.authCheckInProgress = false; // إزالة الـ global flag
+            window.authCheckInProgress = false; // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„Ù€ global flag
             this.authCheckPromise = null;
             
             return result;
         } catch (error) {
             this.authCheckInProgress = false;
-            window.authCheckInProgress = false; // تنظيف الـ global flag
+            window.authCheckInProgress = false; // ØªÙ†Ø¸ÙŠÙ Ø§Ù„Ù€ global flag
             this.authCheckPromise = null;
             
-            console.error('🔐 Auth Service Error - Check Auth Status:', {
+            log.error('ðŸ” Auth Service Error - Check Auth Status:', {
                 method: 'checkAuthStatus',
                 error: error.message,
                 stack: error.stack,
                 timestamp: new Date().toISOString()
             });
 
-            // Don't clear auth data on network errors
-            // This prevents logout on temporary network issues
-            console.warn('⚠️ Network error during auth check, keeping user logged in');
-            return true; // Return true to keep user logged in on network errors
+            // SECURITY FIX: Network errors should NOT keep user authenticated
+            // This prevents unauthorized access when server is unreachable
+            log.warn('⚠️ Network error during auth check, logging user out for safety');
+            return false; // Return false to force re-authentication
         }
     }
 
@@ -266,7 +269,7 @@ class AuthService {
      */
     async performAuthCheck() {
         try {
-            console.log('🔄 Checking authentication with server...');
+            log.debug('ðŸ”„ Checking authentication with server...');
             
             // Use getAuthHeader() to ensure proper headers are sent
             const authHeaders = this.getAuthHeader();
@@ -279,11 +282,11 @@ class AuthService {
                 }
             });
             
-            console.log('📡 Auth/me response status:', response.status);
+            log.debug('ðŸ“¡ Auth/me response status:', response.status);
 
             // CRITICAL FIX: Only clear auth data if response is 401 (Unauthorized)
             if (response.status === 401) {
-                console.warn('⚠️ Authentication failed (401), clearing auth data');
+                log.warn('âš ï¸ Authentication failed (401), clearing auth data');
                 this.clearAuthData();
                 this.clearAuthCache();
                 return false;
@@ -295,17 +298,17 @@ class AuthService {
                 if (user) {
                     this.storeUserData(user);
                     this.updateAuthCache(user, true);
-                    console.log('✅ User data updated from server and cached');
+                    log.debug('âœ… User data updated from server and cached');
                     return true;
                 }
             }
 
             // For other errors (network, server errors), don't clear auth data
             // but don't bypass authentication either
-            console.warn('⚠️ Auth/me returned non-200 status, auth check inconclusive');
-            return false; // Return false — require re-authentication on server errors
+            log.warn('âš ï¸ Auth/me returned non-200 status, auth check inconclusive');
+            return false; // Return false â€” require re-authentication on server errors
         } catch (error) {
-            console.error('🔐 Auth Service Error - Perform Auth Check:', {
+            log.error('ðŸ” Auth Service Error - Perform Auth Check:', {
                 method: 'performAuthCheck',
                 error: error.message,
                 stack: error.stack,
@@ -314,8 +317,8 @@ class AuthService {
 
             // Don't clear auth data on network errors
             // but don't bypass authentication either
-            console.warn('⚠️ Network error during auth check, auth check inconclusive');
-            return false; // Return false — require re-authentication on network errors
+            log.warn('âš ï¸ Network error during auth check, auth check inconclusive');
+            return false; // Return false â€” require re-authentication on network errors
         }
     }
 
@@ -325,10 +328,10 @@ class AuthService {
      */
     getCurrentUser() {
         try {
-            const userData = localStorage.getItem(this.userDataKey);
+            const userData = sessionStorage.getItem(this.userDataKey);
             return userData ? JSON.parse(userData) : null;
         } catch (error) {
-            console.error('🔐 Auth Service Error - Get Current User:', {
+            log.error('ðŸ” Auth Service Error - Get Current User:', {
                 method: 'getCurrentUser',
                 error: error.message,
                 stack: error.stack,
@@ -344,7 +347,7 @@ class AuthService {
      * @returns {string|null} Authentication token
      */
     getToken() {
-        return localStorage.getItem(this.tokenKey);
+        return sessionStorage.getItem(this.tokenKey);
     }
 
     /**
@@ -416,7 +419,7 @@ class AuthService {
 
             return false;
         } catch (error) {
-            console.error('🔐 Auth Service Error - Verify Token:', {
+            log.error('ðŸ” Auth Service Error - Verify Token:', {
                 method: 'verifyToken',
                 error: error.message,
                 stack: error.stack,
@@ -451,7 +454,7 @@ class AuthService {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                UIUtils.showSuccess('تم تغيير كلمة المرور بنجاح');
+                UIUtils.showSuccess('ØªÙ… ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¨Ù†Ø¬Ø§Ø­');
                 return {
                     success: true,
                     message: data.message
@@ -460,12 +463,12 @@ class AuthService {
                 
                 return {
                     success: false,
-                    message: data.message || 'فشل في تغيير كلمة المرور',
+                    message: data.message || 'ÙØ´Ù„ ÙÙŠ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±',
                     errors: data.errors || []
                 };
             }
         } catch (error) {
-            console.error('🔐 Auth Service Error - Change Password:', {
+            log.error('ðŸ” Auth Service Error - Change Password:', {
                 method: 'changePassword',
                 error: error.message,
                 stack: error.stack,
@@ -474,7 +477,7 @@ class AuthService {
             
             return {
                 success: false,
-                message: 'حدث خطأ في تغيير كلمة المرور'
+                message: 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±'
             };
         } finally {
             UIUtils.hideLoading();
@@ -490,7 +493,7 @@ class AuthService {
         try {
             UIUtils.showLoading();
 
-            const response = await fetch(`${this.apiBaseUrl}/api/auth/forgot-password`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/public/forgot-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -501,7 +504,7 @@ class AuthService {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                UIUtils.showSuccess('تم إرسال رابط إعادة تعيين كلمة المرور');
+                UIUtils.showSuccess('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
                 return {
                     success: true,
                     message: data.message
@@ -510,11 +513,11 @@ class AuthService {
                 
                 return {
                     success: false,
-                    message: data.message || 'فشل في إرسال رابط إعادة التعيين'
+                    message: data.message || 'ÙØ´Ù„ ÙÙŠ Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªØ¹ÙŠÙŠÙ†'
                 };
             }
         } catch (error) {
-            console.error('🔐 Auth Service Error - Forgot Password:', {
+            log.error('ðŸ” Auth Service Error - Forgot Password:', {
                 method: 'forgotPassword',
                 error: error.message,
                 stack: error.stack,
@@ -523,7 +526,7 @@ class AuthService {
             
             return {
                 success: false,
-                message: 'حدث خطأ في طلب إعادة تعيين كلمة المرور'
+                message: 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø·Ù„Ø¨ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±'
             };
         } finally {
             UIUtils.hideLoading();
@@ -542,7 +545,7 @@ class AuthService {
         try {
             UIUtils.showLoading();
 
-            const response = await fetch(`${this.apiBaseUrl}/api/auth/reset-password`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/public/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -553,7 +556,7 @@ class AuthService {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                UIUtils.showSuccess('تم إعادة تعيين كلمة المرور بنجاح');
+                UIUtils.showSuccess('ØªÙ… Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¨Ù†Ø¬Ø§Ø­');
                 return {
                     success: true,
                     message: data.message
@@ -562,12 +565,12 @@ class AuthService {
                 
                 return {
                     success: false,
-                    message: data.message || 'فشل في إعادة تعيين كلمة المرور',
+                    message: data.message || 'ÙØ´Ù„ ÙÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±',
                     errors: data.errors || []
                 };
             }
         } catch (error) {
-            console.error('🔐 Auth Service Error - Reset Password:', {
+            log.error('ðŸ” Auth Service Error - Reset Password:', {
                 method: 'resetPassword',
                 error: error.message,
                 stack: error.stack,
@@ -576,7 +579,7 @@ class AuthService {
             
             return {
                 success: false,
-                message: 'حدث خطأ في إعادة تعيين كلمة المرور'
+                message: 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±'
             };
         } finally {
             UIUtils.hideLoading();
@@ -611,7 +614,7 @@ class AuthService {
      * @param {string} token - Authentication token
      */
     storeToken(token) {
-        localStorage.setItem(this.tokenKey, token);
+        sessionStorage.setItem(this.tokenKey, token);
     }
 
     /**
@@ -619,17 +622,16 @@ class AuthService {
      * @param {Object} user - User data
      */
     storeUserData(user) {
-        localStorage.setItem(this.userDataKey, JSON.stringify(user));
+        sessionStorage.setItem(this.userDataKey, JSON.stringify(user));
     }
 
     /**
      * Clear authentication data
      */
     clearAuthData() {
-        localStorage.removeItem(this.tokenKey);
-        localStorage.removeItem(this.userDataKey);
+        sessionStorage.removeItem(this.tokenKey);
+        sessionStorage.removeItem(this.userDataKey);
         this.clearAuthCache();
-        console.log('✅ Auth data and cache cleared');
     }
 
     /**

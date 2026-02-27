@@ -2,6 +2,8 @@ package com.twsela.service;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,8 @@ import java.util.List;
 @Service
 @Transactional
 public class FinancialService {
+
+    private static final Logger log = LoggerFactory.getLogger(FinancialService.class);
 
     private final PayoutRepository payoutRepository;
     private final PayoutItemRepository payoutItemRepository;

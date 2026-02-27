@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('merchant-create-shipment');
+
 /**
  * Twsela CMS - Merchant Create Shipment Handler
  * Handles shipment creation form with zone-based pricing calculation
@@ -27,7 +30,7 @@ class MerchantCreateShipmentHandler {
             await this.loadZones();
             this.setupEventListeners();
             this.initializeForm();
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'MerchantCreateShipment'); }
     }
 
     /**
@@ -47,7 +50,7 @@ class MerchantCreateShipmentHandler {
                 this.populateZoneSelect();
             }
         } catch (error) {
-
+            ErrorHandler.handle(error, 'MerchantCreateShipment.loadZones');
             
             this.zones = [];
             this.populateZoneSelect();
@@ -64,7 +67,7 @@ class MerchantCreateShipmentHandler {
         if (!zoneSelect) return;
 
         // Clear existing options
-        zoneSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+        zoneSelect.innerHTML = '<option value="">Ø§Ø®ØªØ± Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</option>';
 
         this.zones.forEach(zone => {
             const option = document.createElement('option');
@@ -137,7 +140,7 @@ class MerchantCreateShipmentHandler {
             return;
         }
 
-        this.selectedZone = this.zones.find(zone => zone.id == zoneId);
+        this.selectedZone = this.zones.find(zone => zone.id === Number(zoneId));
         if (this.selectedZone) {
             this.pricingData = {
                 defaultFee: parseFloat(this.selectedZone.defaultFee) || 0,
@@ -236,7 +239,7 @@ class MerchantCreateShipmentHandler {
         // Update weight display
         const weightDisplayElement = document.getElementById('weightDisplay');
         if (weightDisplayElement) {
-            weightDisplayElement.textContent = `${pricing.weight} كيلو`;
+            weightDisplayElement.textContent = `${pricing.weight} ÙƒÙŠÙ„Ùˆ`;
         }
 
         // Update COD amount display
@@ -297,7 +300,7 @@ class MerchantCreateShipmentHandler {
             const response = await apiService.createShipment(formData);
 
             if (response.success) {
-                NotificationService.success('تم إنشاء الشحنة بنجاح');
+                NotificationService.success('ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø´Ø­Ù†Ø© Ø¨Ù†Ø¬Ø§Ø­');
                 this.resetForm();
                 
                 // Redirect to shipments list or show success details
@@ -305,9 +308,9 @@ class MerchantCreateShipmentHandler {
                     window.location.href = '/merchant/shipments.html';
                 }, 2000);
             } else {
-                
+                ErrorHandler.handle(response, 'MerchantCreateShipment.submit');
             }
-        } catch (error) { console.error('Unhandled error:', error); } finally {
+        } catch (error) { ErrorHandler.handle(error, 'MerchantCreateShipment.submit'); } finally {
             UIUtils.hideLoading();
         }
     }
@@ -334,21 +337,21 @@ class MerchantCreateShipmentHandler {
         // Phone number validation
         const phoneField = document.getElementById('recipientPhone');
         if (phoneField && !this.validatePhoneNumber(phoneField.value)) {
-            this.showFieldError(phoneField, 'رقم الهاتف غير صحيح');
+            this.showFieldError(phoneField, 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ØºÙŠØ± ØµØ­ÙŠØ­');
             isValid = false;
         }
 
         // Weight validation
         const weightField = document.getElementById('weight');
         if (weightField && parseFloat(weightField.value) <= 0) {
-            this.showFieldError(weightField, 'يجب أن يكون الوزن أكبر من صفر');
+            this.showFieldError(weightField, 'ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø§Ù„ÙˆØ²Ù† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±');
             isValid = false;
         }
 
         // COD amount validation
         const codAmountField = document.getElementById('codAmount');
         if (codAmountField && codAmountField.value && parseFloat(codAmountField.value) < 0) {
-            this.showFieldError(codAmountField, 'مبلغ الدفع عند الاستلام يجب أن يكون أكبر من أو يساوي صفر');
+            this.showFieldError(codAmountField, 'Ù…Ø¨Ù„Øº Ø§Ù„Ø¯ÙØ¹ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù… ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† Ø£Ùˆ ÙŠØ³Ø§ÙˆÙŠ ØµÙØ±');
             isValid = false;
         }
 
@@ -363,7 +366,7 @@ class MerchantCreateShipmentHandler {
         const isRequired = field.hasAttribute('required');
 
         if (isRequired && !value) {
-            this.showFieldError(field, 'هذا الحقل مطلوب');
+            this.showFieldError(field, 'Ù‡Ø°Ø§ Ø§Ù„Ø­Ù‚Ù„ Ù…Ø·Ù„ÙˆØ¨');
             return false;
         }
 
@@ -453,7 +456,7 @@ class MerchantCreateShipmentHandler {
      * Get zone pricing information
      */
     getZonePricingInfo(zoneId) {
-        const zone = this.zones.find(z => z.id == zoneId);
+        const zone = this.zones.find(z => z.id === Number(zoneId));
         if (!zone) return null;
 
         return {
@@ -461,7 +464,7 @@ class MerchantCreateShipmentHandler {
             city: zone.city,
             defaultFee: zone.defaultFee,
             codFee: zone.codFee || 0,
-            estimatedDeliveryTime: zone.estimatedDeliveryTime || '1-3 أيام'
+            estimatedDeliveryTime: zone.estimatedDeliveryTime || '1-3 Ø£ÙŠØ§Ù…'
         };
     }
 
@@ -477,25 +480,25 @@ class MerchantCreateShipmentHandler {
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">معلومات المنطقة</h5>
+                            <h5 class="modal-title">Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-6">
-                                    <strong>المنطقة:</strong> ${zoneInfo.name}
+                                    <strong>Ø§Ù„Ù…Ù†Ø·Ù‚Ø©:</strong> ${zoneInfo.name}
                                 </div>
                                 <div class="col-6">
-                                    <strong>المدينة:</strong> ${zoneInfo.city}
+                                    <strong>Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©:</strong> ${zoneInfo.city}
                                 </div>
                                 <div class="col-6">
-                                    <strong>رسوم الشحن الأساسية:</strong> ${DataUtils.formatCurrency(zoneInfo.defaultFee)}
+                                    <strong>Ø±Ø³ÙˆÙ… Ø§Ù„Ø´Ø­Ù† Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©:</strong> ${DataUtils.formatCurrency(zoneInfo.defaultFee)}
                                 </div>
                                 <div class="col-6">
-                                    <strong>رسوم الدفع عند الاستلام:</strong> ${zoneInfo.codFee}%
+                                    <strong>Ø±Ø³ÙˆÙ… Ø§Ù„Ø¯ÙØ¹ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…:</strong> ${zoneInfo.codFee}%
                                 </div>
                                 <div class="col-12">
-                                    <strong>وقت التوصيل المتوقع:</strong> ${zoneInfo.estimatedDeliveryTime}
+                                    <strong>ÙˆÙ‚Øª Ø§Ù„ØªÙˆØµÙŠÙ„ Ø§Ù„Ù…ØªÙˆÙ‚Ø¹:</strong> ${zoneInfo.estimatedDeliveryTime}
                                 </div>
                             </div>
                         </div>

@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
+
     private final Key signingKey;
     private final long expirationMs;
 
@@ -23,9 +27,17 @@ public class JwtService {
             @Value("${app.security.jwt.secret}") String secret,
             @Value("${app.security.jwt.expiration-ms}") long expirationMs
     ) {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                "JWT_SECRET environment variable is required. " +
+                "Set it to a Base64-encoded 256-bit key. " +
+                "Generate one with: openssl rand -base64 32"
+            );
+        }
         byte[] keyBytes = secret.length() > 64 ? Decoders.BASE64.decode(secret) : secret.getBytes();
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.expirationMs = expirationMs;
+        log.info("JwtService initialized — token expiration: {}ms", expirationMs);
     }
 
     public String extractUsername(String token) {

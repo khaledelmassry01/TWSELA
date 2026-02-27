@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-employees-page');
+
 /**
  * Twsela CMS - Owner Employees Page Handler
  * Handles employee management for owner
@@ -18,25 +21,31 @@ class OwnerEmployeesHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-        // Initializing Owner Employees specific functionality - console.log removed for cleaner console
+        try {
+            UIUtils.showLoading();
         
-        // Load employees data
-        await this.loadEmployees();
-        
-        // Setup pagination
-        this.setupPagination();
-        
-        // Setup modal event listeners
-        this.setupModalEventListeners();
+            // Load employees data
+            await this.loadEmployees();
+            
+            // Setup pagination
+            this.setupPagination();
+            
+            // Setup modal event listeners
+            this.setupModalEventListeners();
+        } catch (error) {
+            ErrorHandler.handle(error, 'OwnerEmployees');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
      * Load employees data
      */
     async loadEmployees() {
-        // Loading employees data - console.log removed for cleaner console
         
         try {
+            UIUtils.showTableLoading('#employeesTable');
             const response = await this.services.api.getEmployees({
                 page: this.currentPage,
                 size: this.pageSize
@@ -47,11 +56,11 @@ class OwnerEmployeesHandler extends BasePageHandler {
                 this.updateEmployeesTable();
                 this.updatePaginationInfo(response.totalElements || 0);
             } else {
-                console.error('Failed to load employees:', response.message);
+                UIUtils.showEmptyState('#employeesTable tbody', 'لا توجد موظفين', 'users');
             }
             
         } catch (error) {
-            console.error('Error loading employees:', error);
+            ErrorHandler.handle(error, 'OwnerEmployees.loadEmployees');
         }
     }
 
@@ -66,7 +75,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
         tbody.innerHTML = '';
 
         if (!this.employees || this.employees.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">لا توجد موظفين</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…ÙˆØ¸ÙÙŠÙ†</td></tr>';
             return;
         }
 
@@ -74,10 +83,10 @@ class OwnerEmployeesHandler extends BasePageHandler {
         this.employees.forEach(employee => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${escapeHtml(employee.name || 'غير محدد')}</td>
-                <td>${escapeHtml(employee.phone || 'غير محدد')}</td>
-                <td><span class="badge bg-${this.getStatusColor(employee.status)}">${escapeHtml(employee.status?.name || 'غير محدد')}</span></td>
-                <td>${escapeHtml(employee.role?.name || 'غير محدد')}</td>
+                <td>${escapeHtml(employee.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td>${escapeHtml(employee.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td><span class="badge bg-${this.getStatusColor(employee.status)}">${escapeHtml(employee.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
+                <td>${escapeHtml(employee.role?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
                 <td>${this.formatDate(employee.createdAt)}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary" onclick="ownerEmployeesHandler.editEmployee(${employee.id})">
@@ -126,7 +135,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
         if (paginationInfo) {
             const startItem = (this.currentPage - 1) * this.pageSize + 1;
             const endItem = Math.min(this.currentPage * this.pageSize, totalElements);
-            paginationInfo.textContent = `عرض ${startItem}-${endItem} من ${totalElements}`;
+            paginationInfo.textContent = `Ø¹Ø±Ø¶ ${startItem}-${endItem} Ù…Ù† ${totalElements}`;
         }
     }
 
@@ -136,9 +145,9 @@ class OwnerEmployeesHandler extends BasePageHandler {
     async editEmployee(employeeId) {
         try {
             // TODO: Implement edit functionality
-            this.services.notification.info('تعديل الموظف قيد التطوير');
+            this.services.notification.info('ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…ÙˆØ¸Ù Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±');
         } catch (error) {
-            console.error('Error editing employee:', error);
+            log.error('Error editing employee:', error);
         }
     }
 
@@ -148,17 +157,20 @@ class OwnerEmployeesHandler extends BasePageHandler {
     async deleteEmployee(employeeId) {
         try {
             if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+                UIUtils.showLoading();
                 const response = await this.services.api.deleteEmployee(employeeId);
                 
                 if (response.success) {
                     this.services.notification.success('تم حذف الموظف بنجاح');
                     this.loadEmployees(); // Reload data
                 } else {
-                    console.error('Failed to delete employee:', response.message);
+                    ErrorHandler.handle(response, 'OwnerEmployees.deleteEmployee');
                 }
             }
         } catch (error) {
-            console.error('Error deleting employee:', error);
+            ErrorHandler.handle(error, 'OwnerEmployees.deleteEmployee');
+        } finally {
+            UIUtils.hideLoading();
         }
     }
 
@@ -166,7 +178,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
      * Setup event listeners
      */
     setupEventListeners() {
-        console.log('🔧 Setting up event listeners...');
+        log.debug('ðŸ”§ Setting up event listeners...');
         
         // Add employee button - Try multiple ways to find it
         let addEmployeeBtn = document.getElementById('addEmployeeBtn');
@@ -197,7 +209,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
             });
             // Add employee form event listener added - console.log removed for cleaner console
         } else {
-            console.error('❌ Add employee form not found!');
+            log.error('âŒ Add employee form not found!');
         }
 
         // Logout button
@@ -222,7 +234,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
                 // Modal button found, binding event listener - console.log removed for cleaner console
                 this.bindAddEmployeeButton(addEmployeeBtn);
             } else {
-                console.error('🎭 Modal button not found!');
+                log.error('ðŸŽ­ Modal button not found!');
             }
         }, 500);
         
@@ -263,16 +275,16 @@ class OwnerEmployeesHandler extends BasePageHandler {
         const statusName = status.name?.toLowerCase();
         switch (statusName) {
             case 'active':
-            case 'نشط':
+            case 'Ù†Ø´Ø·':
                 return 'success';
             case 'inactive':
-            case 'غير نشط':
+            case 'ØºÙŠØ± Ù†Ø´Ø·':
                 return 'secondary';
             case 'pending':
-            case 'معلق':
+            case 'Ù…Ø¹Ù„Ù‚':
                 return 'warning';
             case 'suspended':
-            case 'معلق':
+            case 'Ù…Ø¹Ù„Ù‚':
                 return 'danger';
             default:
                 return 'secondary';
@@ -283,7 +295,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
      * Format date
      */
     formatDate(dateString) {
-        if (!dateString) return 'غير محدد';
+        if (!dateString) return 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         
         try {
             const date = new Date(dateString);
@@ -293,7 +305,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
                 day: 'numeric'
             });
         } catch (error) {
-            return 'غير محدد';
+            return 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
     }
     async handleAddEmployee() {
@@ -303,7 +315,7 @@ class OwnerEmployeesHandler extends BasePageHandler {
             // Get form data
             const form = document.getElementById('addEmployeeForm');
             if (!form) {
-                console.error('Add employee form not found');
+                log.error('Add employee form not found');
                 return;
             }
 
@@ -320,16 +332,14 @@ class OwnerEmployeesHandler extends BasePageHandler {
 
             // Validate required fields
             if (!employeeData.name || !employeeData.phone || !employeeData.role || !employeeData.password) {
-                console.error('Missing required fields');
-                alert('يرجى ملء جميع الحقول المطلوبة');
+                log.error('Missing required fields');
+                UIUtils.showWarning('يرجى ملء جميع الحقول المطلوبة');
                 return;
             }
 
             // Show loading state
             const addBtn = document.getElementById('addEmployeeBtn');
-            const originalText = addBtn.textContent;
-            addBtn.disabled = true;
-            addBtn.textContent = 'جاري الإضافة...';
+            UIUtils.showButtonLoading(addBtn, 'جاري الإضافة...');
 
             // Calling API - console.log removed for cleaner console
             // Call API
@@ -352,22 +362,17 @@ class OwnerEmployeesHandler extends BasePageHandler {
                 await this.loadEmployees();
 
                 // Show success message
-                this.services.notification.success('تم إضافة الموظف بنجاح');
+                this.services.notification.success('ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­');
             } else {
-                console.error('Failed to add employee:', response.message);
-                alert('فشل في إضافة الموظف: ' + response.message);
+                ErrorHandler.handle(response, 'OwnerEmployees.addEmployee');
             }
 
         } catch (error) {
-            console.error('Error adding employee:', error);
-            alert('حدث خطأ في إضافة الموظف: ' + error.message);
+            ErrorHandler.handle(error, 'OwnerEmployees.addEmployee');
         } finally {
             // Reset button state
             const addBtn = document.getElementById('addEmployeeBtn');
-            if (addBtn) {
-                addBtn.disabled = false;
-                addBtn.textContent = 'إضافة موظف';
-            }
+            UIUtils.hideButtonLoading(addBtn);
         }
     }
 }
@@ -382,7 +387,7 @@ window.handleAddEmployee = function() {
     if (window.ownerEmployeesHandler) {
         return window.ownerEmployeesHandler.handleAddEmployee();
     } else {
-        console.error('OwnerEmployeesHandler not available');
+        log.error('OwnerEmployeesHandler not available');
     }
 };
 
@@ -397,10 +402,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('/owner/employees.html')) {
         // Owner employees page detected - console.log removed for cleaner console
         setTimeout(() => {
-            console.log('🎯 Starting Owner Employees initialization...');
+            log.debug('ðŸŽ¯ Starting Owner Employees initialization...');
             window.ownerEmployeesHandler.init();
         }, 200);
     } else {
-        console.log('❌ Not owner employees page, skipping initialization');
+        log.debug('âŒ Not owner employees page, skipping initialization');
     }
 });

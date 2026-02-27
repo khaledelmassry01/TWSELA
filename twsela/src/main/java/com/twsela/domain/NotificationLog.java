@@ -2,9 +2,14 @@ package com.twsela.domain;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
-@Table(name = "notification_log")
+@Table(name = "notification_log", indexes = {
+    @Index(name = "idx_notif_recipient_phone", columnList = "recipient_phone"),
+    @Index(name = "idx_notif_sent_at", columnList = "sent_at"),
+    @Index(name = "idx_notif_type_status", columnList = "message_type, status")
+})
 public class NotificationLog {
 
     @Id
@@ -73,5 +78,18 @@ public class NotificationLog {
                 ", status='" + status + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NotificationLog)) return false;
+        NotificationLog that = (NotificationLog) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

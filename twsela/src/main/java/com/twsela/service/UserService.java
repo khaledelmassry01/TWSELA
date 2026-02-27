@@ -8,6 +8,10 @@ import com.twsela.repository.MerchantDetailsRepository;
 import com.twsela.repository.RoleRepository;
 import com.twsela.repository.UserRepository;
 import com.twsela.repository.UserStatusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +22,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -33,7 +39,7 @@ public class UserService {
         this.userStatusRepository = userStatusRepository;
     }
 
-    // @CacheEvict(value = {"users", "roles"}, allEntries = true) // Disabled for development
+    @CacheEvict(value = {"users", "roles"}, allEntries = true)
     public User createUser(String name, String phone, String rawPassword, Role role) {
         if (userRepository.existsByPhone(phone)) {
             throw new IllegalArgumentException("Phone already registered");
@@ -61,7 +67,7 @@ public class UserService {
         return user;
     }
 
-    // @CacheEvict(value = "users", allEntries = true) // Disabled for development
+    @CacheEvict(value = "users", allEntries = true)
     public User updateUser(Long id, String name, String phone, Boolean active, String rawPassword) {
         User user = userRepository.findById(id).orElseThrow();
         if (name != null) user.setName(name);
@@ -83,7 +89,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // @CacheEvict(value = "users", allEntries = true) // Disabled for development
+    @CacheEvict(value = "users", allEntries = true)
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
@@ -94,19 +100,19 @@ public class UserService {
     }
     
     @Transactional(readOnly = true)
-    // @Cacheable(value = "users", key = "'all'") // Disabled for development
+    @Cacheable(value = "users", key = "'all'")
     public List<User> listAll() {
         return userRepository.findAll();
     }
     
-    // @Cacheable(value = "roles", key = "#name") // Disabled for development
+    @Cacheable(value = "roles", key = "#name")
     public Optional<Role> getRoleByName(String name) {
         return roleRepository.findByName(name);
     }
     
     // ===== ROLE MANAGEMENT (merged from RoleService) =====
     
-    // @Cacheable(value = "roles", key = "'all'") // Disabled for development
+    @Cacheable(value = "roles", key = "'all'")
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }

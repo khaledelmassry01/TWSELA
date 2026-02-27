@@ -2,6 +2,7 @@ package com.twsela.domain;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "return_shipments", indexes = {
@@ -70,5 +71,18 @@ public class ReturnShipment {
                 ", createdAt=" + createdAt +
                 ", createdBy='" + createdBy + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ReturnShipment)) return false;
+        ReturnShipment that = (ReturnShipment) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

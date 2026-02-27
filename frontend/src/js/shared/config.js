@@ -19,10 +19,10 @@ const TwselaConfig = {
         return 'http://localhost:8000';
     },
 
-    /** Auth token key in localStorage */
+    /** Auth token key in sessionStorage */
     AUTH_TOKEN_KEY: 'authToken',
 
-    /** User data key in localStorage */
+    /** User data key in sessionStorage */
     USER_DATA_KEY: 'userData',
 
     /** API request timeout in ms */
@@ -37,3 +37,12 @@ Object.freeze(TwselaConfig);
 
 // Make globally available
 window.TwselaConfig = TwselaConfig;
+
+/**
+ * Global convenience function to get API base URL.
+ * Use this instead of duplicating the TwselaConfig check in every class.
+ * @returns {string} API base URL
+ */
+window.getApiBaseUrl = function() {
+    return TwselaConfig.getApiBaseUrl();
+};

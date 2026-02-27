@@ -3,6 +3,7 @@ package com.twsela.domain;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "delivery_pricing", 
@@ -72,5 +73,18 @@ public class DeliveryPricing {
                 ", merchant=" + (merchant != null ? merchant.getName() : "null") +
                 ", zone=" + (zone != null ? zone.getName() : "null") +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DeliveryPricing)) return false;
+        DeliveryPricing that = (DeliveryPricing) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

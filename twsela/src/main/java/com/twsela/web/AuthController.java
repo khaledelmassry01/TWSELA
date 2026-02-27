@@ -3,9 +3,11 @@ package com.twsela.web;
 import com.twsela.domain.User;
 import com.twsela.repository.UserRepository;
 import com.twsela.security.JwtService;
+import com.twsela.util.AppUtils;
 import com.twsela.service.AuditService;
 import com.twsela.service.MetricsService;
 import com.twsela.web.dto.LoginRequest;
+import com.twsela.web.dto.LoginResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +23,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,6 +34,8 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "إدارة المصادقة وتسجيل الدخول")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -103,7 +109,7 @@ public class AuthController {
             String phone = loginRequest.getPhone();
             String password = loginRequest.getPassword();
             
-            System.out.println("🔍 AuthController: Login attempt for phone: " + phone);
+            log.info("AuthController: Login attempt for phone: {}", phone);
             
             // Record login attempt
             metricsService.recordLoginAttempt();
@@ -111,40 +117,32 @@ public class AuthController {
             // Check if user exists first with optimized query
             User user = userRepository.findByPhoneWithRoleAndStatus(phone).orElse(null);
             if (user == null) {
-                System.out.println("❌ AuthController: User not found for phone: " + phone);
+                log.warn("AuthController: User not found for phone: {}", phone);
                 metricsService.recordLoginFailure();
                 auditService.logAuthentication("LOGIN_FAILED", phone, 
                     getClientIpAddress(request), request.getHeader("User-Agent"), false, "User not found");
                 
-                Map<String, Object> errorBody = new HashMap<>();
-                errorBody.put("success", false);
-                errorBody.put("error", "Authentication failed");
-                errorBody.put("message", "Invalid phone number or password");
-                return ResponseEntity.status(401).body(errorBody);
+                return AppUtils.unauthorized("Invalid phone number or password");
             }
             
-            System.out.println("✅ AuthController: User found - " + user.getName() + " (Role: " + user.getRole().getName() + ", Status: " + user.getStatus().getName() + ")");
+            log.info("AuthController: User found - {} (Role: {}, Status: {})", user.getName(), user.getRole().getName(), user.getStatus().getName());
             
             // Check if user is active
             if (!user.isActive()) {
-                System.out.println("❌ AuthController: User inactive - Status: " + user.getStatus().getName() + ", Deleted: " + user.getIsDeleted());
+                log.warn("AuthController: User inactive - Status: {}, Deleted: {}", user.getStatus().getName(), user.getIsDeleted());
                 metricsService.recordLoginFailure();
                 auditService.logAuthentication("LOGIN_FAILED", phone, 
                     getClientIpAddress(request), request.getHeader("User-Agent"), false, "User inactive");
                 
-                Map<String, Object> errorBody = new HashMap<>();
-                errorBody.put("success", false);
-                errorBody.put("error", "Authentication failed");
-                errorBody.put("message", "User account is inactive");
-                return ResponseEntity.status(401).body(errorBody);
+                return AppUtils.unauthorized("User account is inactive");
             }
             
-            System.out.println("🔐 AuthController: Attempting authentication for user: " + user.getName());
+            log.debug("AuthController: Attempting authentication for user: {}", user.getName());
             
             // Authenticate user
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(phone, password));
             
-            System.out.println("✅ AuthController: Authentication successful for user: " + user.getName());
+            log.info("AuthController: Authentication successful for user: {}", user.getName());
             
             // Generate JWT token
             Map<String, Object> claims = new HashMap<>();
@@ -161,47 +159,40 @@ public class AuthController {
             Map<String, Object> body = new HashMap<>();
             body.put("success", true);
             body.put("token", token);
-            body.put("user", user);
+            body.put("user", new LoginResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getPhone(),
+                user.getRole().getName(),
+                user.getStatus().getName()
+            ));
             body.put("role", user.getRole().getName());
             body.put("message", "Login successful");
             
-            System.out.println("🎉 AuthController: Login successful for user: " + user.getName());
+            log.info("AuthController: Login successful for user: {}", user.getName());
             return ResponseEntity.ok(body);
             
         } catch (org.springframework.security.core.AuthenticationException e) {
             // Record failed login
             metricsService.recordLoginFailure();
             
-            System.out.println("❌ AuthController: Authentication failed for phone: " + loginRequest.getPhone() + " - " + e.getMessage());
+            log.warn("AuthController: Authentication failed for phone: {} - {}", loginRequest.getPhone(), e.getMessage());
             
             // Log failed login
             auditService.logAuthentication("LOGIN_FAILED", loginRequest.getPhone(), 
                 getClientIpAddress(request), request.getHeader("User-Agent"), false, e.getMessage());
             
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("success", false);
-            errorBody.put("error", "Authentication failed");
-            errorBody.put("message", "Invalid phone number or password");
-            return ResponseEntity.status(401).body(errorBody);
+            return AppUtils.unauthorized("Invalid phone number or password");
         } catch (Exception e) {
             // Handle other exceptions - CRITICAL FIX: Never return 500 for authentication failures
-            System.out.println("❌ AuthController: Unexpected error during login for phone: " + loginRequest.getPhone() + " - " + e.getMessage());
-            e.printStackTrace();
+            log.error("AuthController: Unexpected error during login for phone: {} - {}", loginRequest.getPhone(), e.getMessage(), e);
             
             metricsService.recordLoginFailure();
             auditService.logAuthentication("LOGIN_FAILED", loginRequest.getPhone(), 
                 getClientIpAddress(request), request.getHeader("User-Agent"), false, e.getMessage());
             
-            // Log the actual exception for debugging
-            System.err.println("Authentication error: " + e.getMessage());
-            e.printStackTrace();
-            
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("success", false);
-            errorBody.put("error", "Authentication failed");
-            errorBody.put("message", "Invalid phone number or password");
             // CRITICAL FIX: Return 401 instead of 500 for authentication failures
-            return ResponseEntity.status(401).body(errorBody);
+            return AppUtils.unauthorized("Invalid phone number or password");
         }
     }
 
@@ -229,26 +220,26 @@ public class AuthController {
     })
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
-        System.out.println("🔍 AuthController: /me endpoint called");
+        log.debug("AuthController: /me endpoint called");
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("🔍 AuthController: Authentication object: " + authentication);
+        log.debug("AuthController: Authentication object: {}", authentication);
         
         if (authentication == null || !authentication.isAuthenticated()) {
-            System.out.println("❌ AuthController: No authentication or not authenticated");
+            log.warn("AuthController: No authentication or not authenticated");
             return ResponseEntity.status(401).build();
         }
         
         String phone = authentication.getName();
-        System.out.println("🔍 AuthController: Phone from authentication: " + phone);
+        log.debug("AuthController: Phone from authentication: {}", phone);
         
         User user = userRepository.findByPhone(phone).orElse(null);
         if (user == null) {
-            System.out.println("❌ AuthController: User not found for phone: " + phone);
+            log.warn("AuthController: User not found for phone: {}", phone);
             return ResponseEntity.status(404).build();
         }
         
-        System.out.println("✅ AuthController: User found: " + user.getName() + " (" + user.getRole().getName() + ")");
+        log.info("AuthController: User found: {} ({})", user.getName(), user.getRole().getName());
         return ResponseEntity.ok(user);
     }
 
@@ -284,7 +275,88 @@ public class AuthController {
         response.put("version", "1.0.0");
         return ResponseEntity.ok(response);
     }
-    
+
+    @Operation(summary = "تسجيل الخروج", description = "تسجيل خروج المستخدم (إبطال الجلسة)")
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logout(Authentication authentication) {
+        // Stateless JWT — client deletes token; server acknowledges
+        String phone = authentication != null ? authentication.getName() : "unknown";
+        log.info("AuthController: Logout requested by {}", phone);
+        
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", true);
+        body.put("message", "Logged out successfully");
+        return ResponseEntity.ok(body);
+    }
+
+    @Operation(summary = "تغيير كلمة المرور", description = "تغيير كلمة المرور للمستخدم الحالي")
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+        
+        if (oldPassword == null || newPassword == null || newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل"
+            ));
+        }
+        
+        String phone = authentication.getName();
+        User user = userRepository.findByPhone(phone).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", "User not found"));
+        }
+        
+        // Verify old password
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(phone, oldPassword));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "كلمة المرور الحالية غير صحيحة"
+            ));
+        }
+        
+        user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(newPassword));
+        userRepository.save(user);
+        
+        log.info("AuthController: Password changed for user {}", phone);
+        
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", true);
+        body.put("message", "تم تغيير كلمة المرور بنجاح");
+        return ResponseEntity.ok(body);
+    }
+
+    @Operation(summary = "تجديد التوكن", description = "الحصول على توكن جديد باستخدام التوكن الحالي")
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refreshToken(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "Not authenticated"));
+        }
+        
+        String phone = authentication.getName();
+        User user = userRepository.findByPhoneWithRoleAndStatus(phone).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", "User not found"));
+        }
+        
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", "ROLE_" + user.getRole().getName().toUpperCase());
+        String newToken = jwtService.generateToken(user.getPhone(), claims);
+        
+        Map<String, Object> body = new HashMap<>();
+        body.put("success", true);
+        body.put("token", newToken);
+        body.put("message", "Token refreshed successfully");
+        return ResponseEntity.ok(body);
+    }
+
     /**
      * Get client IP address from request
      */

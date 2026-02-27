@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +31,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import com.twsela.web.dto.CreateShipmentRequest;
+import com.twsela.web.dto.LocationUpdateRequest;
+import com.twsela.web.dto.ReconcileRequest;
+import jakarta.validation.Valid;
 
 import java.time.Instant;
 import java.util.*;
@@ -45,20 +49,23 @@ public class ShipmentController {
 
     private static final Logger log = LoggerFactory.getLogger(ShipmentController.class);
 
-    @Autowired
-    private ShipmentRepository shipmentRepository;
-    
-    @Autowired
-    private ShipmentStatusHistoryRepository statusHistoryRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private ShipmentService shipmentService;
-    
-    @Autowired
-    private ZoneRepository zoneRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final ShipmentStatusHistoryRepository statusHistoryRepository;
+    private final UserRepository userRepository;
+    private final ShipmentService shipmentService;
+    private final ZoneRepository zoneRepository;
+
+    public ShipmentController(ShipmentRepository shipmentRepository,
+                              ShipmentStatusHistoryRepository statusHistoryRepository,
+                              UserRepository userRepository,
+                              ShipmentService shipmentService,
+                              ZoneRepository zoneRepository) {
+        this.shipmentRepository = shipmentRepository;
+        this.statusHistoryRepository = statusHistoryRepository;
+        this.userRepository = userRepository;
+        this.shipmentService = shipmentService;
+        this.zoneRepository = zoneRepository;
+    }
 
     @Operation(
         summary = "الحصول على جميع الشحنات",
@@ -110,7 +117,6 @@ public class ShipmentController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @Parameter(description = "اتجاه الترتيب", example = "desc")
             @RequestParam(defaultValue = "desc") String sortDir) {
-        try {
             User currentUser = getCurrentUser(authentication);
             
             // Create pageable with sorting
@@ -148,12 +154,6 @@ public class ShipmentController {
             response.put("numberOfElements", shipmentPage.getNumberOfElements());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء تحميل الشحنات: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     @Operation(
@@ -183,13 +183,12 @@ public class ShipmentController {
     public ResponseEntity<Map<String, Object>> getShipmentById(
         @Parameter(description = "معرف الشحنة", example = "1", required = true)
         @PathVariable Long id) {
-        try {
             Shipment shipment = shipmentRepository.findById(id).orElse(null);
             
             if (shipment == null) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "الشحنة غير موجودة");
+                error.put("message", ErrorMessages.SHIPMENT_NOT_FOUND);
                 return ResponseEntity.status(404).body(error);
             }
             
@@ -198,18 +197,11 @@ public class ShipmentController {
             response.put("shipment", shipment);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء تحميل الشحنة: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     @GetMapping("/count")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN', 'MERCHANT', 'COURIER', 'WAREHOUSE_MANAGER')")
     public ResponseEntity<Map<String, Object>> getShipmentsCount() {
-        try {
             long count = shipmentRepository.count();
             
             Map<String, Object> response = new HashMap<>();
@@ -217,12 +209,6 @@ public class ShipmentController {
             response.put("count", count);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء حساب عدد الشحنات: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     @Operation(
@@ -269,35 +255,22 @@ public class ShipmentController {
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN', 'MERCHANT')")
     public ResponseEntity<Map<String, Object>> createShipment(
             @Parameter(description = "بيانات الشحنة الجديدة", required = true)
-            @RequestBody Map<String, Object> request,
+            @Valid @RequestBody CreateShipmentRequest request,
             Authentication authentication) {
-        try {
             User currentUser = getCurrentUser(authentication);
-            
-            // Validate required fields
-            if (!request.containsKey("recipientName") || !request.containsKey("recipientPhone") || 
-                !request.containsKey("recipientAddress") || !request.containsKey("packageDescription") ||
-                !request.containsKey("packageWeight") || !request.containsKey("zoneId") ||
-                !request.containsKey("priority") || !request.containsKey("shippingFeePaidBy")) {
-                
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("message", "جميع الحقول المطلوبة يجب أن تكون موجودة");
-                return ResponseEntity.badRequest().body(error);
-            }
             
             // Create shipment object
             Shipment shipment = new Shipment();
             
             // Set recipient details
             RecipientDetails recipientDetails = new RecipientDetails();
-            recipientDetails.setName((String) request.get("recipientName"));
-            recipientDetails.setPhone((String) request.get("recipientPhone"));
-            recipientDetails.setAddress((String) request.get("recipientAddress"));
+            recipientDetails.setName(request.getRecipientName());
+            recipientDetails.setPhone(request.getRecipientPhone());
+            recipientDetails.setAddress(request.getRecipientAddress());
             
             // Set alternate phone if provided
-            if (request.containsKey("alternatePhone") && request.get("alternatePhone") != null) {
-                recipientDetails.setAlternatePhone((String) request.get("alternatePhone"));
+            if (request.getAlternatePhone() != null) {
+                recipientDetails.setAlternatePhone(request.getAlternatePhone());
             }
             
             shipment.setRecipientDetails(recipientDetails);
@@ -307,47 +280,47 @@ public class ShipmentController {
             
             // Set item value and COD amount
             BigDecimal itemValue = BigDecimal.ZERO;
-            if (request.containsKey("itemValue") && request.get("itemValue") != null) {
-                itemValue = new BigDecimal(request.get("itemValue").toString());
+            if (request.getItemValue() != null) {
+                itemValue = request.getItemValue();
             }
             shipment.setItemValue(itemValue);
             
             BigDecimal codAmount = itemValue;
-            if (request.containsKey("codAmount") && request.get("codAmount") != null) {
-                codAmount = new BigDecimal(request.get("codAmount").toString());
+            if (request.getCodAmount() != null) {
+                codAmount = request.getCodAmount();
             }
             shipment.setCodAmount(codAmount);
             
             // Set zone
-            Long zoneId = Long.valueOf(request.get("zoneId").toString());
+            Long zoneId = request.getZoneId();
             Zone zone = zoneRepository.findById(zoneId)
-                .orElseThrow(() -> new RuntimeException("المنطقة غير موجودة - Zone ID: " + zoneId));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.ZONE_NOT_FOUND + zoneId));
             shipment.setZone(zone);
             
             // Note: priority is not stored in Shipment entity
             // It's used for fee calculation only
             
             // Set shipping fee paid by
-            String shippingFeePaidBy = (String) request.get("shippingFeePaidBy");
+            String shippingFeePaidBy = request.getShippingFeePaidBy();
             shipment.setShippingFeePaidBy(Shipment.ShippingFeePaidBy.valueOf(shippingFeePaidBy));
             
             // Set special instructions in recipient notes if provided
-            if (request.containsKey("specialInstructions") && request.get("specialInstructions") != null) {
-                shipment.setRecipientNotes((String) request.get("specialInstructions"));
+            if (request.getSpecialInstructions() != null) {
+                shipment.setRecipientNotes(request.getSpecialInstructions());
             }
             
             // Set merchant
             shipment.setMerchant(currentUser);
             
             // Calculate delivery fee using weight from request and priority
-            BigDecimal weight = new BigDecimal(request.get("packageWeight").toString());
-            String priority = (String) request.get("priority");
+            BigDecimal weight = request.getPackageWeight();
+            String priority = request.getPriority();
             BigDecimal deliveryFee = calculateDeliveryFee(zone, weight, priority);
             shipment.setDeliveryFee(deliveryFee);
             
             // Set initial status
             ShipmentStatus pendingStatus = shipmentService.getStatusByName("PENDING")
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'PENDING' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + "PENDING"));
             shipment.setStatus(pendingStatus);
             
             // Generate tracking number
@@ -366,7 +339,7 @@ public class ShipmentController {
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "تم إنشاء الشحنة بنجاح");
+            response.put("message", ErrorMessages.SHIPMENT_CREATED);
             
             Map<String, Object> data = new HashMap<>();
             data.put("id", savedShipment.getId());
@@ -375,7 +348,7 @@ public class ShipmentController {
             data.put("recipientPhone", savedShipment.getRecipientDetails().getPhone());
             data.put("recipientAddress", savedShipment.getRecipientDetails().getAddress());
             data.put("alternatePhone", savedShipment.getRecipientDetails().getAlternatePhone());
-            data.put("packageDescription", request.get("packageDescription"));
+            data.put("packageDescription", request.getPackageDescription());
             data.put("packageWeight", weight);
             data.put("itemValue", savedShipment.getItemValue());
             data.put("codAmount", savedShipment.getCodAmount());
@@ -391,12 +364,6 @@ public class ShipmentController {
             
             return ResponseEntity.ok(response);
             
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء إنشاء الشحنة: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     // ===== WAREHOUSE OPERATIONS (merged from WarehouseController) =====
@@ -404,14 +371,14 @@ public class ShipmentController {
     /**
      * Receive shipments from merchant
      * POST /api/shipments/warehouse/receive
+     * // TODO: Wire ShipmentController to delegate to ShipmentService.receiveShipmentsAtWarehouse()
      */
     @PostMapping("/warehouse/receive")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> receiveShipments(@RequestBody Map<String, List<String>> request) {
-        try {
             List<String> trackingNumbers = request.get("trackingNumbers");
             if (trackingNumbers == null || trackingNumbers.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No tracking numbers provided"));
+                return ResponseEntity.badRequest().body(Map.of("error", ErrorMessages.NO_TRACKING_NUMBERS_PROVIDED));
             }
 
             List<Shipment> updatedShipments = new ArrayList<>();
@@ -424,7 +391,7 @@ public class ShipmentController {
                     
                     // Update status to RECEIVED_AT_HUB
                     ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
-                        .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
+                        .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RECEIVED_AT_HUB));
                     shipment.setStatus(receivedStatus);
                     shipment.setUpdatedAt(Instant.now());
                     shipmentRepository.save(shipment);
@@ -449,10 +416,6 @@ public class ShipmentController {
             response.put("message", "Successfully received " + updatedShipments.size() + " shipments");
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to receive shipments: " + e.getMessage()));
-        }
     }
 
     /**
@@ -466,16 +429,15 @@ public class ShipmentController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
-        try {
             Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
 
             // Get shipments with RECEIVED_AT_HUB or RETURNED_TO_HUB status
             ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RECEIVED_AT_HUB));
             ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RETURNED_TO_HUB));
             List<ShipmentStatus> warehouseStatuses = List.of(receivedStatus, returnedStatus);
             Page<Shipment> shipments = shipmentRepository.findByStatusIn(warehouseStatuses, pageable);
 
@@ -487,31 +449,27 @@ public class ShipmentController {
             response.put("size", shipments.getSize());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch inventory: " + e.getMessage()));
-        }
     }
 
     /**
      * Dispatch shipments to courier
      * POST /api/shipments/warehouse/dispatch/{courierId}
+     * // TODO: Wire ShipmentController to delegate to ShipmentService.dispatchShipmentsToCourierFromWarehouse()
      */
     @PostMapping("/warehouse/dispatch/{courierId}")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> dispatchToCourier(
             @PathVariable Long courierId,
             @RequestBody Map<String, List<Long>> request) {
-        try {
             List<Long> shipmentIds = request.get("shipmentIds");
             if (shipmentIds == null || shipmentIds.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No shipment IDs provided"));
+                return ResponseEntity.badRequest().body(Map.of("error", ErrorMessages.NO_SHIPMENT_IDS_PROVIDED));
             }
 
             // Verify courier exists
             Optional<User> courierOpt = userRepository.findById(courierId);
             if (!courierOpt.isPresent() || !courierOpt.get().getRole().getName().equals("COURIER")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid courier ID"));
+                return ResponseEntity.badRequest().body(Map.of("error", ErrorMessages.INVALID_COURIER_ID));
             }
 
             User courier = courierOpt.get();
@@ -530,9 +488,8 @@ public class ShipmentController {
                         continue;
                     }
 
-                    // Update status to ASSIGNED_TO_COURIER
                     ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
-                        .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
+                        .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + ASSIGNED_TO_COURIER));
                     shipment.setStatus(assignedStatus);
                     shipment.setCourier(courier);
                     shipment.setUpdatedAt(Instant.now());
@@ -559,26 +516,20 @@ public class ShipmentController {
             response.put("message", "Successfully dispatched " + updatedShipments.size() + " shipments to " + courier.getName());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to dispatch shipments: " + e.getMessage()));
-        }
     }
 
     /**
      * Reconcile with courier (End of Day)
      * POST /api/shipments/warehouse/reconcile/courier/{courierId}
+     * // TODO: Wire ShipmentController to delegate to ShipmentService.reconcileWithCourier()
      */
     @PostMapping("/warehouse/reconcile/courier/{courierId}")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> reconcileWithCourier(
             @PathVariable Long courierId,
-            @RequestBody Map<String, Object> request) {
-        try {
-            @SuppressWarnings("unchecked")
-            List<Long> cashConfirmedShipmentIds = (List<Long>) request.get("cash_confirmed_shipment_ids");
-            @SuppressWarnings("unchecked")
-            List<Long> returnedShipmentIds = (List<Long>) request.get("returned_shipment_ids");
+            @Valid @RequestBody ReconcileRequest request) {
+            List<Long> cashConfirmedShipmentIds = request.getCash_confirmed_shipment_ids();
+            List<Long> returnedShipmentIds = request.getReturned_shipment_ids();
 
             if (cashConfirmedShipmentIds == null) cashConfirmedShipmentIds = new ArrayList<>();
             if (returnedShipmentIds == null) returnedShipmentIds = new ArrayList<>();
@@ -586,7 +537,7 @@ public class ShipmentController {
             // Verify courier exists
             Optional<User> courierOpt = userRepository.findById(courierId);
             if (!courierOpt.isPresent() || !courierOpt.get().getRole().getName().equals("COURIER")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid courier ID"));
+                return ResponseEntity.badRequest().body(Map.of("error", ErrorMessages.INVALID_COURIER_ID));
             }
 
             User courier = courierOpt.get();
@@ -630,9 +581,8 @@ public class ShipmentController {
                         continue;
                     }
 
-                    // Update status to RETURNED_TO_HUB
                     ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
-                        .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
+                        .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RETURNED_TO_HUB));
                     shipment.setStatus(returnedStatus);
                     shipment.setUpdatedAt(Instant.now());
                     shipmentRepository.save(shipment);
@@ -660,10 +610,6 @@ public class ShipmentController {
             response.put("message", "Successfully reconciled with " + courier.getName());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to reconcile with courier: " + e.getMessage()));
-        }
     }
 
     /**
@@ -673,7 +619,6 @@ public class ShipmentController {
     @GetMapping("/warehouse/couriers")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> getCouriers() {
-        try {
             // Get all couriers using the existing method
             List<User> couriers = userRepository.findByRoleName("COURIER");
             
@@ -693,10 +638,6 @@ public class ShipmentController {
                 .collect(Collectors.toList());
 
             return ResponseEntity.ok(Map.of("couriers", courierList));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch couriers: " + e.getMessage()));
-        }
     }
 
     /**
@@ -706,24 +647,23 @@ public class ShipmentController {
     @GetMapping("/warehouse/courier/{courierId}/shipments")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> getCourierShipments(@PathVariable Long courierId) {
-        try {
             // Verify courier exists
             Optional<User> courierOpt = userRepository.findById(courierId);
             if (!courierOpt.isPresent() || !courierOpt.get().getRole().getName().equals("COURIER")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid courier ID"));
+                return ResponseEntity.badRequest().body(Map.of("error", ErrorMessages.INVALID_COURIER_ID));
             }
 
             // Get all shipments assigned to this courier (not just today's)
             ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + ASSIGNED_TO_COURIER));
             ShipmentStatus outForDeliveryStatus = shipmentService.getStatusByName(OUT_FOR_DELIVERY)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'OUT_FOR_DELIVERY' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + OUT_FOR_DELIVERY));
             ShipmentStatus deliveredStatus = shipmentService.getStatusByName(DELIVERED)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'DELIVERED' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + DELIVERED));
             ShipmentStatus failedAttemptStatus = shipmentService.getStatusByName(FAILED_ATTEMPT)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'FAILED_ATTEMPT' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + FAILED_ATTEMPT));
             ShipmentStatus returnedToHubStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RETURNED_TO_HUB));
             
             List<ShipmentStatus> relevantStatuses = List.of(
                 assignedStatus,
@@ -742,10 +682,6 @@ public class ShipmentController {
             response.put("total", shipments.size());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch courier shipments: " + e.getMessage()));
-        }
     }
 
     /**
@@ -755,27 +691,26 @@ public class ShipmentController {
     @GetMapping("/warehouse/stats")
     @PreAuthorize("hasRole('WAREHOUSE_MANAGER') or hasRole('OWNER')")
     public ResponseEntity<?> getWarehouseStats() {
-        try {
             Instant startOfDay = Instant.now().atZone(java.time.ZoneId.systemDefault()).withHour(0).withMinute(0).withSecond(0).toInstant();
             Instant endOfDay = Instant.now().atZone(java.time.ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59).toInstant();
 
             // Count shipments received today
             ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RECEIVED_AT_HUB));
             long receivedToday = shipmentRepository.countByStatusAndUpdatedAtBetween(
                 receivedStatus, startOfDay, endOfDay
             );
 
             // Count shipments dispatched today
             ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + ASSIGNED_TO_COURIER));
             long dispatchedToday = shipmentRepository.countByStatusAndUpdatedAtBetween(
                 assignedStatus, startOfDay, endOfDay
             );
 
             // Count current inventory
             ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
-                .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STATUS_NOT_FOUND + RETURNED_TO_HUB));
             long currentInventory = shipmentRepository.countByStatusIn(
                 Arrays.asList(receivedStatus, returnedStatus)
             );
@@ -790,10 +725,6 @@ public class ShipmentController {
             stats.put("pendingReturns", pendingReturns);
 
             return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch warehouse stats: " + e.getMessage()));
-        }
     }
 
     /**
@@ -805,24 +736,23 @@ public class ShipmentController {
     public ResponseEntity<Map<String, Object>> requestReturnToOrigin(
             @PathVariable Long id,
             @RequestBody Map<String, String> request) {
-        try {
             String reason = request.get("reason");
             if (reason == null || reason.trim().isEmpty()) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "سبب الإرجاع مطلوب");
+                error.put("message", ErrorMessages.RETURN_REASON_REQUIRED);
                 return ResponseEntity.badRequest().body(error);
             }
 
             // Find the original shipment
             Shipment originalShipment = shipmentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("الشحنة غير موجودة"));
+                    .orElseThrow(() -> new RuntimeException(ErrorMessages.SHIPMENT_NOT_FOUND));
 
             // Check if shipment is eligible for return
             if (!isEligibleForReturn(originalShipment)) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "هذه الشحنة غير مؤهلة للإرجاع");
+                error.put("message", ErrorMessages.SHIPMENT_NOT_ELIGIBLE_FOR_RETURN);
                 return ResponseEntity.badRequest().body(error);
             }
 
@@ -831,19 +761,13 @@ public class ShipmentController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "تم إنشاء طلب الإرجاع بنجاح");
+            response.put("message", ErrorMessages.RETURN_REQUEST_CREATED);
             response.put("originalShipmentId", originalShipment.getId());
             response.put("returnShipmentId", returnShipment.getId());
             response.put("returnTrackingNumber", returnShipment.getTrackingNumber());
             response.put("reason", reason);
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء إنشاء طلب الإرجاع: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     /**
@@ -853,18 +777,10 @@ public class ShipmentController {
     @PutMapping("/courier/location/update")
     @PreAuthorize("hasRole('COURIER')")
     public ResponseEntity<Map<String, Object>> updateCourierLocation(
-            @RequestBody Map<String, Object> request,
+            @Valid @RequestBody LocationUpdateRequest request,
             Authentication authentication) {
-        try {
-            Double latitude = (Double) request.get("latitude");
-            Double longitude = (Double) request.get("longitude");
-            
-            if (latitude == null || longitude == null) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("message", "الإحداثيات مطلوبة");
-                return ResponseEntity.badRequest().body(error);
-            }
+            Double latitude = request.getLatitude();
+            Double longitude = request.getLongitude();
 
             // Get current courier from security context
             User courier = getCurrentUser(authentication);
@@ -875,18 +791,12 @@ public class ShipmentController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "تم تحديث الموقع بنجاح");
+            response.put("message", ErrorMessages.LOCATION_UPDATED);
             response.put("latitude", latitude);
             response.put("longitude", longitude);
             response.put("timestamp", Instant.now());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء تحديث الموقع: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
 
     private boolean isEligibleForReturn(Shipment shipment) {
@@ -898,7 +808,8 @@ public class ShipmentController {
     }
     
     /**
-     * Calculate delivery fee based on zone, weight, and priority
+     * Calculate delivery fee based on zone, weight, and priority.
+     * // TODO: Delegate to ShipmentService.calculateDeliveryFeeByPriority()
      */
     private BigDecimal calculateDeliveryFee(Zone zone, BigDecimal weight, String priority) {
         // Get default fee for the zone
@@ -926,13 +837,23 @@ public class ShipmentController {
     }
     
     /**
-     * Generate unique tracking number
+     * Generate unique tracking number using SecureRandom.
+     * // TODO: Delegate to ShipmentService.generateTrackingNumber()
      */
     private String generateTrackingNumber() {
+        java.security.SecureRandom secureRandom = new java.security.SecureRandom();
         String prefix = "TS";
         long timestamp = System.currentTimeMillis();
-        int random = (int) (Math.random() * 1000);
-        return prefix + timestamp + String.format("%03d", random);
+        int random = secureRandom.nextInt(900000) + 100000; // 6 digits
+        String trackingNumber = prefix + timestamp + random;
+        
+        // Ensure uniqueness by checking database
+        while (shipmentRepository.findByTrackingNumber(trackingNumber).isPresent()) {
+            random = secureRandom.nextInt(900000) + 100000;
+            trackingNumber = prefix + timestamp + random;
+        }
+        
+        return trackingNumber;
     }
     
     /**
@@ -940,12 +861,12 @@ public class ShipmentController {
      */
     private User getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new RuntimeException(ErrorMessages.USER_NOT_AUTHENTICATED);
         }
         
         String phone = authentication.getName();
         return userRepository.findByPhone(phone)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_NOT_FOUND));
     }
 
     @GetMapping("/list")
@@ -959,7 +880,6 @@ public class ShipmentController {
             Authentication authentication) {
         
         Map<String, Object> response = new HashMap<>();
-        try {
             User currentUser = getCurrentUser(authentication);
             String role = currentUser.getRole().getName();
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -984,21 +904,12 @@ public class ShipmentController {
             
             response.put("success", true);
             response.put("data", shipmentPage.getContent());
-            response.put("message", "Shipments retrieved successfully");
+            response.put("message", ErrorMessages.SHIPMENTS_RETRIEVED);
             response.put("count", shipmentPage.getTotalElements());
             response.put("page", page);
             response.put("size", size);
             response.put("totalPages", shipmentPage.getTotalPages());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error retrieving shipments", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to retrieve shipments: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 }

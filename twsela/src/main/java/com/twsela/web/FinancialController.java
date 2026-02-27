@@ -3,7 +3,6 @@ package com.twsela.web;
 import com.twsela.domain.*;
 import com.twsela.repository.*;
 import com.twsela.service.FinancialService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -12,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Unified Financial Controller for managing payouts and financial operations
  * Replaces role-specific financial endpoints with generic ones that filter by user role
@@ -19,17 +22,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/financial")
 @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MERCHANT') or hasRole('COURIER')")
+@Tag(name = "Financial", description = "إدارة المدفوعات والعمليات المالية")
 public class FinancialController {
 
-    @Autowired
-    private FinancialService financialService;
-    
-    @Autowired
-    private PayoutRepository payoutRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private final FinancialService financialService;
+    private final PayoutRepository payoutRepository;
+    private final UserRepository userRepository;
 
+    public FinancialController(FinancialService financialService,
+                               PayoutRepository payoutRepository,
+                               UserRepository userRepository) {
+        this.financialService = financialService;
+        this.payoutRepository = payoutRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Operation(summary = "جميع المدفوعات", description = "عرض قائمة المدفوعات")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/payouts")
     public ResponseEntity<List<Payout>> getAllPayouts(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -55,6 +64,8 @@ public class FinancialController {
         return ResponseEntity.ok(payouts);
     }
 
+    @Operation(summary = "إنشاء دفعة", description = "إنشاء دفعة جديدة لمندوب أو تاجر")
+    @ApiResponse(responseCode = "200", description = "تم إنشاء الدفعة")
     @PostMapping("/payouts")
     public ResponseEntity<Payout> createPayout(@RequestBody CreatePayoutRequest request, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -91,6 +102,8 @@ public class FinancialController {
         return ResponseEntity.ok(payout);
     }
 
+    @Operation(summary = "تفاصيل دفعة", description = "الحصول على تفاصيل دفعة بالمعرف")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/payouts/{payoutId}")
     public ResponseEntity<Payout> getPayoutById(@PathVariable Long payoutId, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -111,6 +124,8 @@ public class FinancialController {
         return ResponseEntity.ok(payout);
     }
 
+    @Operation(summary = "تحديث حالة دفعة", description = "تحديث حالة الدفعة")
+    @ApiResponse(responseCode = "200", description = "تم التحديث")
     @PutMapping("/payouts/{payoutId}/status")
     public ResponseEntity<Payout> updatePayoutStatus(
             @PathVariable Long payoutId,
@@ -132,6 +147,8 @@ public class FinancialController {
         return ResponseEntity.ok(payout);
     }
 
+    @Operation(summary = "المدفوعات المعلقة", description = "عرض المدفوعات بحالة PENDING")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/payouts/pending")
     public ResponseEntity<List<Payout>> getPendingPayouts(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -145,6 +162,8 @@ public class FinancialController {
         return ResponseEntity.ok(pendingPayouts);
     }
 
+    @Operation(summary = "مدفوعات مستخدم", description = "عرض مدفوعات مستخدم معين")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/payouts/user/{userId}")
     public ResponseEntity<List<Payout>> getPayoutsForUser(@PathVariable Long userId, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -160,6 +179,8 @@ public class FinancialController {
         return ResponseEntity.ok(payouts);
     }
 
+    @Operation(summary = "عناصر الدفعة", description = "عرض عناصر دفعة معينة")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/payouts/{payoutId}/items")
     public ResponseEntity<List<PayoutItem>> getPayoutItems(@PathVariable Long payoutId, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);

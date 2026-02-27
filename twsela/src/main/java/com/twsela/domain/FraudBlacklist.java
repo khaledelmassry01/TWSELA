@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "fraud_blacklist")
+@Table(name = "fraud_blacklist", indexes = {
+    @Index(name = "idx_fraud_entity", columnList = "entity_type, entity_value"),
+    @Index(name = "idx_fraud_active", columnList = "is_active")
+})
 public class FraudBlacklist {
 
     @Id

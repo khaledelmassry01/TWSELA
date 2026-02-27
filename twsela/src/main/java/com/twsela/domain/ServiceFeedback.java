@@ -2,6 +2,7 @@ package com.twsela.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "service_feedback", uniqueConstraints = {
@@ -36,6 +37,19 @@ public class ServiceFeedback {
     public void setComment(String comment) { this.comment = comment; }
     public java.time.Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(java.time.Instant createdAt) { this.createdAt = createdAt; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ServiceFeedback)) return false;
+        ServiceFeedback that = (ServiceFeedback) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
 
 

@@ -173,7 +173,7 @@ const randomString = Utils.generateRandomString(10);
 ## الأمان
 
 ### 1. المصادقة
-- JWT tokens محفوظة في localStorage
+- JWT tokens محفوظة في sessionStorage
 - التحقق من صحة التوكن مع كل طلب
 - إعادة التوجيه التلقائي عند انتهاء الجلسة
 

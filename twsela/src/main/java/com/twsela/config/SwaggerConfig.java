@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,12 @@ import java.util.List;
  */
 @Configuration
 public class SwaggerConfig {
+
+    @Value("${app.swagger.dev-server-url:http://localhost:8080}")
+    private String devServerUrl;
+
+    @Value("${app.swagger.prod-server-url:https://api.twsela.com}")
+    private String prodServerUrl;
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -61,10 +68,10 @@ public class SwaggerConfig {
                                 .url("https://opensource.org/licenses/MIT")))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8080")
+                                .url(devServerUrl)
                                 .description("Development Server"),
                         new Server()
-                                .url("https://api.twsela.com")
+                                .url(prodServerUrl)
                                 .description("Production Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))

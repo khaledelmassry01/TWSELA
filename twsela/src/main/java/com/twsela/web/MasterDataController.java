@@ -4,7 +4,8 @@ import com.twsela.domain.*;
 import com.twsela.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Unified Master Data Controller for managing zones, pricing, and users
  * Replaces role-specific endpoints with generic ones that filter by user role
@@ -25,24 +28,28 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/api/master")
 @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
+@Tag(name = "Master Data", description = "إدارة البيانات الرئيسية: المناطق والتسعير والمستخدمين")
 public class MasterDataController {
 
     private static final Logger log = LoggerFactory.getLogger(MasterDataController.class);
 
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private ZoneRepository zoneRepository;
-    
-    @Autowired
-    private DeliveryPricingRepository deliveryPricingRepository;
-    
-    @Autowired
-    private TelemetrySettingsRepository telemetrySettingsRepository;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final ZoneRepository zoneRepository;
+    private final DeliveryPricingRepository deliveryPricingRepository;
+    private final TelemetrySettingsRepository telemetrySettingsRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public MasterDataController(UserRepository userRepository,
+                                ZoneRepository zoneRepository,
+                                DeliveryPricingRepository deliveryPricingRepository,
+                                TelemetrySettingsRepository telemetrySettingsRepository,
+                                PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.zoneRepository = zoneRepository;
+        this.deliveryPricingRepository = deliveryPricingRepository;
+        this.telemetrySettingsRepository = telemetrySettingsRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     // ========== USER MANAGEMENT ==========
     
@@ -136,6 +143,7 @@ public class MasterDataController {
     // ========== ZONE MANAGEMENT ==========
     
     @GetMapping("/zones")
+    @Cacheable(value = "zones", key = "T(String).valueOf(#authentication.name)")
     public ResponseEntity<List<Zone>> getAllZones(Authentication authentication) {
         try {
             User currentUser = getCurrentUser(authentication);
@@ -160,6 +168,7 @@ public class MasterDataController {
     }
 
     @PostMapping("/zones")
+    @CacheEvict(value = "zones", allEntries = true)
     public ResponseEntity<Zone> createZone(@RequestBody Zone zone, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -173,6 +182,7 @@ public class MasterDataController {
     }
 
     @PutMapping("/zones/{id}")
+    @CacheEvict(value = "zones", allEntries = true)
     public ResponseEntity<Zone> updateZone(@PathVariable Long id, @RequestBody Zone zone, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -197,6 +207,7 @@ public class MasterDataController {
     }
 
     @DeleteMapping("/zones/{id}")
+    @CacheEvict(value = "zones", allEntries = true)
     public ResponseEntity<Void> deleteZone(@PathVariable Long id, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -212,6 +223,7 @@ public class MasterDataController {
     // ========== PRICING MANAGEMENT ==========
     
     @GetMapping("/pricing")
+    @Cacheable(value = "pricing", key = "'all'")
     public ResponseEntity<List<DeliveryPricing>> getAllPricing(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -228,6 +240,7 @@ public class MasterDataController {
     }
 
     @PostMapping("/pricing")
+    @CacheEvict(value = "pricing", allEntries = true)
     public ResponseEntity<DeliveryPricing> createPricing(@RequestBody DeliveryPricing deliveryPricing, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -241,6 +254,7 @@ public class MasterDataController {
     }
 
     @PutMapping("/pricing/{id}")
+    @CacheEvict(value = "pricing", allEntries = true)
     public ResponseEntity<DeliveryPricing> updatePricing(@PathVariable Long id, @RequestBody DeliveryPricing deliveryPricing, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
@@ -266,6 +280,7 @@ public class MasterDataController {
     }
 
     @DeleteMapping("/pricing/{id}")
+    @CacheEvict(value = "pricing", allEntries = true)
     public ResponseEntity<Void> deletePricing(@PathVariable Long id, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         

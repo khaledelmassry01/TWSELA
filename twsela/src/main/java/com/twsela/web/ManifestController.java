@@ -5,7 +5,6 @@ import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,6 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Unified Manifest Controller for managing shipment manifests
  * Replaces role-specific manifest endpoints with generic ones that filter by user role
@@ -21,17 +24,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/manifests")
 @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('COURIER')")
+@Tag(name = "Manifests", description = "إدارة بيانات التسليم وتوزيع الشحنات")
 public class ManifestController {
 
-    @Autowired
-    private ShipmentManifestRepository shipmentManifestRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private ShipmentRepository shipmentRepository;
+    private final ShipmentManifestRepository shipmentManifestRepository;
+    private final UserRepository userRepository;
+    private final ShipmentRepository shipmentRepository;
 
+    public ManifestController(ShipmentManifestRepository shipmentManifestRepository,
+                              UserRepository userRepository,
+                              ShipmentRepository shipmentRepository) {
+        this.shipmentManifestRepository = shipmentManifestRepository;
+        this.userRepository = userRepository;
+        this.shipmentRepository = shipmentRepository;
+    }
+
+    @Operation(summary = "جميع المانيفست", description = "عرض قائمة جميع المانيفست")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping
     public ResponseEntity<List<ShipmentManifest>> getAllManifests(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -56,6 +65,8 @@ public class ManifestController {
         return ResponseEntity.ok(manifests);
     }
 
+    @Operation(summary = "إنشاء مانيفست", description = "إنشاء مانيفست جديد لمندوب")
+    @ApiResponse(responseCode = "200", description = "تم الإنشاء")
     @PostMapping
     public ResponseEntity<ShipmentManifest> createManifest(@Valid @RequestBody CreateManifestRequest request, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -80,6 +91,8 @@ public class ManifestController {
         return ResponseEntity.ok(createdManifest);
     }
 
+    @Operation(summary = "تفاصيل مانيفست", description = "الحصول على تفاصيل مانيفست بالمعرف")
+    @ApiResponse(responseCode = "200", description = "تم بنجاح")
     @GetMapping("/{manifestId}")
     public ResponseEntity<ShipmentManifest> getManifestById(@PathVariable Long manifestId, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
@@ -99,6 +112,8 @@ public class ManifestController {
         return ResponseEntity.ok(manifest);
     }
 
+    @Operation(summary = "إسناد شحنات بالمعرف", description = "إسناد شحنات لمانيفست بالمعرف")
+    @ApiResponse(responseCode = "200", description = "تم الإسناد")
     @PostMapping("/{manifestId}/shipments")
     public ResponseEntity<ShipmentManifest> assignShipmentsToManifest(
             @PathVariable Long manifestId,
@@ -131,6 +146,8 @@ public class ManifestController {
         return ResponseEntity.ok(manifest);
     }
 
+    @Operation(summary = "تحديث حالة مانيفست", description = "تحديث حالة المانيفست")
+    @ApiResponse(responseCode = "200", description = "تم التحديث")
     @PutMapping("/{manifestId}/status")
     public ResponseEntity<ShipmentManifest> updateManifestStatus(
             @PathVariable Long manifestId,
@@ -162,6 +179,8 @@ public class ManifestController {
      * Assign shipments to manifest using tracking numbers
      * POST /api/manifests/{manifestId}/assign
      */
+    @Operation(summary = "إسناد شحنات برقم التتبع", description = "إسناد شحنات لمانيفست باستخدام أرقام التتبع")
+    @ApiResponse(responseCode = "200", description = "تم الإسناد")
     @PostMapping("/{manifestId}/assign")
     @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('WAREHOUSE_MANAGER')")
     public ResponseEntity<?> assignShipmentsToManifestByTrackingNumbers(
@@ -169,7 +188,6 @@ public class ManifestController {
             @RequestBody Map<String, List<String>> request,
             Authentication authentication) {
         
-        try {
             // Verify manifest exists
             ShipmentManifest manifest = shipmentManifestRepository.findById(manifestId)
                     .orElseThrow(() -> new RuntimeException("المانيفست غير موجود"));
@@ -230,13 +248,6 @@ public class ManifestController {
             response.put("manifestNumber", manifest.getManifestNumber());
             
             return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            Map<String, Object> error = new java.util.HashMap<>();
-            error.put("success", false);
-            error.put("message", "حدث خطأ أثناء تعيين الشحنات: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
-        }
     }
     
     private boolean isEligibleForManifestAssignment(Shipment shipment) {

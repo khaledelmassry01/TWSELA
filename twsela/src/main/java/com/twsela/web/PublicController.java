@@ -9,6 +9,8 @@ import com.twsela.repository.ShipmentRepository;
 import com.twsela.repository.UserRepository;
 import com.twsela.service.OtpService;
 import com.twsela.service.SmsService;
+import com.twsela.util.AppUtils;
+import com.twsela.web.dto.ContactFormRequest;
 import com.twsela.web.dto.PasswordResetRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +39,22 @@ import java.util.Optional;
 public class PublicController {
 
     private static final Logger log = LoggerFactory.getLogger(PublicController.class);
+
+    @Value("${app.password.generation.length:12}")
+    private int passwordGenerationLength;
+
+    @Value("${app.password.generation.chars:ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%}")
+    private String passwordGenerationChars;
+
+    @Value("${app.contact.inquiry-prefix:INQ-}")
+    private String inquiryPrefix;
+
+    @Value("${app.office.default-hours:الأحد - الخميس: 8:00 ص - 6:00 م}")
+    private String officeDefaultHours;
+
+    @Value("${app.office.email-domain:localhost}")
+    private String officeEmailDomain;
+
     private final ShipmentRepository shipmentRepository;
     private final ServiceFeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
@@ -138,7 +157,6 @@ public class PublicController {
     public ResponseEntity<Map<String, Object>> forgotPassword(
         @Parameter(description = "بيانات إعادة تعيين كلمة المرور", required = true)
         @Valid @RequestBody PasswordResetRequest request) {
-        try {
             String phone = request.getPhone();
 
             // Find user by phone
@@ -146,50 +164,33 @@ public class PublicController {
             if (!userOpt.isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "error", "المستخدم غير موجود برقم الهاتف هذا"
+                    "error", ErrorMessages.USER_NOT_FOUND_BY_PHONE
                 ));
             }
 
-            User user = userOpt.get();
+            // SECURITY FIX: Don't reset password directly. Send OTP instead.
+            String otp = otpService.generateOtp(phone);
+            boolean smsSent = smsService.sendOtp(phone, otp);
             
-            // Generate new random password (8 digits)
-            String newPassword = generateRandomPassword();
-            
-            // Hash the new password
-            String hashedPassword = passwordEncoder.encode(newPassword);
-            
-            // Update user's password
-            user.setPassword(hashedPassword);
-            userRepository.save(user);
-            
-            // Log the new password to console (in production, this would send SMS)
-            log.info("Password reset completed for user: {}", user.getPhone());
+            log.info("Password reset OTP sent for user: {}", phone);
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "تم إرسال كلمة المرور الجديدة إلى هاتفك"
+                "message", ErrorMessages.OTP_SENT_WITH_RESET_INSTRUCTIONS
             ));
-            
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "error", "فشل في إعادة تعيين كلمة المرور: " + e.getMessage()
-            ));
-        }
     }
 
     private String generateRandomPassword() {
-        java.util.Random random = new java.util.Random();
+        java.security.SecureRandom random = new java.security.SecureRandom();
         StringBuilder password = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
-            password.append(random.nextInt(10));
+        for (int i = 0; i < passwordGenerationLength; i++) {
+            password.append(passwordGenerationChars.charAt(random.nextInt(passwordGenerationChars.length())));
         }
         return password.toString();
     }
 
     @PostMapping("/send-otp")
     public ResponseEntity<Map<String, Object>> sendOtp(@Valid @RequestBody PasswordResetRequest request) {
-        try {
             String phone = request.getPhone();
 
             // Find user by phone
@@ -197,7 +198,7 @@ public class PublicController {
             if (!userOpt.isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "error", "المستخدم غير موجود برقم الهاتف هذا"
+                    "error", ErrorMessages.USER_NOT_FOUND_BY_PHONE
                 ));
             }
 
@@ -210,28 +211,20 @@ public class PublicController {
             if (smsSent) {
                 return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "تم إرسال رمز التحقق إلى هاتفك"
+                    "message", ErrorMessages.OTP_SENT
                 ));
             } else {
                 // Even if SMS failed, we still generated the OTP (for development)
                 // In production, you might want to return an error here
                 return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "تم إرسال رمز التحقق (تحقق من console في وضع التطوير)"
+                    "message", ErrorMessages.OTP_SENT_DEV_MODE
                 ));
             }
-            
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "error", "فشل في إرسال رمز التحقق: " + e.getMessage()
-            ));
-        }
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, Object>> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
-        try {
             String phone = request.getPhone();
             String otp = request.getOtp();
             String newPassword = request.getNewPassword();
@@ -241,7 +234,7 @@ public class PublicController {
             if (!newPassword.equals(confirmPassword)) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "error", "كلمة السر وتأكيد كلمة السر غير متطابقين"
+                    "error", ErrorMessages.PASSWORD_MISMATCH
                 ));
             }
 
@@ -250,7 +243,7 @@ public class PublicController {
             if (!userOpt.isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "error", "المستخدم غير موجود برقم الهاتف هذا"
+                    "error", ErrorMessages.USER_NOT_FOUND_BY_PHONE
                 ));
             }
 
@@ -259,7 +252,7 @@ public class PublicController {
             if (!otpValid) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "error", "رمز التحقق غير صحيح أو منتهي الصلاحية"
+                    "error", ErrorMessages.OTP_INVALID
                 ));
             }
 
@@ -275,32 +268,14 @@ public class PublicController {
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "تم تغيير كلمة السر بنجاح"
+                "message", ErrorMessages.PASSWORD_CHANGED_SUCCESS
             ));
-            
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "error", "فشل في إعادة تعيين كلمة السر: " + e.getMessage()
-            ));
-        }
     }
 
     @PostMapping("/contact")
-    public ResponseEntity<Map<String, Object>> submitContactForm(@RequestBody Map<String, Object> contactData) {
+    public ResponseEntity<Map<String, Object>> submitContactForm(@Valid @RequestBody ContactFormRequest contactData) {
         Map<String, Object> response = new HashMap<>();
         
-        try {
-            // Validate required fields
-            if (!contactData.containsKey("firstName") || !contactData.containsKey("lastName") || 
-                !contactData.containsKey("email") || !contactData.containsKey("subject") || 
-                !contactData.containsKey("message")) {
-                
-                response.put("success", false);
-                response.put("message", "يرجى ملء جميع الحقول المطلوبة");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
             // In a real application, you would:
             // 1. Save the contact form to database
             // 2. Send email notification to admin
@@ -309,15 +284,10 @@ public class PublicController {
             
             // For now, we'll just return success
             response.put("success", true);
-            response.put("message", "تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.");
-            response.put("inquiryId", "INQ-" + System.currentTimeMillis());
+            response.put("message", ErrorMessages.CONTACT_FORM_SUCCESS);
+            response.put("inquiryId", inquiryPrefix + System.currentTimeMillis());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.");
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @GetMapping("/contact/offices")
@@ -330,24 +300,24 @@ public class PublicController {
         cairoOffice.put("name", "المكتب الرئيسي - القاهرة");
         cairoOffice.put("address", "شارع التحرير، القاهرة 11511");
         cairoOffice.put("phone", "+20 2 1234 5678");
-        cairoOffice.put("email", "cairo@localhost");
-        cairoOffice.put("hours", "الأحد - الخميس: 8:00 ص - 6:00 م");
+        cairoOffice.put("email", "cairo@" + officeEmailDomain);
+        cairoOffice.put("hours", officeDefaultHours);
         offices.put("cairo", cairoOffice);
         
         Map<String, Object> alexandriaOffice = new HashMap<>();
         alexandriaOffice.put("name", "فرع الإسكندرية");
         alexandriaOffice.put("address", "شارع سعد زغلول، الإسكندرية 21500");
         alexandriaOffice.put("phone", "+20 3 2345 6789");
-        alexandriaOffice.put("email", "alexandria@localhost");
-        alexandriaOffice.put("hours", "الأحد - الخميس: 8:00 ص - 6:00 م");
+        alexandriaOffice.put("email", "alexandria@" + officeEmailDomain);
+        alexandriaOffice.put("hours", officeDefaultHours);
         offices.put("alexandria", alexandriaOffice);
         
         Map<String, Object> gizaOffice = new HashMap<>();
         gizaOffice.put("name", "فرع الجيزة");
         gizaOffice.put("address", "شارع الهرم، الجيزة 12511");
         gizaOffice.put("phone", "+20 2 3456 7890");
-        gizaOffice.put("email", "giza@localhost");
-        gizaOffice.put("hours", "الأحد - الخميس: 8:00 ص - 6:00 م");
+        gizaOffice.put("email", "giza@" + officeEmailDomain);
+        gizaOffice.put("hours", officeDefaultHours);
         offices.put("giza", gizaOffice);
         
         response.put("success", true);

@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('profile');
+
 /**
  * Twsela CMS - Profile Page Handler
  * Handles profile page functionality including user data display, password change, and profile updates
@@ -92,7 +95,7 @@ class ProfilePageHandler {
                 }
             }
         } catch (error) {
-            console.error('Error loading user data:', error);
+            log.error('Error loading user data:', error);
         }
     }
 
@@ -103,38 +106,38 @@ class ProfilePageHandler {
         // Update name field
         const nameField = document.getElementById('name');
         if (nameField) {
-            nameField.value = userData.name || 'غير محدد';
+            nameField.value = userData.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         // Update phone field
         const phoneField = document.getElementById('phone');
         if (phoneField) {
-            phoneField.value = userData.phone || 'غير محدد';
+            phoneField.value = userData.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         // Update role field
         const roleField = document.getElementById('role');
         if (roleField) {
             const roleNames = {
-                'OWNER': 'المالك',
-                'ADMIN': 'المدير',
-                'MERCHANT': 'التاجر',
-                'COURIER': 'السائق',
-                'WAREHOUSE_MANAGER': 'مدير المستودع'
+                'OWNER': 'Ø§Ù„Ù…Ø§Ù„Ùƒ',
+                'ADMIN': 'Ø§Ù„Ù…Ø¯ÙŠØ±',
+                'MERCHANT': 'Ø§Ù„ØªØ§Ø¬Ø±',
+                'COURIER': 'Ø§Ù„Ø³Ø§Ø¦Ù‚',
+                'WAREHOUSE_MANAGER': 'Ù…Ø¯ÙŠØ± Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹'
             };
-            roleField.value = roleNames[userData.role?.name] || userData.role?.name || 'غير محدد';
+            roleField.value = roleNames[userData.role?.name] || userData.role?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         // Update status field
         const statusField = document.getElementById('status');
         if (statusField) {
             const statusNames = {
-                'ACTIVE': 'نشط',
-                'INACTIVE': 'غير نشط',
-                'SUSPENDED': 'معلق',
-                'PENDING': 'في الانتظار'
+                'ACTIVE': 'Ù†Ø´Ø·',
+                'INACTIVE': 'ØºÙŠØ± Ù†Ø´Ø·',
+                'SUSPENDED': 'Ù…Ø¹Ù„Ù‚',
+                'PENDING': 'ÙÙŠ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±'
             };
-            statusField.value = statusNames[userData.status?.name] || userData.status?.name || 'غير محدد';
+            statusField.value = statusNames[userData.status?.name] || userData.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
     }
 
@@ -163,10 +166,10 @@ class ProfilePageHandler {
     async saveProfile() {
         try {
             // Here you would implement profile saving logic
-            console.log('Saving profile...');
+            log.debug('Saving profile...');
             this.toggleEditMode();
         } catch (error) {
-            console.error('Error saving profile:', error);
+            log.error('Error saving profile:', error);
         }
     }
 
@@ -188,18 +191,18 @@ class ProfilePageHandler {
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('يرجى ملء جميع الحقول');
+                alert('ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„');
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                alert('كلمة المرور الجديدة وتأكيدها غير متطابقتين');
+                alert('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙˆØªØ£ÙƒÙŠØ¯Ù‡Ø§ ØºÙŠØ± Ù…ØªØ·Ø§Ø¨Ù‚ØªÙŠÙ†');
                 return;
             }
 
             if (window.authService) {
                 await window.authService.changePassword(currentPassword, newPassword);
-                alert('تم تحديث كلمة المرور بنجاح');
+                alert('ØªÙ… ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¨Ù†Ø¬Ø§Ø­');
                 
                 // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
@@ -209,8 +212,8 @@ class ProfilePageHandler {
                 document.getElementById('changePasswordForm').reset();
             }
         } catch (error) {
-            console.error('Error updating password:', error);
-            alert('حدث خطأ في تحديث كلمة المرور');
+            log.error('Error updating password:', error);
+            alert('Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
         }
     }
 
@@ -224,7 +227,7 @@ class ProfilePageHandler {
                 window.location.href = '/login.html';
             }
         } catch (error) {
-            console.error('Error logging out:', error);
+            log.error('Error logging out:', error);
         }
     }
 

@@ -2,9 +2,14 @@ package com.twsela.domain;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
-@Table(name = "system_audit_log")
+@Table(name = "system_audit_log", indexes = {
+    @Index(name = "idx_audit_created_at", columnList = "created_at"),
+    @Index(name = "idx_audit_user_id", columnList = "user_id"),
+    @Index(name = "idx_audit_action_entity", columnList = "action_type, entity_type")
+})
 public class SystemAuditLog {
 
     @Id
@@ -94,5 +99,18 @@ public class SystemAuditLog {
                 ", userAgent='" + userAgent + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SystemAuditLog)) return false;
+        SystemAuditLog that = (SystemAuditLog) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -3,9 +3,12 @@ package com.twsela.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "merchant_details")
+@Table(name = "merchant_details", indexes = {
+    @Index(name = "idx_merchant_business_name", columnList = "business_name")
+})
 public class MerchantDetails {
 
     @Id
@@ -57,6 +60,19 @@ public class MerchantDetails {
                 ", businessName='" + businessName + '\'' +
                 ", pickupAddress='" + pickupAddress + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MerchantDetails)) return false;
+        MerchantDetails that = (MerchantDetails) o;
+        return userId != null && userId.equals(that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
 

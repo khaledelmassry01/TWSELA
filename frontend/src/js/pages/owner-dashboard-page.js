@@ -13,11 +13,18 @@ class OwnerDashboardHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-        // Load dashboard data
-        await this.loadDashboardData();
-        
-        // Initialize charts
-        this.initializeCharts();
+        try {
+            UIUtils.showLoading();
+            // Load dashboard data
+            await this.loadDashboardData();
+            
+            // Initialize charts
+            this.initializeCharts();
+        } catch (error) {
+            ErrorHandler.handle(error, 'OwnerDashboard');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
@@ -54,7 +61,7 @@ class OwnerDashboardHandler extends BasePageHandler {
             await this.loadRecentShipments();
             
         } catch (error) {
-            // Error loading dashboard data
+            ErrorHandler.handle(error, 'OwnerDashboard');
             // Set default values on error
             this.updateStatistics({
                 totalShipments: 0,
@@ -102,9 +109,11 @@ class OwnerDashboardHandler extends BasePageHandler {
             const shipmentsResponse = await window.apiService.getShipments({ limit: 5 });
             if (shipmentsResponse.success) {
                 this.updateRecentShipmentsTable(shipmentsResponse.data);
+            } else {
+                UIUtils.showEmptyState('#recentShipmentsTable', 'لا توجد شحنات حديثة', 'box');
             }
         } catch (error) {
-            // Error loading recent shipments
+            ErrorHandler.handle(error, 'OwnerDashboard.recentShipments');
         }
     }
 
@@ -151,7 +160,7 @@ class OwnerDashboardHandler extends BasePageHandler {
             this.initShipmentsChart();
             
         } catch (error) {
-            // Silent error handling
+            ErrorHandler.handle(error, 'OwnerDashboard.charts');
         }
     }
 

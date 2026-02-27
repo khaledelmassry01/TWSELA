@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('courier-dashboard-page');
+
 /**
  * Twsela CMS - Courier Dashboard Page Handler
  * Handles courier dashboard functionality
@@ -15,19 +18,25 @@ class CourierDashboardHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-
+        try {
+            UIUtils.showLoading();
         
-        // Load courier data
-        await this.loadCourierData();
-        
-        // Load today's deliveries
-        await this.loadTodaysDeliveries();
-        
-        // Load manifest
-        await this.loadManifest();
-        
-        // Initialize charts
-        this.initializeCharts();
+            // Load courier data
+            await this.loadCourierData();
+            
+            // Load today's deliveries
+            await this.loadTodaysDeliveries();
+            
+            // Load manifest
+            await this.loadManifest();
+            
+            // Initialize charts
+            this.initializeCharts();
+        } catch (error) {
+            ErrorHandler.handle(error, 'CourierDashboard');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
@@ -46,7 +55,7 @@ class CourierDashboardHandler extends BasePageHandler {
             // Update courier info display
             this.updateCourierInfo(user);
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'CourierDashboard.courierData'); }
     }
 
     /**
@@ -55,17 +64,17 @@ class CourierDashboardHandler extends BasePageHandler {
     updateCourierInfo(user) {
         const courierNameEl = document.getElementById('courierName');
         if (courierNameEl) {
-            courierNameEl.textContent = user.name || 'الساعي';
+            courierNameEl.textContent = user.name || 'Ø§Ù„Ø³Ø§Ø¹ÙŠ';
         }
 
         const courierPhoneEl = document.getElementById('courierPhone');
         if (courierPhoneEl) {
-            courierPhoneEl.textContent = user.phone || 'غير محدد';
+            courierPhoneEl.textContent = user.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         const courierStatusEl = document.getElementById('courierStatus');
         if (courierStatusEl) {
-            courierStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'غير محدد')}</span>`;
+            courierStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span>`;
         }
     }
 
@@ -87,10 +96,10 @@ class CourierDashboardHandler extends BasePageHandler {
                 this.deliveries = response.data || [];
                 this.updateTodaysDeliveriesTable();
             } else {
-
+                UIUtils.showEmptyState('#todaysDeliveriesTable', 'لا توجد توصيلات اليوم', 'box');
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'CourierDashboard.deliveries'); }
     }
 
     /**
@@ -104,7 +113,7 @@ class CourierDashboardHandler extends BasePageHandler {
         tbody.innerHTML = '';
 
         if (!this.deliveries || this.deliveries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">لا توجد توصيلات اليوم</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Ù„Ø§ ØªÙˆØ¬Ø¯ ØªÙˆØµÙŠÙ„Ø§Øª Ø§Ù„ÙŠÙˆÙ…</td></tr>';
             return;
         }
 
@@ -112,11 +121,11 @@ class CourierDashboardHandler extends BasePageHandler {
         this.deliveries.forEach(delivery => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${delivery.trackingNumber || 'غير محدد'}</td>
-                <td>${delivery.merchant?.name || 'غير محدد'}</td>
-                <td>${delivery.customerName || 'غير محدد'}</td>
-                <td>${delivery.customerPhone || 'غير محدد'}</td>
-                <td><span class="badge bg-${this.getStatusColor(delivery.status)}">${delivery.status?.name || 'غير محدد'}</span></td>
+                <td>${delivery.trackingNumber || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</td>
+                <td>${delivery.merchant?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</td>
+                <td>${delivery.customerName || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</td>
+                <td>${delivery.customerPhone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</td>
+                <td><span class="badge bg-${this.getStatusColor(delivery.status)}">${delivery.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</span></td>
                 <td>
                     <button class="btn btn-sm btn-outline-success" onclick="courierDashboardHandler.markAsDelivered(${delivery.id})">
                         <i class="fas fa-check"></i>
@@ -139,10 +148,10 @@ class CourierDashboardHandler extends BasePageHandler {
             if (response.success) {
                 this.updateManifestDisplay(response.data);
             } else {
-
+                log.warn('No manifest data available');
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'CourierDashboard.manifest'); }
     }
 
     /**
@@ -151,7 +160,7 @@ class CourierDashboardHandler extends BasePageHandler {
     updateManifestDisplay(manifest) {
         const manifestIdEl = document.getElementById('manifestId');
         if (manifestIdEl) {
-            manifestIdEl.textContent = manifest.id || 'غير محدد';
+            manifestIdEl.textContent = manifest.id || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         const manifestDateEl = document.getElementById('manifestDate');
@@ -161,7 +170,7 @@ class CourierDashboardHandler extends BasePageHandler {
 
         const manifestStatusEl = document.getElementById('manifestStatus');
         if (manifestStatusEl) {
-            manifestStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(manifest.status)}">${manifest.status?.name || 'غير محدد'}</span>`;
+            manifestStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(manifest.status)}">${manifest.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</span>`;
         }
 
         const manifestShipmentsEl = document.getElementById('manifestShipments');
@@ -183,7 +192,7 @@ class CourierDashboardHandler extends BasePageHandler {
             // Initialize performance chart
             this.initPerformanceChart();
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'CourierDashboard.charts'); }
     }
 
     /**
@@ -202,7 +211,7 @@ class CourierDashboardHandler extends BasePageHandler {
                 data: {
                     labels: deliveriesData.labels || [],
                     datasets: [{
-                        label: 'التوصيلات',
+                        label: 'Ø§Ù„ØªÙˆØµÙŠÙ„Ø§Øª',
                         data: deliveriesData.values || [],
                         backgroundColor: '#007bff'
                     }]
@@ -252,7 +261,7 @@ class CourierDashboardHandler extends BasePageHandler {
                 data: {
                     labels: performanceData.labels || [],
                     datasets: [{
-                        label: 'معدل التوصيل',
+                        label: 'Ù…Ø¹Ø¯Ù„ Ø§Ù„ØªÙˆØµÙŠÙ„',
                         data: performanceData.values || [],
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -325,19 +334,22 @@ class CourierDashboardHandler extends BasePageHandler {
      */
     async markAsDelivered(shipmentId) {
         try {
-
-            
             if (confirm('هل أنت متأكد من تسليم هذه الشحنة؟')) {
+                const btn = event?.target?.closest('button');
+                if (btn) UIUtils.showButtonLoading(btn, 'جاري التسليم...');
+                
                 const response = await this.services.api.updateShipmentStatus(shipmentId, 'DELIVERED');
                 
                 if (response.success) {
                     this.showSuccess('تم تسليم الشحنة بنجاح');
                     this.loadTodaysDeliveries(); // Reload data
                 } else {
-                    
+                    ErrorHandler.handle(response, 'CourierDashboard.markDelivered');
                 }
+                
+                if (btn) UIUtils.hideButtonLoading(btn);
             }
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'CourierDashboard.markDelivered'); }
     }
 
     /**
@@ -353,7 +365,7 @@ class CourierDashboardHandler extends BasePageHandler {
      */
     startDelivery() {
 
-        this.showInfo('بدء التوصيل قيد التطوير');
+        this.showInfo('Ø¨Ø¯Ø¡ Ø§Ù„ØªÙˆØµÙŠÙ„ Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±');
     }
 }
 

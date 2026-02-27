@@ -3,9 +3,12 @@ package com.twsela.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
-@Table(name = "courier_details")
+@Table(name = "courier_details", indexes = {
+    @Index(name = "idx_courier_vehicle_type", columnList = "vehicle_type")
+})
 public class CourierDetails {
 
     @Id
@@ -62,6 +65,19 @@ public class CourierDetails {
                 ", licensePlateNumber='" + licensePlateNumber + '\'' +
                 ", onboardingDate=" + onboardingDate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CourierDetails)) return false;
+        CourierDetails that = (CourierDetails) o;
+        return userId != null && userId.equals(that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
 

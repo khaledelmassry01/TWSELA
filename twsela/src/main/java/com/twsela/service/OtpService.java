@@ -1,14 +1,20 @@
 package com.twsela.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpService {
+
+    private static final Logger log = LoggerFactory.getLogger(OtpService.class);
     
     private static class OtpData {
         String otp;
@@ -25,10 +31,16 @@ public class OtpService {
     // Store OTP temporarily in memory (phone -> OtpData)
     private final Map<String, OtpData> otpStore = new ConcurrentHashMap<>();
     
-    // OTP valid for 5 minutes
-    private static final int OTP_VALIDITY_MINUTES = 5;
-    // Maximum verification attempts
-    private static final int MAX_ATTEMPTS = 5;
+    private final int otpValidityMinutes;
+    private final int maxAttempts;
+
+    public OtpService(
+            @Value("${app.otp.validity-minutes:5}") int otpValidityMinutes,
+            @Value("${app.otp.max-attempts:5}") int maxAttempts
+    ) {
+        this.otpValidityMinutes = otpValidityMinutes;
+        this.maxAttempts = maxAttempts;
+    }
     
     /**
      * Generate and store OTP for a phone number
@@ -38,7 +50,7 @@ public class OtpService {
         String otp = String.format("%06d", new SecureRandom().nextInt(1000000));
         
         // Store OTP with expiry time
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES);
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(otpValidityMinutes);
         otpStore.put(phone, new OtpData(otp, expiryTime));
         
         return otp;
@@ -61,7 +73,7 @@ public class OtpService {
         }
         
         // Check maximum attempts
-        if (otpData.attempts >= MAX_ATTEMPTS) {
+        if (otpData.attempts >= maxAttempts) {
             otpStore.remove(phone); // Remove OTP after max attempts
             return false;
         }
@@ -69,8 +81,8 @@ public class OtpService {
         // Increment attempts
         otpData.attempts++;
         
-        // Verify OTP
-        if (otpData.otp.equals(otp)) {
+        // Verify OTP using constant-time comparison (prevents timing attacks)
+        if (MessageDigest.isEqual(otpData.otp.getBytes(), otp.getBytes())) {
             otpStore.remove(phone); // Remove OTP after successful verification
             return true;
         }

@@ -1,3 +1,6 @@
+﻿import { Logger } from './shared/Logger.js';
+const log = Logger.getLogger('app');
+
 /**
  * Twsela CMS - Unified Main Application
  * Consolidated main application entry point with all initialization logic
@@ -101,9 +104,9 @@ class TwselaApp {
             return;
         }
 
-        // فحص إذا كانت الصفحة تقوم بفحص المصادقة بنفسها
+        // ÙØ­Øµ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ØµÙØ­Ø© ØªÙ‚ÙˆÙ… Ø¨ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¨Ù†ÙØ³Ù‡Ø§
         if (this.isPageHandlingAuth(currentPage)) {
-            console.log(`📄 Page ${currentPage} handles its own authentication, skipping app.js auth check`);
+            log.debug(`ðŸ“„ Page ${currentPage} handles its own authentication, skipping app.js auth check`);
             this.setupPageSpecificHandlers();
             return;
         }
@@ -113,10 +116,10 @@ class TwselaApp {
             // Use AuthService to check authentication status
             let isValid = false;
             if (window.authService) {
-                // فحص البيانات المحلية أولاً لتجنب استدعاء auth/me
+                // ÙØ­Øµ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ© Ø£ÙˆÙ„Ø§Ù‹ Ù„ØªØ¬Ù†Ø¨ Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ auth/me
                 const localUser = window.authService.getCurrentUser();
                 if (localUser && localUser.id) {
-                    console.log('✅ Using local user data, skipping auth/me call');
+                    log.debug('âœ… Using local user data, skipping auth/me call');
                     isValid = true;
                 } else {
                     isValid = await window.authService.checkAuthStatus();
@@ -177,12 +180,12 @@ class TwselaApp {
 
         // Global error handler
         window.addEventListener('error', (e) => {
-            console.error('[Twsela Global Error]', e.message, '\nFile:', e.filename, '\nLine:', e.lineno, '\nCol:', e.colno);
+            log.error('[Twsela Global Error]', e.message, '\nFile:', e.filename, '\nLine:', e.lineno, '\nCol:', e.colno);
         });
 
         // Unhandled promise rejection handler
         window.addEventListener('unhandledrejection', (e) => {
-            console.error('[Twsela Unhandled Rejection]', e.reason);
+            log.error('[Twsela Unhandled Rejection]', e.reason);
         });
     }
 
@@ -221,7 +224,7 @@ class TwselaApp {
             if (window.authService) {
                 token = window.authService.getToken();
             } else {
-                token = localStorage.getItem('authToken');
+                token = sessionStorage.getItem('authToken');
             }
             
             
@@ -262,7 +265,7 @@ class TwselaApp {
             const response = await fetch(`${this.apiBaseUrl}/api/auth/me`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -313,11 +316,11 @@ class TwselaApp {
      */
     getRoleDisplayName(role) {
         const roleMap = {
-            'OWNER': 'مالك النظام',
-            'MERCHANT': 'تاجر',
-            'COURIER': 'سائق توصيل',
-            'WAREHOUSE': 'موظف مستودع',
-            'ADMIN': 'مدير'
+            'OWNER': 'Ù…Ø§Ù„Ùƒ Ø§Ù„Ù†Ø¸Ø§Ù…',
+            'MERCHANT': 'ØªØ§Ø¬Ø±',
+            'COURIER': 'Ø³Ø§Ø¦Ù‚ ØªÙˆØµÙŠÙ„',
+            'WAREHOUSE': 'Ù…ÙˆØ¸Ù Ù…Ø³ØªÙˆØ¯Ø¹',
+            'ADMIN': 'Ù…Ø¯ÙŠØ±'
         };
         return roleMap[role] || role;
     }
@@ -342,8 +345,8 @@ class TwselaApp {
      * Handle logout
      */
     handleLogout() {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('userData');
         this.currentUser = null;
         this.redirectToLogin();
     }
@@ -375,10 +378,10 @@ class TwselaApp {
     }
 
     /**
-     * Get API base URL - Use centralized config
+     * Get API base URL - delegates to global config utility
      */
     getApiBaseUrl() {
-        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
+        return window.getApiBaseUrl();
     }
 
     /**
@@ -609,7 +612,7 @@ class TwselaApp {
         return {
             name: 'Twsela CMS',
             version: this.getVersion(),
-            description: 'نظام إدارة الشحنات المتكامل',
+            description: 'Ù†Ø¸Ø§Ù… Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø´Ø­Ù†Ø§Øª Ø§Ù„Ù…ØªÙƒØ§Ù…Ù„',
             author: 'Twsela Team',
             buildDate: '2024-01-16'
         };
@@ -663,8 +666,8 @@ document.addEventListener('click', (e) => {
             window.authService.logout();
         } else {
             // Fallback logout
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('userData');
             window.location.href = '/login.html';
         }
     }

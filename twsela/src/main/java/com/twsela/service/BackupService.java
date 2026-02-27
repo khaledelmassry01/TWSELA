@@ -36,7 +36,7 @@ public class BackupService {
     @Value("${spring.datasource.password:root}")
     private String dbPassword;
 
-    @Value("${spring.datasource.url:jdbc:mysql://localhost:3306/twsela}")
+    @Value("${spring.datasource.url}")
     private String dbUrl;
 
     /**
@@ -266,7 +266,7 @@ public class BackupService {
             }
             return hostPart.split("/")[0];
         }
-        return "localhost";
+        return "localhost"; // fallback only when URL parsing fails
     }
 
     /**

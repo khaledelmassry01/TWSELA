@@ -1,5 +1,7 @@
 package com.twsela.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +13,8 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileUploadService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileUploadService.class);
 
     private static final String UPLOAD_DIR = System.getProperty("app.upload.dir", "uploads/pod/");
     private static final String PUBLIC_PATH = "/uploads/pod/";

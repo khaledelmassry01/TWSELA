@@ -5,8 +5,9 @@ import com.twsela.domain.User;
 import com.twsela.repository.SystemAuditLogRepository;
 import com.twsela.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +18,16 @@ import java.util.List;
 @Transactional
 public class AuditService {
 
-    @Autowired
-    private SystemAuditLogRepository systemAuditLogRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(AuditService.class);
+
+    private final SystemAuditLogRepository systemAuditLogRepository;
+    private final UserRepository userRepository;
+
+    public AuditService(SystemAuditLogRepository systemAuditLogRepository,
+                        UserRepository userRepository) {
+        this.systemAuditLogRepository = systemAuditLogRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Log a successful operation
@@ -33,7 +39,7 @@ public class AuditService {
             systemAuditLogRepository.save(auditLog);
         } catch (Exception e) {
             // Don't let audit logging break the main operation
-            System.err.println("Failed to log audit: " + e.getMessage());
+            log.error("Failed to log audit: {}", e.getMessage(), e);
         }
     }
 
@@ -48,7 +54,7 @@ public class AuditService {
             systemAuditLogRepository.save(auditLog);
         } catch (Exception e) {
             // Don't let audit logging break the main operation
-            System.err.println("Failed to log audit: " + e.getMessage());
+            log.error("Failed to log audit: {}", e.getMessage(), e);
         }
     }
 
@@ -72,7 +78,7 @@ public class AuditService {
             
             systemAuditLogRepository.save(auditLog);
         } catch (Exception e) {
-            System.err.println("Failed to log authentication audit: " + e.getMessage());
+            log.error("Failed to log authentication audit: {}", e.getMessage(), e);
         }
     }
 

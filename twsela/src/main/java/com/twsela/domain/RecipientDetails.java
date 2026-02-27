@@ -3,11 +3,12 @@ package com.twsela.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "recipient_details", indexes = {
-    @Index(name = "idx_phone", columnList = "phone"),
-    @Index(name = "uk_recipient_phone", columnList = "phone", unique = true)
+    @Index(name = "idx_recipient_phone", columnList = "phone"),
+    @Index(name = "idx_recipient_phone_address", columnList = "phone, name")
 })
 public class RecipientDetails {
 
@@ -59,6 +60,19 @@ public class RecipientDetails {
     public void setAlternatePhone(String alternatePhone) { this.alternatePhone = alternatePhone; }
     public java.util.Set<Shipment> getShipments() { return shipments; }
     public void setShipments(java.util.Set<Shipment> shipments) { this.shipments = shipments; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RecipientDetails)) return false;
+        RecipientDetails that = (RecipientDetails) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
     @Override
     public String toString() {

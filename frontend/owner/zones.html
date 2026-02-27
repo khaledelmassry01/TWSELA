@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -481,24 +481,8 @@
     <!-- Load app.js first to initialize authentication system -->
     <script src="/src/js/app.js?v=20250112-13"></script>
     
-    <!-- Load page handler after app.js is ready -->
-    <script>
-        // Wait for app.js to be ready before loading page handler
-        document.addEventListener('DOMContentLoaded', function() {
-            // Small delay to ensure app.js is initialized
-            setTimeout(() => {
-                const script = document.createElement('script');
-                script.src = '/src/js/pages/owner-zones-page.js?v=20250112-14';
-                script.onload = function() {
-                    console.log('âœ… Owner zones page script loaded');
-                };
-                script.onerror = function() {
-                    console.error('âŒ Failed to load owner zones page script');
-                };
-                document.head.appendChild(script);
-            }, 200); // Wait 200ms for app.js to initialize
-        });
-    </script>
+    <!-- Load page handler - has its own waitForAppInitialization() -->
+    <script src="/src/js/pages/owner-zones-page.js?v=20250112-14"></script>
 
     <style>
         .zone-icon {

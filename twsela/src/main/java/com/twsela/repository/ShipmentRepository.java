@@ -37,7 +37,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 
     long countByMerchantIdAndCreatedAtBetween(Long merchantId, Instant start, Instant end);
 
-    long countByMerchantIdAndStatusName(Long merchantId, String statusName);
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.merchant.id = :merchantId AND s.status.name = :statusName")
+    long countByMerchantIdAndStatusName(@Param("merchantId") Long merchantId, @Param("statusName") String statusName);
 
     @Query("SELECT COUNT(s) FROM Shipment s WHERE s.manifest.courier.id = :courierId AND s.createdAt BETWEEN :start AND :end")
     long countByCourierIdAndCreatedAtBetween(@Param("courierId") Long courierId, @Param("start") Instant start, @Param("end") Instant end);
@@ -49,7 +50,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     @Query("SELECT s FROM Shipment s JOIN s.manifest m WHERE m.courier.id = :courierId ORDER BY s.updatedAt DESC LIMIT 10")
     List<Shipment> findTop10ByCourierIdOrderByUpdatedAtDesc(@Param("courierId") Long courierId);
 
-    long countByStatusName(String statusName);
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.status.name = :statusName")
+    long countByStatusName(@Param("statusName") String statusName);
     
     // Optimized queries with proper joins and indexes
     @Query("SELECT s FROM Shipment s JOIN FETCH s.manifest m WHERE m.courier.id = :courierId")
@@ -68,7 +70,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
                                    @Param("recipientPhone") String recipientPhone, 
                                    Pageable pageable);
     
-    // Keep the old method for backward compatibility
+    // Deprecated: use searchShipments(@Query) instead for better performance
     Page<Shipment> findByTrackingNumberContainingIgnoreCaseOrRecipientNameContainingIgnoreCaseOrRecipientPhoneContainingIgnoreCase(
         String trackingNumber, String recipientName, String recipientPhone, Pageable pageable);
     
@@ -132,4 +134,24 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     Optional<ShipmentStatus> findByStatusName(@Param("name") String name);
     
     Page<Shipment> findByMerchantIdAndStatus(Long merchantId, ShipmentStatus status, Pageable pageable);
+
+    // ── Reports-optimised aggregate queries ─────────────────────────────
+    
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.manifest.courier.id = :courierId AND s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
+    long countByCourierIdAndStatusNameAndCreatedAtBetween(@Param("courierId") Long courierId, @Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.merchant.id = :merchantId AND s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
+    long countByMerchantIdAndStatusNameAndCreatedAtBetween(@Param("merchantId") Long merchantId, @Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COALESCE(SUM(s.deliveryFee), 0) FROM Shipment s WHERE s.merchant.id = :merchantId AND s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
+    BigDecimal sumDeliveryFeeByMerchantIdAndStatusNameAndCreatedAtBetween(@Param("merchantId") Long merchantId, @Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
+    long countByStatusNameAndCreatedAtBetween(@Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.createdAt BETWEEN :start AND :end")
+    long countByCreatedAtBetweenInstant(@Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COALESCE(SUM(s.deliveryFee), 0) FROM Shipment s WHERE s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
+    BigDecimal sumDeliveryFeeByStatusNameAndCreatedAtBetween(@Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
 }

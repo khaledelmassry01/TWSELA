@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-settings-page');
+
 /**
  * Twsela CMS - Owner Settings Page Handler
  * Manages system settings for the Owner role
@@ -14,11 +17,14 @@ class OwnerSettingsPageHandler {
             if (document.readyState === 'loading') {
                 await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
             }
+            UIUtils.showLoading();
             await this.loadSettings();
             this.setupEventListeners();
-            console.log('✅ Owner Settings page initialized');
+            log.debug('✅ Owner Settings page initialized');
         } catch (error) {
-            console.error('❌ Error initializing owner settings page:', error);
+            ErrorHandler.handle(error, 'OwnerSettings');
+        } finally {
+            UIUtils.hideLoading();
         }
     }
 
@@ -28,15 +34,15 @@ class OwnerSettingsPageHandler {
     async loadSettings() {
         try {
             if (!this.apiService) {
-                console.warn('ApiService not available yet');
+                log.warn('ApiService not available yet');
                 return;
             }
-            const response = await this.apiService.request('/api/master-data/telemetry-settings');
+            const response = await this.apiService.getSettings();
             if (response && response.success && response.data) {
                 this.populateSettingsForm(response.data);
             }
         } catch (error) {
-            console.error('Error loading settings:', error);
+            ErrorHandler.handle(error, 'OwnerSettings.loadSettings');
         }
     }
 
@@ -82,6 +88,9 @@ class OwnerSettingsPageHandler {
      */
     async saveSettings() {
         try {
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            if (saveBtn) UIUtils.showButtonLoading(saveBtn, 'جاري الحفظ...');
+
             const fields = document.querySelectorAll('[data-setting]');
             const settings = {};
             fields.forEach(field => {
@@ -89,19 +98,19 @@ class OwnerSettingsPageHandler {
                 settings[key] = field.type === 'checkbox' ? field.checked : field.value;
             });
 
-            const response = await this.apiService.request('/api/master-data/telemetry-settings', {
-                method: 'PUT',
-                body: JSON.stringify(settings)
-            });
+            const response = await this.apiService.updateSettings(settings);
 
             if (response && response.success) {
-                this.showMessage('تم حفظ الإعدادات بنجاح', 'success');
+                UIUtils.showSuccess('تم حفظ الإعدادات بنجاح');
             } else {
-                this.showMessage('فشل في حفظ الإعدادات', 'error');
+                UIUtils.showError('فشل في حفظ الإعدادات');
             }
+
+            if (saveBtn) UIUtils.hideButtonLoading(saveBtn);
         } catch (error) {
-            console.error('Error saving settings:', error);
-            this.showMessage('حدث خطأ أثناء حفظ الإعدادات', 'error');
+            ErrorHandler.handle(error, 'OwnerSettings.saveSettings');
+            const saveBtn = document.getElementById('saveSettingsBtn');
+            if (saveBtn) UIUtils.hideButtonLoading(saveBtn);
         }
     }
 

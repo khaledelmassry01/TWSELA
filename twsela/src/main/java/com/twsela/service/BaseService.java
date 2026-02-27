@@ -2,7 +2,6 @@ package com.twsela.service;
 
 import com.twsela.domain.User;
 import com.twsela.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Base service with common functionality
@@ -10,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class BaseService {
     
-    @Autowired
-    protected UserRepository userRepository;
+    protected final UserRepository userRepository;
+
+    protected BaseService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
     
     /**
      * Find user by phone with error handling

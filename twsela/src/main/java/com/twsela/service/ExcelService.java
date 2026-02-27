@@ -6,6 +6,8 @@ import com.twsela.repository.UserRepository;
 import com.twsela.repository.ZoneRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +18,8 @@ import java.util.*;
 
 @Service
 public class ExcelService {
+
+    private static final Logger log = LoggerFactory.getLogger(ExcelService.class);
 
     private final ShipmentService shipmentService;
     private final UserRepository userRepository;

@@ -3,6 +3,7 @@ package com.twsela.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -77,6 +78,19 @@ public class ShipmentManifest {
                 ", status=" + status +
                 ", courier=" + (courier != null ? courier.getName() : "null") +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ShipmentManifest)) return false;
+        ShipmentManifest that = (ShipmentManifest) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
 

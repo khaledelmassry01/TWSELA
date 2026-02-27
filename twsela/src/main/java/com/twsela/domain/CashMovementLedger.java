@@ -5,7 +5,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "cash_movement_ledger")
+@Table(name = "cash_movement_ledger", indexes = {
+    @Index(name = "idx_ledger_user", columnList = "user_id"),
+    @Index(name = "idx_ledger_shipment", columnList = "shipment_id"),
+    @Index(name = "idx_ledger_status", columnList = "status"),
+    @Index(name = "idx_ledger_created_at", columnList = "created_at")
+})
 public class CashMovementLedger {
 
     @Id

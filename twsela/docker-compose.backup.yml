@@ -5,13 +5,12 @@ services:
   mysql:
     image: mysql:8.0
     container_name: twsela-mysql
-    ports:
-      - "3306:3306"
+    # Port not exposed externally for security - access via Docker network only
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: twsela
       MYSQL_USER: twsela
-      MYSQL_PASSWORD: twsela123
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./twsela/src/main/resources/db/migration/twsela.sql:/docker-entrypoint-initdb.d/init.sql
@@ -32,7 +31,7 @@ services:
     environment:
       MYSQL_HOST: mysql
       MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: twsela
       BACKUP_PATH: /backups
     command: /bin/bash -c "chmod +x /backup-script.sh && /backup-script.sh"
@@ -44,8 +43,7 @@ services:
   redis:
     image: redis:alpine
     container_name: twsela-redis
-    ports:
-      - "6379:6379"
+    # Port not exposed externally for security - access via Docker network only
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes

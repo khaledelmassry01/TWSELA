@@ -4,12 +4,16 @@ import com.twsela.domain.User;
 import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.ShipmentRepository;
 import com.twsela.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthorizationService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthorizationService.class);
 
     private final UserRepository userRepository;
     private final ShipmentRepository shipmentRepository;

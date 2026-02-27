@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('api_service');
+
 /**
  * Twsela CMS - Unified API Service
  * Consolidated API service handling all 80+ API endpoints
@@ -16,17 +19,17 @@ class ApiService {
     }
 
     /**
-     * Get API base URL - Use centralized config
+     * Get API base URL - delegates to global config utility
      */
     getApiBaseUrl() {
-        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
+        return window.getApiBaseUrl();
     }
 
     /**
      * Get authorization headers
      */
     getAuthHeaders() {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
 
@@ -39,10 +42,10 @@ class ApiService {
     async request(endpoint, options = {}) {
         let url = '';
         try {
-            // فحص وجود التوكن قبل الطلب
-            const token = localStorage.getItem('authToken');
+            // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ Ø§Ù„ØªÙˆÙƒÙ† Ù‚Ø¨Ù„ Ø§Ù„Ø·Ù„Ø¨
+            const token = sessionStorage.getItem('authToken');
             if (!token && !endpoint.includes('/auth/')) {
-                console.warn('⚠️ No authentication token found for protected endpoint:', endpoint);
+                log.warn('âš ï¸ No authentication token found for protected endpoint:', endpoint);
                 return {
                     success: false,
                     message: 'No authentication token',
@@ -63,7 +66,7 @@ class ApiService {
                 headers
             };
 
-            console.log(`🔄 API Request: ${options.method || 'GET'} ${url}`);
+            log.debug(`ðŸ”„ API Request: ${options.method || 'GET'} ${url}`);
             const response = await fetch(url, config);
             
             // Check if response is JSON
@@ -76,9 +79,9 @@ class ApiService {
                 data = { message: await response.text() };
             }
 
-            // معالجة أخطاء المصادقة بشكل خاص
+            // Ù…Ø¹Ø§Ù„Ø¬Ø© Ø£Ø®Ø·Ø§Ø¡ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¨Ø´ÙƒÙ„ Ø®Ø§Øµ
             if (response.status === 401) {
-                console.warn('⚠️ Authentication failed (401), clearing auth data');
+                log.warn('âš ï¸ Authentication failed (401), clearing auth data');
                 this.clearAuthData();
                 return {
                     success: false,
@@ -90,7 +93,7 @@ class ApiService {
             }
 
             if (response.status === 403) {
-                console.warn('⚠️ Access forbidden (403)');
+                log.warn('âš ï¸ Access forbidden (403)');
                 return {
                     success: false,
                     message: 'Access forbidden',
@@ -101,7 +104,7 @@ class ApiService {
             }
 
             if (!response.ok) {
-                console.error('🌐 API Service Error - Request Failed:', {
+                log.error('ðŸŒ API Service Error - Request Failed:', {
                     url: url,
                     method: options.method || 'GET',
                     status: response.status,
@@ -118,7 +121,7 @@ class ApiService {
                 };
             }
 
-            console.log(`✅ API Request successful: ${options.method || 'GET'} ${url}`);
+            log.debug(`âœ… API Request successful: ${options.method || 'GET'} ${url}`);
             return {
                 success: true,
                 data: data.data || data,
@@ -126,7 +129,7 @@ class ApiService {
                 status: response.status
             };
         } catch (error) {
-            console.error('🌐 API Service Error - Network/Request Error:', {
+            log.error('🌐 API Service Error - Network/Request Error:', {
                 url: url,
                 method: options.method || 'GET',
                 error: error.message,
@@ -136,7 +139,7 @@ class ApiService {
             
             return {
                 success: false,
-                message: error.message || 'حدث خطأ في الاتصال بالخادم',
+                message: error.message || 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…',
                 error: error,
                 data: null
             };
@@ -200,17 +203,16 @@ class ApiService {
                 status: response.status
             };
         } catch (error) {
-            console.error('🌐 API Service Error - Network/Request Error:', {
-                url: url,
-                method: options.method || 'GET',
+            log.error('🌐 API Service Error - verifyToken:', {
+                url: '/api/auth/me',
+                method: 'GET',
                 error: error.message,
-                stack: error.stack,
                 timestamp: new Date().toISOString()
             });
             
             return {
                 success: false,
-                message: error.message || 'حدث خطأ في الاتصال بالخادم',
+                message: error.message || 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…',
                 error: error,
                 data: null
             };
@@ -251,17 +253,16 @@ class ApiService {
                 status: response.status
             };
         } catch (error) {
-            console.error('🌐 API Service Error - Network/Request Error:', {
-                url: url,
-                method: options.method || 'GET',
+            log.error('ðŸŒ API Service Error - getCurrentUser:', {
+                url: '/api/auth/me',
+                method: 'GET',
                 error: error.message,
-                stack: error.stack,
                 timestamp: new Date().toISOString()
             });
             
             return {
                 success: false,
-                message: error.message || 'حدث خطأ في الاتصال بالخادم',
+                message: error.message || 'Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…',
                 error: error,
                 data: null
             };
@@ -282,7 +283,7 @@ class ApiService {
      * Forgot password
      */
     async forgotPassword(email) {
-        return this.request('/api/auth/forgot-password', {
+        return this.request('/api/public/forgot-password', {
             method: 'POST',
             body: JSON.stringify({ email })
         });
@@ -292,7 +293,7 @@ class ApiService {
      * Reset password
      */
     async resetPassword(resetData) {
-        return this.request('/api/auth/reset-password', {
+        return this.request('/api/public/reset-password', {
             method: 'POST',
             body: JSON.stringify(resetData)
         });
@@ -395,7 +396,7 @@ class ApiService {
      * @param {Object} params - Additional parameters
      */
     async shipmentCRUD(operation, data = null, params = {}) {
-        const baseEndpoint = '/api/shipments/list';
+        const baseEndpoint = '/api/shipments';
         
         switch (operation) {
             case 'getAll':
@@ -475,7 +476,7 @@ class ApiService {
      */
     async assignCourier(shipmentId, courierId) {
         return this.request(`/api/shipments/${shipmentId}/assign`, {
-            method: 'PUT',
+            method: 'POST',
             body: JSON.stringify({ courierId })
         });
     }
@@ -484,8 +485,17 @@ class ApiService {
      * Track shipment
      */
     async trackShipment(trackingNumber) {
-        return this.request(`/api/shipments/track/${trackingNumber}`, {
+        return this.request(`/api/shipments/tracking/${trackingNumber}`, {
             method: 'GET'
+        });
+    }
+
+    /**
+     * Return shipment
+     */
+    async returnShipment(shipmentId) {
+        return this.request(`/api/shipments/${shipmentId}/return`, {
+            method: 'POST'
         });
     }
 
@@ -500,7 +510,7 @@ class ApiService {
      * @param {Object} params - Additional parameters
      */
     async zoneCRUD(operation, data = null, params = {}) {
-        const baseEndpoint = '/api/master/zones';
+        const baseEndpoint = '/api/master-data/zones';
         
         switch (operation) {
             case 'getAll':
@@ -589,10 +599,10 @@ class ApiService {
     }
 
     /**
-     * Approve payout
+     * Mark payout as paid
      */
     async approvePayout(payoutId) {
-        return this.request(`/api/financial/payouts/${payoutId}/approve`, {
+        return this.request(`/api/financial/payouts/${payoutId}/pay`, {
             method: 'PUT'
         });
     }
@@ -608,11 +618,51 @@ class ApiService {
     }
 
     /**
-     * Get financial reports
+     * Get financial summary
      */
     async getFinancialReports(params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        return this.request(`/api/financial/reports?${queryString}`, {
+        return this.request(`/api/financial/summary?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Create payout
+     */
+    async createPayout(payoutData) {
+        return this.request('/api/financial/payouts', {
+            method: 'POST',
+            body: JSON.stringify(payoutData)
+        });
+    }
+
+    /**
+     * Get merchant financial summary
+     */
+    async getFinancialMerchantSummary(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/financial/merchant-summary?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get courier earnings
+     */
+    async getFinancialCourierEarnings(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/financial/courier-earnings?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get financial revenue
+     */
+    async getFinancialRevenue(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/financial/revenue?${queryString}`, {
             method: 'GET'
         });
     }
@@ -622,18 +672,37 @@ class ApiService {
      */
     async getPricing(params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        return this.request(`/api/financial/pricing?${queryString}`, {
+        return this.request(`/api/pricing?${queryString}`, {
             method: 'GET'
+        });
+    }
+
+    /**
+     * Create pricing
+     */
+    async createPricing(pricingData) {
+        return this.request('/api/pricing', {
+            method: 'POST',
+            body: JSON.stringify(pricingData)
         });
     }
 
     /**
      * Update pricing
      */
-    async updatePricing(pricingData) {
-        return this.request('/api/financial/pricing', {
+    async updatePricing(pricingId, pricingData) {
+        return this.request(`/api/pricing/${pricingId}`, {
             method: 'PUT',
             body: JSON.stringify(pricingData)
+        });
+    }
+
+    /**
+     * Delete pricing
+     */
+    async deletePricing(pricingId) {
+        return this.request(`/api/pricing/${pricingId}`, {
+            method: 'DELETE'
         });
     }
 
@@ -687,6 +756,44 @@ class ApiService {
         return this.request(`/api/manifests/${manifestId}/status`, {
             method: 'PUT',
             body: JSON.stringify({ status })
+        });
+    }
+
+    /**
+     * Dispatch manifest
+     */
+    async dispatchManifest(manifestId) {
+        return this.request(`/api/manifests/${manifestId}/dispatch`, {
+            method: 'POST'
+        });
+    }
+
+    /**
+     * Complete manifest
+     */
+    async completeManifest(manifestId) {
+        return this.request(`/api/manifests/${manifestId}/complete`, {
+            method: 'POST'
+        });
+    }
+
+    /**
+     * Add shipments to manifest
+     */
+    async addShipmentsToManifest(manifestId, shipmentIds) {
+        return this.request(`/api/manifests/${manifestId}/shipments`, {
+            method: 'POST',
+            body: JSON.stringify({ shipmentIds })
+        });
+    }
+
+    /**
+     * Get current courier manifest
+     */
+    async getCourierManifest(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/manifests/current?${queryString}`, {
+            method: 'GET'
         });
     }
 
@@ -924,11 +1031,58 @@ class ApiService {
     }
 
     /**
+     * Get dashboard revenue data (for charts)
+     */
+    async getDashboardRevenue(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/dashboard/revenue?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get shipments status summary (for charts)
+     */
+    async getShipmentsStatusSummary(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/dashboard/shipments-status?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
      * Get courier reports
      */
     async getCourierReports(params = {}) {
         const queryString = new URLSearchParams(params).toString();
         return this.request(`/api/reports/couriers?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get couriers report (alias for getCourierReports)
+     */
+    async getCouriersReport(params = {}) {
+        return this.getCourierReports(params);
+    }
+
+    /**
+     * Get courier performance data (for charts)
+     */
+    async getCourierPerformanceData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/couriers/performance?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get courier distribution data (for charts)
+     */
+    async getCourierDistributionData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/couriers/distribution?${queryString}`, {
             method: 'GET'
         });
     }
@@ -944,6 +1098,43 @@ class ApiService {
     }
 
     /**
+     * Get merchants report (alias for getMerchantReports)
+     */
+    async getMerchantsReport(params = {}) {
+        return this.getMerchantReports(params);
+    }
+
+    /**
+     * Get merchants performance data (for charts)
+     */
+    async getMerchantsPerformanceData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/merchants/performance?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get merchants distribution data (for charts)
+     */
+    async getMerchantsDistributionData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/merchants/distribution?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get merchants revenue data (for charts)
+     */
+    async getMerchantsRevenueData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/merchants/revenue?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
      * Get warehouse reports
      */
     async getWarehouseReports(params = {}) {
@@ -954,11 +1145,108 @@ class ApiService {
     }
 
     /**
+     * Get warehouse operations (alias for getWarehouseReports)
+     */
+    async getWarehouseOperations(params = {}) {
+        return this.getWarehouseReports(params);
+    }
+
+    /**
+     * Get warehouse operations data (for charts)
+     */
+    async getWarehouseOperationsData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/warehouse/operations?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get operations distribution data (for charts)
+     */
+    async getOperationsDistributionData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/warehouse/distribution?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get warehouse errors data (for charts)
+     */
+    async getErrorsData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/warehouse/errors?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
      * Export data
      */
     async exportData(type, params = {}) {
         const queryString = new URLSearchParams(params).toString();
         return this.request(`/api/reports/export/${type}?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get shipments report (for reports page)
+     */
+    async getShipmentsReport(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/shipments?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get shipments report data (for charts)
+     */
+    async getShipmentsReportData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/shipments?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get revenue report data (for charts)
+     */
+    async getRevenueReportData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/financial/revenue?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get courier deliveries data (for charts)
+     */
+    async getCourierDeliveriesData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/couriers?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get merchant shipments status summary (for charts)
+     */
+    async getMerchantShipmentsStatusSummary(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/reports/merchants?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get merchant revenue data (for charts)
+     */
+    async getMerchantRevenueData(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/financial/merchant-summary?${queryString}`, {
             method: 'GET'
         });
     }
@@ -1013,8 +1301,203 @@ class ApiService {
      */
     async updateSettings(settingsData) {
         return this.request('/api/settings', {
-            method: 'PUT',
+            method: 'POST',
             body: JSON.stringify(settingsData)
+        });
+    }
+
+    /**
+     * Reset system settings to defaults
+     */
+    async resetSettings() {
+        return this.request('/api/settings/reset', {
+            method: 'POST'
+        });
+    }
+
+    // ==========================================================================
+    // HEALTH ENDPOINT
+    // ==========================================================================
+
+    /**
+     * Get system health status
+     */
+    async getHealth() {
+        return this.request('/api/health', {
+            method: 'GET'
+        });
+    }
+
+    // ==========================================================================
+    // MASTER DATA ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Get all statuses
+     */
+    async getStatuses() {
+        return this.request('/api/master-data/statuses', {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get all roles
+     */
+    async getRoles() {
+        return this.request('/api/master-data/roles', {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get all warehouses
+     */
+    async getWarehouses() {
+        return this.request('/api/master-data/warehouses', {
+            method: 'GET'
+        });
+    }
+
+    // ==========================================================================
+    // DASHBOARD ENDPOINT
+    // ==========================================================================
+
+    /**
+     * Get dashboard data
+     */
+    async getDashboard() {
+        return this.request('/api/dashboard', {
+            method: 'GET'
+        });
+    }
+
+    // ==========================================================================
+    // PUBLIC ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Submit contact form
+     */
+    async submitContactForm(contactData) {
+        return this.request('/api/public/contact', {
+            method: 'POST',
+            body: JSON.stringify(contactData)
+        });
+    }
+
+    // ==========================================================================
+    // AUDIT ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Get audit logs
+     */
+    async getAuditLogs(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/api/audit?${queryString}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get audit log by ID
+     */
+    async getAuditLog(auditId) {
+        return this.request(`/api/audit/${auditId}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get audit statistics
+     */
+    async getAuditStats() {
+        return this.request('/api/audit/stats', {
+            method: 'GET'
+        });
+    }
+
+    // ==========================================================================
+    // SMS ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Send SMS
+     */
+    async sendSms(smsData) {
+        return this.request('/api/sms/send', {
+            method: 'POST',
+            body: JSON.stringify(smsData)
+        });
+    }
+
+    /**
+     * Send bulk SMS
+     */
+    async sendBulkSms(smsData) {
+        return this.request('/api/sms/send-bulk', {
+            method: 'POST',
+            body: JSON.stringify(smsData)
+        });
+    }
+
+    /**
+     * Get SMS status
+     */
+    async getSmsStatus(messageId) {
+        return this.request(`/api/sms/status/${messageId}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Send OTP via SMS
+     */
+    async sendOtp(otpData) {
+        return this.request('/api/sms/send-otp', {
+            method: 'POST',
+            body: JSON.stringify(otpData)
+        });
+    }
+
+    // ==========================================================================
+    // BACKUP ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Get all backups
+     */
+    async getBackups() {
+        return this.request('/api/backup', {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Create backup
+     */
+    async createBackup() {
+        return this.request('/api/backup', {
+            method: 'POST'
+        });
+    }
+
+    /**
+     * Get backup by ID
+     */
+    async getBackup(backupId) {
+        return this.request(`/api/backup/${backupId}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Delete backup
+     */
+    async deleteBackup(backupId) {
+        return this.request(`/api/backup/${backupId}`, {
+            method: 'DELETE'
         });
     }
 
@@ -1075,7 +1558,7 @@ class ApiService {
      * Make authenticated request
      */
     async authenticatedRequest(endpoint, options = {}) {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         if (!token) {
             throw new Error('No authentication token found');
         }
@@ -1125,11 +1608,10 @@ class ApiService {
      */
     clearAuthData() {
         try {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
-            console.log('✅ Auth data cleared successfully');
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('userData');
         } catch (error) {
-            console.error('❌ Error clearing auth data:', error);
+            log.error('âŒ Error clearing auth data:', error);
         }
     }
 }

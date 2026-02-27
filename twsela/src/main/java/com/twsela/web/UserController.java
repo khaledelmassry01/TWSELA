@@ -9,28 +9,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Users", description = "إدارة المستخدمين والصلاحيات")
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+    private final com.twsela.repository.UserRepository userRepository;
+    private final com.twsela.repository.CourierLocationHistoryRepository courierLocationHistoryRepository;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, 
+                         com.twsela.repository.UserRepository userRepository,
+                         com.twsela.repository.CourierLocationHistoryRepository courierLocationHistoryRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.courierLocationHistoryRepository = courierLocationHistoryRepository;
     }
 
     @GetMapping("/users")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllUsers() {
         Map<String, Object> response = new HashMap<>();
-        try {
             List<User> users = userService.listAll();
             
             response.put("success", true);
@@ -39,22 +50,12 @@ public class UserController {
             response.put("count", users.size());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error retrieving users", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to retrieve users: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @PostMapping("/users")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> createUser(@Valid @RequestBody CreateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
-        try {
             
             Role role = userService.getRoleByName(request.getRole())
                 .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.getRole()));
@@ -72,21 +73,12 @@ public class UserController {
             response.put("message", "User created successfully");
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error creating user", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to create user: " + e.getMessage());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @PutMapping("/users/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
-        try {
             
             User user = userService.updateUser(
                 id,
@@ -102,21 +94,12 @@ public class UserController {
             response.put("message", "User updated successfully");
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error updating user", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to update user: " + e.getMessage());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        try {
             
             userService.deleteUser(id);
             
@@ -125,14 +108,200 @@ public class UserController {
             response.put("message", "User deleted successfully");
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error deleting user", e);
-            
+    }
+
+    @PutMapping("/users/profile")
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        Map<String, Object> response = new HashMap<>();
+        
+        com.twsela.domain.User currentUser = (com.twsela.domain.User) authentication.getPrincipal();
+        
+        String name = request.get("name");
+        String phone = request.get("phone");
+        
+        com.twsela.domain.User updated = userService.updateUser(
+            currentUser.getId(), name, phone, null, null);
+        
+        response.put("success", true);
+        response.put("data", updated);
+        response.put("message", "تم تحديث الملف الشخصي بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/couriers/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> getCourier(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
+        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
             response.put("success", false);
-            response.put("message", "Failed to delete user: " + e.getMessage());
-            
-            return ResponseEntity.status(500).body(response);
+            response.put("message", "Courier not found");
+            return ResponseEntity.status(404).body(response);
         }
+        response.put("success", true);
+        response.put("data", courier);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/couriers")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> createCourier(@Valid @RequestBody CreateUserRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.Role role = userService.getRoleByName("COURIER").orElseThrow();
+        com.twsela.domain.User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
+        response.put("success", true);
+        response.put("data", user);
+        response.put("message", "تم إنشاء المندوب بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/couriers/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> updateCourier(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
+        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
+            response.put("success", false);
+            response.put("message", "Courier not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        response.put("success", true);
+        response.put("data", updated);
+        response.put("message", "تم تحديث المندوب بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/couriers/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> deleteCourier(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
+        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
+            response.put("success", false);
+            response.put("message", "Courier not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        userService.deleteUser(id);
+        response.put("success", true);
+        response.put("message", "تم حذف المندوب بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/couriers/{id}/location")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN', 'COURIER')")
+    public ResponseEntity<Map<String, Object>> getCourierLocation(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        var locations = courierLocationHistoryRepository.findByCourierIdOrderByTimestampDesc(id);
+        if (locations.isEmpty()) {
+            response.put("success", true);
+            response.put("data", null);
+            response.put("message", "No location data available");
+            return ResponseEntity.ok(response);
+        }
+        response.put("success", true);
+        response.put("data", locations.get(0));
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/couriers/{id}/location")
+    @PreAuthorize("hasAnyRole('COURIER')")
+    public ResponseEntity<Map<String, Object>> updateCourierLocation(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
+        if (courier == null) {
+            response.put("success", false);
+            response.put("message", "Courier not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        java.math.BigDecimal latitude = new java.math.BigDecimal(request.get("latitude").toString());
+        java.math.BigDecimal longitude = new java.math.BigDecimal(request.get("longitude").toString());
+        var location = new com.twsela.domain.CourierLocationHistory(courier, latitude, longitude);
+        courierLocationHistoryRepository.save(location);
+        response.put("success", true);
+        response.put("data", location);
+        response.put("message", "تم تحديث الموقع بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/merchants/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> getMerchant(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User merchant = userRepository.findById(id).orElse(null);
+        if (merchant == null || !"MERCHANT".equals(merchant.getRole().getName())) {
+            response.put("success", false);
+            response.put("message", "Merchant not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        response.put("success", true);
+        response.put("data", merchant);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/merchants")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> createMerchant(@Valid @RequestBody CreateUserRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.Role role = userService.getRoleByName("MERCHANT").orElseThrow();
+        com.twsela.domain.User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
+        response.put("success", true);
+        response.put("data", user);
+        response.put("message", "تم إنشاء التاجر بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/merchants/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> updateMerchant(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User merchant = userRepository.findById(id).orElse(null);
+        if (merchant == null || !"MERCHANT".equals(merchant.getRole().getName())) {
+            response.put("success", false);
+            response.put("message", "Merchant not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        response.put("success", true);
+        response.put("data", updated);
+        response.put("message", "تم تحديث التاجر بنجاح");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/employees/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> getEmployee(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User employee = userRepository.findById(id).orElse(null);
+        if (employee == null) {
+            response.put("success", false);
+            response.put("message", "Employee not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        response.put("success", true);
+        response.put("data", employee);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/employees/{id}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> updateEmployee(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        com.twsela.domain.User employee = userRepository.findById(id).orElse(null);
+        if (employee == null) {
+            response.put("success", false);
+            response.put("message", "Employee not found");
+            return ResponseEntity.status(404).body(response);
+        }
+        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        response.put("success", true);
+        response.put("data", updated);
+        response.put("message", "تم تحديث الموظف بنجاح");
+        return ResponseEntity.ok(response);
     }
 
     // DTOs for request/response
@@ -183,32 +352,17 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            Role courierRole = userService.getRoleByName("COURIER").orElseThrow();
-            List<User> couriers = userService.listByRole(courierRole);
-            
-            // Apply pagination
-            int start = page * limit;
-            int end = Math.min(start + limit, couriers.size());
-            List<User> paginatedCouriers = couriers.subList(start, end);
+            Page<User> courierPage = userRepository.findByRoleName("COURIER", PageRequest.of(page, limit));
             
             response.put("success", true);
-            response.put("data", paginatedCouriers);
+            response.put("data", courierPage.getContent());
             response.put("message", "Couriers retrieved successfully");
-            response.put("count", couriers.size());
+            response.put("count", courierPage.getTotalElements());
             response.put("page", page);
             response.put("limit", limit);
+            response.put("totalPages", courierPage.getTotalPages());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error retrieving couriers", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to retrieve couriers: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @GetMapping("/merchants")
@@ -217,32 +371,17 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            Role merchantRole = userService.getRoleByName("MERCHANT").orElseThrow();
-            List<User> merchants = userService.listByRole(merchantRole);
-            
-            // Apply pagination
-            int start = page * limit;
-            int end = Math.min(start + limit, merchants.size());
-            List<User> paginatedMerchants = merchants.subList(start, end);
+            Page<User> merchantPage = userRepository.findByRoleName("MERCHANT", PageRequest.of(page, limit));
             
             response.put("success", true);
-            response.put("data", paginatedMerchants);
+            response.put("data", merchantPage.getContent());
             response.put("message", "Merchants retrieved successfully");
-            response.put("count", merchants.size());
+            response.put("count", merchantPage.getTotalElements());
             response.put("page", page);
             response.put("limit", limit);
+            response.put("totalPages", merchantPage.getTotalPages());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error retrieving merchants", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to retrieve merchants: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @GetMapping("/employees")
@@ -251,40 +390,23 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            // Get all users (employees) - in this context, all users are considered employees
-            List<User> allUsers = userService.listAll();
-            
-            // Apply pagination
-            int start = page * size;
-            int end = Math.min(start + size, allUsers.size());
-            List<User> paginatedUsers = allUsers.subList(start, end);
+            Page<User> employeePage = userRepository.findAllNonDeleted(PageRequest.of(page, size));
             
             response.put("success", true);
-            response.put("data", paginatedUsers);
+            response.put("data", employeePage.getContent());
             response.put("message", "Employees retrieved successfully");
-            response.put("count", allUsers.size());
+            response.put("count", employeePage.getTotalElements());
             response.put("page", page);
             response.put("size", size);
-            response.put("totalPages", (int) Math.ceil((double) allUsers.size() / size));
+            response.put("totalPages", employeePage.getTotalPages());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error retrieving employees", e);
-            
-            response.put("success", false);
-            response.put("message", "Failed to retrieve employees: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @PostMapping("/employees")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> createEmployee(@Valid @RequestBody CreateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
-        try {
             // Validate required fields
             if (request.getName() == null || request.getName().trim().isEmpty()) {
                 response.put("success", false);
@@ -333,18 +455,5 @@ public class UserController {
             response.put("data", user);
             
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        } catch (Exception e) {
-            log.error("Error creating employee", e);
-            
-            response.put("success", false);
-            response.put("message", "فشل في إنشاء الموظف: " + e.getMessage());
-            response.put("error", e.getClass().getSimpleName());
-            
-            return ResponseEntity.status(500).body(response);
-        }
     }
 }

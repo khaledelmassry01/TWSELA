@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-reports-page');
+
 /**
  * Twsela CMS - Owner Reports Page Handler
  * Handles reports and analytics for owner
@@ -15,16 +18,22 @@ class OwnerReportsHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-
+        try {
+            UIUtils.showLoading();
         
-        // Load report data
-        await this.loadReportData();
-        
-    // Initialize charts
-        this.initializeCharts();
-        
-        // Setup report type selector
-        this.setupReportTypeSelector();
+            // Load report data
+            await this.loadReportData();
+            
+            // Initialize charts
+            this.initializeCharts();
+            
+            // Setup report type selector
+            this.setupReportTypeSelector();
+        } catch (error) {
+            ErrorHandler.handle(error, 'OwnerReports');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
@@ -55,7 +64,7 @@ class OwnerReportsHandler extends BasePageHandler {
                     await this.loadOverviewReport();
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.loadData'); }
     }
 
     /**
@@ -82,7 +91,7 @@ class OwnerReportsHandler extends BasePageHandler {
 
             this.updateOverviewDisplay();
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.overview'); }
     }
 
     /**
@@ -99,7 +108,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateShipmentsReport();
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.shipments'); }
     }
 
     /**
@@ -116,7 +125,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateCouriersReport();
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.couriers'); }
     }
 
     /**
@@ -133,7 +142,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateMerchantsReport();
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.merchants'); }
     }
 
     /**
@@ -159,7 +168,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateRevenueReport();
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.revenue'); }
     }
 
     /**
@@ -201,10 +210,10 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(shipment => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
-                    <td>${escapeHtml(shipment.merchant?.name || 'غير محدد')}</td>
-                    <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
-                    <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
+                    <td>${escapeHtml(shipment.trackingNumber || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td>${escapeHtml(shipment.merchant?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td>${escapeHtml(shipment.courier?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
                     <td>${this.formatCurrency(shipment.totalAmount)}</td>
                     <td>${this.formatDate(shipment.createdAt)}</td>
                 `;
@@ -228,9 +237,9 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(courier => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${escapeHtml(courier.name || 'غير محدد')}</td>
-                    <td>${escapeHtml(courier.phone || 'غير محدد')}</td>
-                    <td><span class="badge bg-${this.getStatusColor(courier.status)}">${escapeHtml(courier.status?.name || 'غير محدد')}</span></td>
+                    <td>${escapeHtml(courier.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td>${escapeHtml(courier.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(courier.status)}">${escapeHtml(courier.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
                     <td>${courier.totalDeliveries || 0}</td>
                     <td>${this.formatDate(courier.createdAt)}</td>
                 `;
@@ -254,9 +263,9 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(merchant => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${escapeHtml(merchant.name || 'غير محدد')}</td>
-                    <td>${escapeHtml(merchant.phone || 'غير محدد')}</td>
-                    <td><span class="badge bg-${this.getStatusColor(merchant.status)}">${escapeHtml(merchant.status?.name || 'غير محدد')}</span></td>
+                    <td>${escapeHtml(merchant.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td>${escapeHtml(merchant.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(merchant.status)}">${escapeHtml(merchant.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
                     <td>${merchant.totalShipments || 0}</td>
                     <td>${this.formatDate(merchant.createdAt)}</td>
                 `;
@@ -308,7 +317,7 @@ class OwnerReportsHandler extends BasePageHandler {
             // Initialize revenue chart
             this.initRevenueChart();
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.charts'); }
     }
 
     /**
@@ -321,7 +330,7 @@ class OwnerReportsHandler extends BasePageHandler {
         this.charts.overview = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['الشحنات', 'السعاة', 'التجار'],
+                labels: ['Ø§Ù„Ø´Ø­Ù†Ø§Øª', 'Ø§Ù„Ø³Ø¹Ø§Ø©', 'Ø§Ù„ØªØ¬Ø§Ø±'],
                 datasets: [{
                     data: [
                         this.reportData.overview?.totalShipments || 0,
@@ -362,7 +371,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 data: {
                     labels: shipmentsData.labels || [],
                     datasets: [{
-                        label: 'الشحنات',
+                        label: 'Ø§Ù„Ø´Ø­Ù†Ø§Øª',
                         data: shipmentsData.values || [],
                         backgroundColor: '#007bff'
                     }]
@@ -412,7 +421,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 data: {
                     labels: revenueData.labels || [],
                     datasets: [{
-                        label: 'الإيرادات',
+                        label: 'Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª',
                         data: revenueData.values || [],
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -487,7 +496,7 @@ class OwnerReportsHandler extends BasePageHandler {
 
             // TODO: Implement export functionality
             this.showInfo('تصدير التقرير قيد التطوير');
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerReports.export'); }
     }
 }
 

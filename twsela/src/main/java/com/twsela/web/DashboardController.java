@@ -13,7 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -37,17 +38,26 @@ public class DashboardController {
 
     private static final Logger log = LoggerFactory.getLogger(DashboardController.class);
 
-    @Autowired
-    private ShipmentRepository shipmentRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private ShipmentStatusRepository shipmentStatusRepository;
-    
-    @Autowired
-    private FinancialService financialService;
+    @Value("${app.dashboard.courier-earnings-days:30}")
+    private int courierEarningsDays;
+
+    @Value("${app.dashboard.chart-days:7}")
+    private int chartDays;
+
+    private final ShipmentRepository shipmentRepository;
+    private final UserRepository userRepository;
+    private final ShipmentStatusRepository shipmentStatusRepository;
+    private final FinancialService financialService;
+
+    public DashboardController(ShipmentRepository shipmentRepository,
+                               UserRepository userRepository,
+                               ShipmentStatusRepository shipmentStatusRepository,
+                               FinancialService financialService) {
+        this.shipmentRepository = shipmentRepository;
+        this.userRepository = userRepository;
+        this.shipmentStatusRepository = shipmentStatusRepository;
+        this.financialService = financialService;
+    }
 
     @Operation(
         summary = "الحصول على ملخص لوحة التحكم",
@@ -88,7 +98,6 @@ public class DashboardController {
     })
     @GetMapping("/summary")
     public ResponseEntity<Map<String, Object>> getDashboardSummary(Authentication authentication) {
-        try {
             User currentUser = getCurrentUser(authentication);
             String role = currentUser.getRole().getName();
             log.debug("Dashboard summary requested by {} ({})", currentUser.getName(), role);
@@ -114,7 +123,7 @@ public class DashboardController {
                 default:
                     return ResponseEntity.status(403).body(Map.of(
                         "success", false,
-                        "message", "غير مصرح بالوصول لهذا الدور",
+                        "message", ErrorMessages.UNAUTHORIZED_ROLE,
                         "timestamp", java.time.Instant.now()
                     ));
             }
@@ -126,18 +135,6 @@ public class DashboardController {
             
             log.debug("Returning summary for role: {}", role);
             return ResponseEntity.ok(summary);
-            
-        } catch (Exception e) {
-            log.error("Error in getDashboardSummary", e);
-            
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "حدث خطأ في تحميل بيانات لوحة التحكم");
-            errorResponse.put("timestamp", java.time.Instant.now());
-            errorResponse.put("error", e.getMessage());
-            
-            return ResponseEntity.status(500).body(errorResponse);
-        }
     }
 
     private Map<String, Object> getOwnerDashboardSummary(User owner) {
@@ -249,7 +246,7 @@ public class DashboardController {
             
             BigDecimal totalEarnings = financialService.calculateCourierEarnings(
                 cid, 
-                java.time.LocalDate.now().minusDays(30), 
+                java.time.LocalDate.now().minusDays(courierEarningsDays), 
                 java.time.LocalDate.now()
             );
             summary.put("totalEarnings", totalEarnings);
@@ -294,12 +291,12 @@ public class DashboardController {
 
     private User getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new RuntimeException(ErrorMessages.USER_NOT_AUTHENTICATED);
         }
         
         String phone = authentication.getName();
         return userRepository.findByPhone(phone)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_NOT_FOUND));
     }
 
     private Instant getTodayStart() {
@@ -308,10 +305,10 @@ public class DashboardController {
     }
 
     @GetMapping("/statistics")
+    @Cacheable(value = "statistics", key = "'global'")
     public ResponseEntity<Map<String, Object>> getStatistics(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         
-        try {
             long totalShipments = shipmentRepository.count();
             long totalUsers = userRepository.count();
             
@@ -334,19 +331,12 @@ public class DashboardController {
             response.put("statistics", stats);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error in getStatistics", e);
-            response.put("success", false);
-            response.put("message", "حدث خطأ في تحميل الإحصائيات: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @GetMapping("/dashboard-stats")
     public ResponseEntity<Map<String, Object>> getDashboardStatistics(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         
-        try {
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
             Instant weekStart = Instant.now().atZone(java.time.ZoneId.systemDefault())
@@ -389,12 +379,6 @@ public class DashboardController {
             response.put("dashboard", dashboardStats);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error in getDashboardStatistics", e);
-            response.put("success", false);
-            response.put("message", "حدث خطأ في تحميل إحصائيات لوحة التحكم: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
     }
 
     @GetMapping("/revenue-chart")
@@ -403,13 +387,13 @@ public class DashboardController {
         try {
             java.time.ZoneId zone = java.time.ZoneId.systemDefault();
             java.time.LocalDate today = java.time.LocalDate.now();
-            String[] labels = new String[7];
-            BigDecimal[] data = new BigDecimal[7];
-            for (int i = 6; i >= 0; i--) {
+            String[] labels = new String[chartDays];
+            BigDecimal[] data = new BigDecimal[chartDays];
+            for (int i = chartDays - 1; i >= 0; i--) {
                 java.time.LocalDate day = today.minusDays(i);
-                labels[6 - i] = day.toString();
+                labels[chartDays - 1 - i] = day.toString();
                 // Approximate: use total delivered revenue for now
-                data[6 - i] = BigDecimal.ZERO;
+                data[chartDays - 1 - i] = BigDecimal.ZERO;
             }
             BigDecimal totalRevenue = shipmentRepository.sumDeliveryFeeByStatusName(DELIVERED);
             chartData.put("labels", labels);
@@ -430,14 +414,14 @@ public class DashboardController {
         try {
             java.time.ZoneId zone = java.time.ZoneId.systemDefault();
             java.time.LocalDate today = java.time.LocalDate.now();
-            String[] labels = new String[7];
-            Long[] data = new Long[7];
-            for (int i = 6; i >= 0; i--) {
+            String[] labels = new String[chartDays];
+            Long[] data = new Long[chartDays];
+            for (int i = chartDays - 1; i >= 0; i--) {
                 java.time.LocalDate day = today.minusDays(i);
-                labels[6 - i] = day.toString();
+                labels[chartDays - 1 - i] = day.toString();
                 Instant dayStart = day.atStartOfDay(zone).toInstant();
                 Instant dayEnd = day.plusDays(1).atStartOfDay(zone).toInstant();
-                data[6 - i] = shipmentRepository.countByCreatedAtBetween(dayStart, dayEnd);
+                data[chartDays - 1 - i] = shipmentRepository.countByCreatedAtBetween(dayStart, dayEnd);
             }
             chartData.put("labels", labels);
             chartData.put("data", data);

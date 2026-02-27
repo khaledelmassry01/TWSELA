@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('courier-manifest-page');
+
 /**
  * Twsela CMS - Courier Manifest Page Initialization
  * Handles page-specific initialization and legacy functions
@@ -21,14 +24,14 @@ async function loadManifestData() {
     try {
         const manifestData = await apiService.getCourierManifest();
         updateManifestDisplay(manifestData);
-    } catch (error) { console.error('Unhandled error:', error); }
+    } catch (error) { log.error('Unhandled error:', error); }
 }
 
 function updateManifestDisplay(manifestData) {
     // Update manifest information
     const manifestIdElement = document.getElementById('manifestId');
     if (manifestIdElement) {
-        manifestIdElement.textContent = manifestData.id || 'غير محدد';
+        manifestIdElement.textContent = manifestData.id || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
     }
 
     const manifestDateElement = document.getElementById('manifestDate');

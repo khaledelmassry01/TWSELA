@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-payouts');
+
 /**
  * Twsela CMS - Owner Payouts Handler
  * Handles payout management including approval, rejection, and financial reporting
@@ -30,7 +33,7 @@ class OwnerPayoutsHandler {
             await this.loadPayouts();
             this.initializeDataTable();
             this.loadSummaryStats();
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts'); }
     }
 
     /**
@@ -164,7 +167,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to load payouts');
             }
-        } catch (error) { console.error('Unhandled error:', error); } finally {
+        } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.loadPayouts'); } finally {
             GlobalUIHandler.hideLoading();
         }
     }
@@ -182,7 +185,7 @@ class OwnerPayoutsHandler {
             if (response.success) {
                 this.updateSummaryStats(response.data);
             }
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.summaryStats'); }
     }
 
     /**
@@ -227,7 +230,7 @@ class OwnerPayoutsHandler {
                     <td colspan="9" class="text-center py-4">
                         <div class="text-muted">
                             <i class="fas fa-inbox fa-2x mb-2"></i>
-                            <p>لا توجد مدفوعات</p>
+                            <p>Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø¯ÙÙˆØ¹Ø§Øª</p>
                         </div>
                     </td>
                 </tr>
@@ -336,7 +339,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to load payout');
             }
-        } catch (error) { console.error('Unhandled error:', error); } finally {
+        } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.viewPayout'); } finally {
             GlobalUIHandler.hideLoading();
         }
     }
@@ -348,19 +351,19 @@ class OwnerPayoutsHandler {
         const payout = this.payouts.find(p => p.id === payoutId);
         if (!payout) return;
 
-        if (confirm(`هل أنت متأكد من الموافقة على المدفوعات بقيمة ${SharedDataUtils.formatCurrency(payout.amount)}؟`)) {
+        if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù‚ÙŠÙ…Ø© ${SharedDataUtils.formatCurrency(payout.amount)}ØŸ`)) {
             try {
                 GlobalUIHandler.showLoading();
                 
                 const response = await apiService.approvePayout(payoutId);
                 if (response.success) {
-                    NotificationService.success('تم الموافقة على المدفوعات بنجاح');
+                    NotificationService.success('ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­');
                     this.loadPayouts();
                     this.loadSummaryStats();
                 } else {
                     throw new Error(response.message || 'Failed to approve payout');
                 }
-            } catch (error) { console.error('Unhandled error:', error); } finally {
+            } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.approvePayout'); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -373,20 +376,20 @@ class OwnerPayoutsHandler {
         const payout = this.payouts.find(p => p.id === payoutId);
         if (!payout) return;
 
-        const reason = prompt('يرجى إدخال سبب الرفض:');
+        const reason = prompt('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶:');
         if (reason && reason.trim()) {
             try {
                 GlobalUIHandler.showLoading();
                 
                 const response = await apiService.rejectPayout(payoutId, reason.trim());
                 if (response.success) {
-                    NotificationService.success('تم رفض المدفوعات بنجاح');
+                    NotificationService.success('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­');
                     this.loadPayouts();
                     this.loadSummaryStats();
                 } else {
                     throw new Error(response.message || 'Failed to reject payout');
                 }
-            } catch (error) { console.error('Unhandled error:', error); } finally {
+            } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.rejectPayout'); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -398,11 +401,11 @@ class OwnerPayoutsHandler {
     async bulkApprovePayouts() {
         const selectedIds = this.getSelectedPayoutIds();
         if (selectedIds.length === 0) {
-            NotificationService.warning('يرجى اختيار المدفوعات المراد الموافقة عليها');
+            NotificationService.warning('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø±Ø§Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„ÙŠÙ‡Ø§');
             return;
         }
 
-        if (confirm(`هل أنت متأكد من الموافقة على ${selectedIds.length} مدفوعات؟`)) {
+        if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${selectedIds.length} Ù…Ø¯ÙÙˆØ¹Ø§ØªØŸ`)) {
             try {
                 GlobalUIHandler.showLoading();
                 
@@ -413,15 +416,15 @@ class OwnerPayoutsHandler {
                 const failed = results.length - successful;
                 
                 if (successful > 0) {
-                    NotificationService.success(`تم الموافقة على ${successful} مدفوعات بنجاح`);
+                    NotificationService.success(`ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${successful} Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­`);
                 }
                 if (failed > 0) {
-                    NotificationService.warning(`فشل في الموافقة على ${failed} مدفوعات`);
+                    NotificationService.warning(`ÙØ´Ù„ ÙÙŠ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${failed} Ù…Ø¯ÙÙˆØ¹Ø§Øª`);
                 }
                 
                 this.loadPayouts();
                 this.loadSummaryStats();
-            } catch (error) { console.error('Unhandled error:', error); } finally {
+            } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.bulkApprove'); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -433,11 +436,11 @@ class OwnerPayoutsHandler {
     async bulkRejectPayouts() {
         const selectedIds = this.getSelectedPayoutIds();
         if (selectedIds.length === 0) {
-            NotificationService.warning('يرجى اختيار المدفوعات المراد رفضها');
+            NotificationService.warning('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø±Ø§Ø¯ Ø±ÙØ¶Ù‡Ø§');
             return;
         }
 
-        const reason = prompt('يرجى إدخال سبب الرفض (سيتم تطبيقه على جميع المدفوعات المختارة):');
+        const reason = prompt('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ (Ø³ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚Ù‡ Ø¹Ù„Ù‰ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø®ØªØ§Ø±Ø©):');
         if (reason && reason.trim()) {
             try {
                 GlobalUIHandler.showLoading();
@@ -449,15 +452,15 @@ class OwnerPayoutsHandler {
                 const failed = results.length - successful;
                 
                 if (successful > 0) {
-                    NotificationService.success(`تم رفض ${successful} مدفوعات بنجاح`);
+                    NotificationService.success(`ØªÙ… Ø±ÙØ¶ ${successful} Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­`);
                 }
                 if (failed > 0) {
-                    NotificationService.warning(`فشل في رفض ${failed} مدفوعات`);
+                    NotificationService.warning(`ÙØ´Ù„ ÙÙŠ Ø±ÙØ¶ ${failed} Ù…Ø¯ÙÙˆØ¹Ø§Øª`);
                 }
                 
                 this.loadPayouts();
                 this.loadSummaryStats();
-            } catch (error) { console.error('Unhandled error:', error); } finally {
+            } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.bulkReject'); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -517,7 +520,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to export data');
             }
-        } catch (error) { console.error('Unhandled error:', error); } finally {
+        } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.export'); } finally {
             GlobalUIHandler.hideLoading();
         }
     }

@@ -1,3 +1,6 @@
+﻿import { Logger } from './Logger.js';
+const log = Logger.getLogger('BasePageHandler');
+
 /**
  * Twsela CMS - Base Page Handler
  * Common functionality for all pages
@@ -27,9 +30,9 @@ class BasePageHandler {
             // Wait for services to be available
             await this.waitForServices();
             
-            // فحص إذا كانت الصفحة تتعامل مع المصادقة بنفسها
+            // ÙØ­Øµ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ØµÙØ­Ø© ØªØªØ¹Ø§Ù…Ù„ Ù…Ø¹ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¨Ù†ÙØ³Ù‡Ø§
             if (this.shouldSkipAuthCheck()) {
-                console.log(`📄 ${this.pageName} handles its own authentication, skipping BasePageHandler auth check`);
+                log.debug(`ðŸ“„ ${this.pageName} handles its own authentication, skipping BasePageHandler auth check`);
                 // Initialize page-specific functionality without auth check
                 await this.initializePage();
                 this.setupEventListeners();
@@ -58,7 +61,7 @@ class BasePageHandler {
             // Page initialized successfully - console.log removed for cleaner console
             
         } catch (error) {
-            console.error(`❌ BasePageHandler Error - ${this.pageName} Initialization:`, {
+            log.error(`âŒ BasePageHandler Error - ${this.pageName} Initialization:`, {
                 pageName: this.pageName,
                 error: error.message,
                 stack: error.stack,
@@ -72,7 +75,7 @@ class BasePageHandler {
      * @returns {boolean} Whether to skip auth check
      */
     shouldSkipAuthCheck() {
-        // قائمة الصفحات التي تتعامل مع المصادقة بنفسها
+        // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØµÙØ­Ø§Øª Ø§Ù„ØªÙŠ ØªØªØ¹Ø§Ù…Ù„ Ù…Ø¹ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¨Ù†ÙØ³Ù‡Ø§
         const pagesWithOwnAuth = [
             'Owner Zones',
             'Owner Dashboard',
@@ -91,20 +94,20 @@ class BasePageHandler {
         let attempts = 0;
         const maxAttempts = 50; // 5 seconds max
         
-        console.log('🔄 Waiting for services to be available...');
+        log.debug('ðŸ”„ Waiting for services to be available...');
         
         while (attempts < maxAttempts) {
             if (window.authService && window.apiService && window.NotificationService) {
                 this.services.auth = window.authService;
                 this.services.api = window.apiService;
                 this.services.notification = window.NotificationService;
-                console.log('✅ All required services are available');
+                log.debug('âœ… All required services are available');
                 return;
             }
             
             if (attempts % 10 === 0) { // Log every 10 attempts
-                console.log(`⏳ Waiting for services... (attempt ${attempts + 1}/${maxAttempts})`);
-                console.log('Available services:', {
+                log.debug(`â³ Waiting for services... (attempt ${attempts + 1}/${maxAttempts})`);
+                log.debug('Available services:', {
                     authService: !!window.authService,
                     apiService: !!window.apiService,
                     notificationService: !!window.NotificationService
@@ -115,8 +118,8 @@ class BasePageHandler {
             attempts++;
         }
         
-        console.error('❌ Services not available after timeout');
-        console.error('Available services:', {
+        log.error('âŒ Services not available after timeout');
+        log.error('Available services:', {
             authService: !!window.authService,
             apiService: !!window.apiService,
             notificationService: !!window.NotificationService
@@ -130,21 +133,21 @@ class BasePageHandler {
      */
     async verifyAuthentication() {
         try {
-            // فحص وجود خدمة المصادقة
+            // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ Ø®Ø¯Ù…Ø© Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø©
             if (!this.services || !this.services.auth) {
-                console.error('❌ Auth service not available');
+                log.error('âŒ Auth service not available');
                 this.redirectToLogin();
                 return false;
             }
 
             const token = this.services.auth.getToken();
             if (!token) {
-                console.warn('⚠️ No authentication token found');
+                log.warn('âš ï¸ No authentication token found');
                 this.redirectToLogin();
                 return false;
             }
 
-            console.log('🔄 Verifying authentication...');
+            log.debug('ðŸ”„ Verifying authentication...');
             const response = await fetch(`${this.services.auth.getApiBaseUrl()}/api/auth/me`, {
                 method: 'GET',
                 headers: {
@@ -154,14 +157,14 @@ class BasePageHandler {
             });
 
             if (response.status === 401) {
-                console.warn('⚠️ Authentication failed (401), clearing auth data');
+                log.warn('âš ï¸ Authentication failed (401), clearing auth data');
                 this.services.auth.clearAuthData();
                 this.redirectToLogin();
                 return false;
             }
 
             if (response.status === 403) {
-                console.warn('⚠️ Access forbidden (403)');
+                log.warn('âš ï¸ Access forbidden (403)');
                 this.redirectToLogin();
                 return false;
             }
@@ -172,16 +175,16 @@ class BasePageHandler {
                 // Store updated user data
                 this.services.auth.storeUserData(user);
                 this.currentUser = user;
-                console.log('✅ Authentication verified successfully');
+                log.debug('âœ… Authentication verified successfully');
                 return true;
             }
 
-            console.warn('⚠️ Authentication verification failed with status:', response.status);
+            log.warn('âš ï¸ Authentication verification failed with status:', response.status);
             this.redirectToLogin();
             return false;
 
         } catch (error) {
-            console.error(`❌ BasePageHandler Error - Authentication Verification:`, {
+            log.error(`âŒ BasePageHandler Error - Authentication Verification:`, {
                 pageName: this.pageName,
                 error: error.message,
                 stack: error.stack,
@@ -214,11 +217,11 @@ class BasePageHandler {
             if (this.currentUser) {
                 const userNameEl = document.querySelector('.user-name');
                 if (userNameEl) {
-                    userNameEl.textContent = this.currentUser.name || 'المستخدم';
+                    userNameEl.textContent = this.currentUser.name || 'Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…';
                 }
             }
         } catch (error) {
-            console.error(`❌ BasePageHandler Error - Update User Info:`, {
+            log.error(`âŒ BasePageHandler Error - Update User Info:`, {
                 pageName: this.pageName,
                 error: error.message,
                 stack: error.stack,
@@ -266,7 +269,7 @@ class BasePageHandler {
         try {
             await this.services.auth.logout();
         } catch (error) {
-            console.error(`❌ BasePageHandler Error - Update User Info:`, {
+            log.error(`âŒ BasePageHandler Error - Update User Info:`, {
                 pageName: this.pageName,
                 error: error.message,
                 stack: error.stack,
@@ -294,7 +297,7 @@ class BasePageHandler {
      * Format date for display
      */
     formatDate(dateString) {
-        if (!dateString) return 'غير محدد';
+        if (!dateString) return 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         
         try {
             const date = new Date(dateString);
@@ -304,7 +307,7 @@ class BasePageHandler {
                 day: 'numeric'
             });
         } catch (error) {
-            return 'غير محدد';
+            return 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
     }
 
@@ -312,7 +315,7 @@ class BasePageHandler {
      * Format currency for display
      */
     formatCurrency(amount) {
-        if (!amount) return '0.00 ر.س';
+        if (!amount) return '0.00 Ø±.Ø³';
         
         try {
             return new Intl.NumberFormat('ar-SA', {
@@ -320,7 +323,7 @@ class BasePageHandler {
                 currency: 'SAR'
             }).format(amount);
         } catch (error) {
-            return `${amount} ر.س`;
+            return `${amount} Ø±.Ø³`;
         }
     }
 

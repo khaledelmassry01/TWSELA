@@ -1,0 +1,462 @@
+/* ==========================================================================
+   Twsela CMS — Loading, Toast, Overlay & Empty-State Styles
+   Component CSS for UIUtils (Sprint 9 WP-2)
+   ========================================================================== */
+
+/* ---------- CSS Custom Properties (inherits from twsela-design.css) ----- */
+:root {
+    --toast-z: 10800;
+    --overlay-z: 10500;
+    --network-z: 11000;
+    --confirm-z: 10900;
+}
+
+/* ============================
+   1. Toast Notification System
+   ============================ */
+
+#twsela-toast-container {
+    position: fixed;
+    top: 1.25rem;
+    left: 1.25rem;          /* RTL: appears at logical start */
+    z-index: var(--toast-z);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 420px;
+    width: calc(100% - 2.5rem);
+    pointer-events: none;
+    direction: rtl;
+}
+
+.twsela-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: 0.625rem;
+    color: #fff;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    animation: twselaToastIn 0.35s ease forwards;
+    direction: rtl;
+    text-align: right;
+    position: relative;
+    overflow: hidden;
+}
+
+.twsela-toast.toast-hide {
+    animation: twselaToastOut 0.3s ease forwards;
+}
+
+.twsela-toast .toast-icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.twsela-toast .toast-body {
+    flex: 1;
+    word-break: break-word;
+}
+
+.twsela-toast .toast-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.twsela-toast .toast-close:hover {
+    color: #fff;
+}
+
+/* Progress bar at bottom of toast */
+.twsela-toast .toast-progress {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 0 0 0.625rem 0;
+    animation: twselaToastProgress var(--toast-duration, 3000ms) linear forwards;
+}
+
+/* Toast types */
+.twsela-toast.toast-success {
+    background: linear-gradient(135deg, var(--success-color, #28a745) 0%, #20c997 100%);
+}
+
+.twsela-toast.toast-error {
+    background: linear-gradient(135deg, var(--danger-color, #dc3545) 0%, #e83e8c 100%);
+}
+
+.twsela-toast.toast-warning {
+    background: linear-gradient(135deg, #e67e22 0%, var(--warning-color, #ffc107) 100%);
+    color: #212529;
+}
+
+.twsela-toast.toast-warning .toast-close {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.twsela-toast.toast-warning .toast-close:hover {
+    color: #212529;
+}
+
+.twsela-toast.toast-info {
+    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+}
+
+/* Animations */
+@keyframes twselaToastIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes twselaToastOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+        height: 0;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+@keyframes twselaToastProgress {
+    from { width: 100%; }
+    to   { width: 0%; }
+}
+
+
+/* ============================
+   2. Loading Overlay
+   ============================ */
+
+.twsela-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: var(--overlay-z);
+    border-radius: inherit;
+    transition: opacity 0.25s ease;
+}
+
+.twsela-loading-overlay .loading-spinner-ring {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--gray-300, #dee2e6);
+    border-top-color: var(--primary-color, #667eea);
+    border-radius: 50%;
+    animation: twselaSpinnerRotate 0.75s linear infinite;
+}
+
+.twsela-loading-overlay .loading-text {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--gray-600, #6c757d);
+}
+
+@keyframes twselaSpinnerRotate {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ============================
+   3. Button Loading State
+   ============================ */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.75;
+}
+
+.btn-loading .btn-loading-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-left-color: transparent;
+    border-radius: 50%;
+    animation: twselaSpinnerRotate 0.6s linear infinite;
+    vertical-align: middle;
+    margin-inline-end: 0.4em;
+}
+
+
+/* ============================
+   4. Table Skeleton Loading
+   ============================ */
+
+.twsela-table-skeleton {
+    width: 100%;
+}
+
+.twsela-table-skeleton .skeleton-row {
+    display: flex;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--gray-200, #e9ecef);
+}
+
+.twsela-table-skeleton .skeleton-cell {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg,
+        var(--gray-200, #e9ecef) 25%,
+        var(--gray-100, #f8f9fa) 50%,
+        var(--gray-200, #e9ecef) 75%
+    );
+    background-size: 200% 100%;
+    animation: twselaShimmer 1.4s ease-in-out infinite;
+}
+
+.twsela-table-skeleton .skeleton-cell:nth-child(1) { flex: 0 0 10%; }
+.twsela-table-skeleton .skeleton-cell:nth-child(2) { flex: 0 0 25%; }
+.twsela-table-skeleton .skeleton-cell:nth-child(3) { flex: 0 0 20%; }
+.twsela-table-skeleton .skeleton-cell:nth-child(4) { flex: 0 0 15%; }
+.twsela-table-skeleton .skeleton-cell:nth-child(5) { flex: 1; }
+
+@keyframes twselaShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+
+/* ============================
+   5. Network Error Overlay
+   ============================ */
+
+.twsela-network-error {
+    position: fixed;
+    inset: 0;
+    z-index: var(--network-z);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.96);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    text-align: center;
+    direction: rtl;
+    animation: twselaFadeIn 0.3s ease;
+}
+
+.twsela-network-error .network-error-icon {
+    font-size: 4rem;
+    color: var(--danger-color, #dc3545);
+    margin-bottom: 1.25rem;
+    animation: twselaPulse 2s ease-in-out infinite;
+}
+
+.twsela-network-error .network-error-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800, #343a40);
+    margin-bottom: 0.5rem;
+}
+
+.twsela-network-error .network-error-message {
+    font-size: 1rem;
+    color: var(--gray-600, #6c757d);
+    margin-bottom: 1.5rem;
+    max-width: 420px;
+}
+
+.twsela-network-error .btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.twsela-network-error .btn-retry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.45);
+}
+
+@keyframes twselaPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+}
+
+@keyframes twselaFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* ============================
+   6. Empty State
+   ============================ */
+
+.twsela-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    direction: rtl;
+}
+
+.twsela-empty-state .empty-icon {
+    font-size: 3.5rem;
+    color: var(--gray-400, #ced4da);
+    margin-bottom: 1rem;
+}
+
+.twsela-empty-state .empty-text {
+    font-size: 1.1rem;
+    color: var(--gray-600, #6c757d);
+    font-weight: 500;
+}
+
+
+/* ============================
+   7. Confirmation Dialog
+   ============================ */
+
+.twsela-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--confirm-z);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    animation: twselaFadeIn 0.2s ease;
+    direction: rtl;
+}
+
+.twsela-confirm-dialog {
+    background: #fff;
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    max-width: 400px;
+    width: calc(100% - 2rem);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: twselaDialogIn 0.3s ease;
+}
+
+.twsela-confirm-dialog .confirm-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800, #343a40);
+    margin-bottom: 0.75rem;
+}
+
+.twsela-confirm-dialog .confirm-message {
+    font-size: 0.95rem;
+    color: var(--gray-600, #6c757d);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.twsela-confirm-dialog .confirm-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.twsela-confirm-dialog .btn-confirm {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--danger-color, #dc3545);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.twsela-confirm-dialog .btn-confirm:hover {
+    opacity: 0.88;
+}
+
+.twsela-confirm-dialog .btn-cancel {
+    padding: 0.5rem 1.5rem;
+    border: 1px solid var(--gray-300, #dee2e6);
+    border-radius: 0.5rem;
+    background: #fff;
+    color: var(--gray-700, #495057);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.twsela-confirm-dialog .btn-cancel:hover {
+    background: var(--gray-100, #f8f9fa);
+}
+
+@keyframes twselaDialogIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+
+/* ============================
+   8. Responsive Tweaks
+   ============================ */
+
+@media (max-width: 576px) {
+    #twsela-toast-container {
+        left: 0.75rem;
+        right: 0.75rem;
+        max-width: 100%;
+        width: auto;
+    }
+
+    .twsela-confirm-dialog {
+        padding: 1.25rem;
+    }
+
+    .twsela-network-error .network-error-icon {
+        font-size: 3rem;
+    }
+
+    .twsela-network-error .network-error-title {
+        font-size: 1.25rem;
+    }
+}

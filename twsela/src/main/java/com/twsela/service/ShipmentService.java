@@ -3,6 +3,8 @@ package com.twsela.service;
 import com.twsela.domain.*;
 import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,8 @@ import java.util.UUID;
 @Service
 @Transactional
 public class ShipmentService {
+
+    private static final Logger log = LoggerFactory.getLogger(ShipmentService.class);
 
     private final ShipmentRepository shipmentRepository;
     private final UserRepository userRepository;
@@ -641,5 +645,202 @@ public class ShipmentService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to update courier location: " + e.getMessage(), e);
         }
+    }
+
+    // ===== EXTRACTED BUSINESS LOGIC FROM ShipmentController =====
+    // TODO: Wire ShipmentController to delegate to these methods
+
+    /**
+     * Calculate delivery fee based on zone, weight, and priority.
+     * Extracted from ShipmentController — uses priority multiplier on zone default fee.
+     *
+     * @param zone     the delivery zone (contains defaultFee)
+     * @param weight   package weight (reserved for future weight-based pricing)
+     * @param priority one of "EXPRESS", "STANDARD", "ECONOMY"
+     * @return calculated delivery fee
+     */
+    public BigDecimal calculateDeliveryFeeByPriority(Zone zone, BigDecimal weight, String priority) {
+        BigDecimal defaultFee = zone.getDefaultFee() != null ? zone.getDefaultFee() : new BigDecimal("50.00");
+        BigDecimal baseFee = defaultFee;
+
+        BigDecimal multiplier = BigDecimal.ONE;
+        switch (priority != null ? priority : "STANDARD") {
+            case "EXPRESS":
+                multiplier = new BigDecimal("1.5");
+                break;
+            case "ECONOMY":
+                multiplier = new BigDecimal("0.8");
+                break;
+            case "STANDARD":
+            default:
+                multiplier = BigDecimal.ONE;
+                break;
+        }
+
+        return baseFee.multiply(multiplier);
+    }
+
+    /**
+     * Check whether a shipment is eligible for Return-To-Origin (RTO).
+     * A shipment cannot be returned if it is already DELIVERED, CANCELLED, or RETURNED_TO_ORIGIN.
+     *
+     * @param shipment the shipment to check
+     * @return true if the shipment may be returned
+     */
+    public boolean isEligibleForReturn(Shipment shipment) {
+        String statusName = shipment.getStatus().getName();
+        return !statusName.equals(DELIVERED)
+            && !statusName.equals(CANCELLED)
+            && !statusName.equals(RETURNED_TO_ORIGIN);
+    }
+
+    /**
+     * Receive shipments at warehouse from merchant by tracking numbers.
+     * Extracted from ShipmentController warehouse/receive endpoint.
+     *
+     * @param trackingNumbers list of tracking numbers to receive
+     * @return map with updatedShipments count and any errors
+     */
+    @Transactional
+    public Map<String, Object> receiveShipmentsAtWarehouse(List<String> trackingNumbers) {
+        List<Shipment> updatedShipments = new java.util.ArrayList<>();
+        List<String> errors = new java.util.ArrayList<>();
+
+        ShipmentStatus receivedStatus = shipmentStatusRepository.findByName(RECEIVED_AT_HUB)
+                .orElseThrow(() -> new RuntimeException("RECEIVED_AT_HUB status not found"));
+
+        for (String trackingNumber : trackingNumbers) {
+            Optional<Shipment> shipmentOpt = shipmentRepository.findByTrackingNumber(trackingNumber);
+            if (shipmentOpt.isPresent()) {
+                Shipment shipment = shipmentOpt.get();
+                shipment.setStatus(receivedStatus);
+                shipment.setUpdatedAt(Instant.now());
+                shipmentRepository.save(shipment);
+                createStatusHistory(shipment, receivedStatus, "Received at warehouse by manager");
+                updatedShipments.add(shipment);
+            } else {
+                errors.add("Shipment not found: " + trackingNumber);
+            }
+        }
+
+        return Map.of(
+            "updatedShipments", updatedShipments.size(),
+            "errors", errors
+        );
+    }
+
+    /**
+     * Dispatch shipments from warehouse to a courier.
+     * Extracted from ShipmentController warehouse/dispatch endpoint.
+     *
+     * @param courierId   ID of the courier to dispatch to
+     * @param shipmentIds list of shipment IDs to dispatch
+     * @return map with results including count and errors
+     */
+    @Transactional
+    public Map<String, Object> dispatchShipmentsToCourierFromWarehouse(Long courierId, List<Long> shipmentIds) {
+        User courier = userRepository.findById(courierId)
+                .orElseThrow(() -> new RuntimeException("Courier not found"));
+
+        if (!courier.getRole().getName().equals("COURIER")) {
+            throw new IllegalArgumentException("User is not a courier");
+        }
+
+        List<Shipment> updatedShipments = new java.util.ArrayList<>();
+        List<String> errors = new java.util.ArrayList<>();
+
+        ShipmentStatus assignedStatus = shipmentStatusRepository.findByName(ASSIGNED_TO_COURIER)
+                .orElseThrow(() -> new RuntimeException("ASSIGNED_TO_COURIER status not found"));
+
+        for (Long shipmentId : shipmentIds) {
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentId);
+            if (shipmentOpt.isPresent()) {
+                Shipment shipment = shipmentOpt.get();
+                String statusName = shipment.getStatus().getName();
+                if (!statusName.equals(RECEIVED_AT_HUB) && !statusName.equals(RETURNED_TO_HUB)) {
+                    errors.add("Shipment " + shipment.getTrackingNumber() + " is not in warehouse");
+                    continue;
+                }
+                shipment.setStatus(assignedStatus);
+                shipment.setUpdatedAt(Instant.now());
+                shipmentRepository.save(shipment);
+                createStatusHistory(shipment, assignedStatus, "Dispatched to courier: " + courier.getName());
+                updatedShipments.add(shipment);
+            } else {
+                errors.add("Shipment not found: " + shipmentId);
+            }
+        }
+
+        return Map.of(
+            "updatedShipments", updatedShipments.size(),
+            "courier", courier.getName(),
+            "errors", errors
+        );
+    }
+
+    /**
+     * Reconcile shipments with a courier at end-of-day.
+     * Extracted from ShipmentController warehouse/reconcile endpoint.
+     *
+     * @param courierId                  the courier ID
+     * @param cashConfirmedShipmentIds   IDs of shipments whose cash is confirmed
+     * @param returnedShipmentIds        IDs of shipments returned to hub
+     * @return map with processed counts and errors
+     */
+    @Transactional
+    public Map<String, Object> reconcileWithCourier(Long courierId,
+                                                     List<Long> cashConfirmedShipmentIds,
+                                                     List<Long> returnedShipmentIds) {
+        User courier = userRepository.findById(courierId)
+                .orElseThrow(() -> new RuntimeException("Courier not found"));
+
+        List<Shipment> processedShipments = new java.util.ArrayList<>();
+        List<String> errors = new java.util.ArrayList<>();
+
+        // Process cash confirmed shipments
+        for (Long shipmentId : cashConfirmedShipmentIds) {
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentId);
+            if (shipmentOpt.isPresent()) {
+                Shipment shipment = shipmentOpt.get();
+                if (shipment.getCourier() == null || !shipment.getCourier().getId().equals(courierId)) {
+                    errors.add("Shipment " + shipment.getTrackingNumber() + " does not belong to this courier");
+                    continue;
+                }
+                createStatusHistory(shipment, shipment.getStatus(), "Cash reconciliation confirmed by warehouse manager");
+                processedShipments.add(shipment);
+            } else {
+                errors.add("Shipment not found: " + shipmentId);
+            }
+        }
+
+        // Process returned shipments
+        ShipmentStatus returnedStatus = shipmentStatusRepository.findByName(RETURNED_TO_HUB)
+                .orElseThrow(() -> new RuntimeException("RETURNED_TO_HUB status not found"));
+
+        for (Long shipmentId : returnedShipmentIds) {
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentId);
+            if (shipmentOpt.isPresent()) {
+                Shipment shipment = shipmentOpt.get();
+                if (shipment.getCourier() == null || !shipment.getCourier().getId().equals(courierId)) {
+                    errors.add("Shipment " + shipment.getTrackingNumber() + " does not belong to this courier");
+                    continue;
+                }
+                shipment.setStatus(returnedStatus);
+                shipment.setUpdatedAt(Instant.now());
+                shipmentRepository.save(shipment);
+                createStatusHistory(shipment, returnedStatus, "Returned to warehouse from courier: " + courier.getName());
+                processedShipments.add(shipment);
+            } else {
+                errors.add("Shipment not found: " + shipmentId);
+            }
+        }
+
+        return Map.of(
+            "processedShipments", processedShipments.size(),
+            "cashConfirmed", cashConfirmedShipmentIds.size(),
+            "returned", returnedShipmentIds.size(),
+            "courier", courier.getName(),
+            "errors", errors
+        );
     }
 }

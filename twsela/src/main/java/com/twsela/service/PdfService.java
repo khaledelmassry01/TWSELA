@@ -26,6 +26,8 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.Bidi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +35,8 @@ import java.io.IOException;
 
 @Service
 public class PdfService {
+
+    private static final Logger log = LoggerFactory.getLogger(PdfService.class);
 
     private static final String FONT = "src/main/resources/fonts/NotoSansArabic-Regular.ttf";
     private static final String COMPANY_NAME = "توصيله";

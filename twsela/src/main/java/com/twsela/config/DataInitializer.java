@@ -4,7 +4,6 @@ import com.twsela.domain.*;
 import com.twsela.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -18,29 +17,32 @@ public class DataInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
-    @Autowired
-    private RoleRepository roleRepository;
-    
-    @Autowired
-    private UserStatusRepository userStatusRepository;
-    
-    @Autowired
-    private ShipmentStatusRepository shipmentStatusRepository;
-    
-    @Autowired
-    private PayoutStatusRepository payoutStatusRepository;
-    
-    @Autowired
-    private ZoneRepository zoneRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    @Autowired
-    private TelemetrySettingsRepository telemetrySettingsRepository;
+    private final RoleRepository roleRepository;
+    private final UserStatusRepository userStatusRepository;
+    private final ShipmentStatusRepository shipmentStatusRepository;
+    private final PayoutStatusRepository payoutStatusRepository;
+    private final ZoneRepository zoneRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TelemetrySettingsRepository telemetrySettingsRepository;
+
+    public DataInitializer(RoleRepository roleRepository,
+                           UserStatusRepository userStatusRepository,
+                           ShipmentStatusRepository shipmentStatusRepository,
+                           PayoutStatusRepository payoutStatusRepository,
+                           ZoneRepository zoneRepository,
+                           UserRepository userRepository,
+                           PasswordEncoder passwordEncoder,
+                           TelemetrySettingsRepository telemetrySettingsRepository) {
+        this.roleRepository = roleRepository;
+        this.userStatusRepository = userStatusRepository;
+        this.shipmentStatusRepository = shipmentStatusRepository;
+        this.payoutStatusRepository = payoutStatusRepository;
+        this.zoneRepository = zoneRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.telemetrySettingsRepository = telemetrySettingsRepository;
+    }
 
     @Override
     public void run(String... args) throws Exception {

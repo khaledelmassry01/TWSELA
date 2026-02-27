@@ -23,6 +23,12 @@ import java.util.Map;
 @Tag(name = "Health Check", description = "فحص حالة التطبيق")
 public class HealthController {
 
+    @org.springframework.beans.factory.annotation.Value("${app.version:1.0.1}")
+    private String appVersion;
+
+    @org.springframework.beans.factory.annotation.Value("${spring.profiles.active:development}")
+    private String activeProfile;
+
     @Operation(
         summary = "فحص حالة التطبيق",
         description = "فحص حالة التطبيق والتأكد من عمله بشكل صحيح"
@@ -53,8 +59,8 @@ public class HealthController {
         response.put("status", "UP");
         response.put("message", "Twsela application is running");
         response.put("timestamp", java.time.Instant.now());
-        response.put("version", "1.0.1");
-        response.put("environment", "development");
+        response.put("version", appVersion);
+        response.put("environment", activeProfile);
         return ResponseEntity.ok(response);
     }
 }

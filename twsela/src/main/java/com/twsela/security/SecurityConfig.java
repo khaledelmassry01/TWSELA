@@ -1,5 +1,6 @@
 package com.twsela.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -15,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -25,13 +27,19 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final SecurityExceptionHandler securityExceptionHandler;
+    private final RateLimitFilter rateLimitFilter;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public SecurityConfig(AuthenticationProvider authenticationProvider, 
                          JwtAuthenticationFilter jwtAuthFilter,
-                         SecurityExceptionHandler securityExceptionHandler) {
+                         SecurityExceptionHandler securityExceptionHandler,
+                         RateLimitFilter rateLimitFilter) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthFilter = jwtAuthFilter;
         this.securityExceptionHandler = securityExceptionHandler;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -83,6 +91,7 @@ public class SecurityConfig {
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             // Configure authentication entry point to return 401 for unauthorized access
             .exceptionHandling(exceptions -> exceptions
@@ -97,20 +106,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // In production, specify exact domains instead of "*"
-        // For development, allow localhost and common development ports
-        configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",  // Vite dev server
-            "http://localhost:5174",  // Vite dev server (fallback port)
-            "http://127.0.0.1:5173", // Vite dev server (127.0.0.1)
-            "http://127.0.0.1:5174", // Vite dev server (127.0.0.1 fallback)
-            "http://localhost:8000",  // Frontend development server (HTTP)
-            "https://localhost:8000", // Frontend development server (HTTPS)
-            "http://127.0.0.1:8000",  // Frontend development server (127.0.0.1)
-            "https://127.0.0.1:8000", // Frontend development server (127.0.0.1 HTTPS)
-            "http://localhost:8080",  // Backend API server (HTTP)
-            "https://localhost:8080"  // Backend API server (HTTPS)
-        ));
+        // CORS origins loaded from application.yml (app.cors.allowed-origins)
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
         
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         

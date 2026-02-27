@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-shipments-page');
+
 /**
  * Twsela CMS - Owner Shipments Page Handler
  * Handles shipment management for owner
@@ -22,16 +25,22 @@ class OwnerShipmentsHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-
+        try {
+            UIUtils.showLoading();
         
-        // Load shipments data
-        await this.loadShipments();
-        
-        // Setup filters
-        this.setupFilters();
-        
-        // Setup pagination
-        this.setupPagination();
+            // Load shipments data
+            await this.loadShipments();
+            
+            // Setup filters
+            this.setupFilters();
+            
+            // Setup pagination
+            this.setupPagination();
+        } catch (error) {
+            ErrorHandler.handle(error, 'OwnerShipments');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
@@ -39,7 +48,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
      */
     async loadShipments() {
         try {
-
+            UIUtils.showTableLoading('#shipmentsTable');
             
             const params = {
                 page: this.currentPage,
@@ -54,11 +63,10 @@ class OwnerShipmentsHandler extends BasePageHandler {
                 this.updateShipmentsTable();
                 this.updatePaginationInfo(response.totalElements || 0);
             } else {
-
-                
+                UIUtils.showEmptyState('#shipmentsTable tbody', 'لا توجد شحنات', 'box');
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'OwnerShipments.loadShipments'); }
     }
 
     /**
@@ -72,7 +80,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
         tbody.innerHTML = '';
 
         if (!this.shipments || this.shipments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">لا توجد شحنات</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø´Ø­Ù†Ø§Øª</td></tr>';
             return;
         }
 
@@ -80,10 +88,10 @@ class OwnerShipmentsHandler extends BasePageHandler {
         this.shipments.forEach(shipment => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
-                <td>${escapeHtml(shipment.merchant?.name || 'غير محدد')}</td>
-                <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
-                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
+                <td>${escapeHtml(shipment.trackingNumber || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td>${escapeHtml(shipment.merchant?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td>${escapeHtml(shipment.courier?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
                 <td>${this.formatCurrency(shipment.totalAmount)}</td>
                 <td>${this.formatDate(shipment.createdAt)}</td>
                 <td>${this.formatDate(shipment.deliveryDate)}</td>
@@ -217,7 +225,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
         if (paginationInfo) {
             const startItem = (this.currentPage - 1) * this.pageSize + 1;
             const endItem = Math.min(this.currentPage * this.pageSize, totalElements);
-            paginationInfo.textContent = `عرض ${startItem}-${endItem} من ${totalElements}`;
+            paginationInfo.textContent = `Ø¹Ø±Ø¶ ${startItem}-${endItem} Ù…Ù† ${totalElements}`;
         }
     }
 
@@ -228,8 +236,8 @@ class OwnerShipmentsHandler extends BasePageHandler {
         try {
 
             // TODO: Implement view functionality
-            this.showInfo('عرض تفاصيل الشحنة قيد التطوير');
-        } catch (error) { console.error('Unhandled error:', error); }
+            this.showInfo('Ø¹Ø±Ø¶ ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø´Ø­Ù†Ø© Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±');
+        } catch (error) { ErrorHandler.handle(error, 'OwnerShipments.viewShipment'); }
     }
 
     /**
@@ -239,8 +247,8 @@ class OwnerShipmentsHandler extends BasePageHandler {
         try {
 
             // TODO: Implement edit functionality
-            this.showInfo('تعديل الشحنة قيد التطوير');
-        } catch (error) { console.error('Unhandled error:', error); }
+            this.showInfo('ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø´Ø­Ù†Ø© Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±');
+        } catch (error) { ErrorHandler.handle(error, 'OwnerShipments.editShipment'); }
     }
 
     /**
@@ -273,8 +281,8 @@ class OwnerShipmentsHandler extends BasePageHandler {
         try {
 
             // TODO: Implement export functionality
-            this.showInfo('تصدير الشحنات قيد التطوير');
-        } catch (error) { console.error('Unhandled error:', error); }
+            this.showInfo('ØªØµØ¯ÙŠØ± Ø§Ù„Ø´Ø­Ù†Ø§Øª Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±');
+        } catch (error) { ErrorHandler.handle(error, 'OwnerShipments.export'); }
     }
 }
 

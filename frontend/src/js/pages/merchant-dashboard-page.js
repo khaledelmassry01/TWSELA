@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('merchant-dashboard-page');
+
 /**
  * Twsela CMS - Merchant Dashboard Page Handler
  * Handles merchant dashboard functionality
@@ -15,16 +18,22 @@ class MerchantDashboardHandler extends BasePageHandler {
      * Initialize page-specific functionality
      */
     async initializePage() {
-
+        try {
+            UIUtils.showLoading();
         
-        // Load merchant data
-        await this.loadMerchantData();
-        
-        // Load recent shipments
-        await this.loadRecentShipments();
-        
-        // Initialize charts
-        this.initializeCharts();
+            // Load merchant data
+            await this.loadMerchantData();
+            
+            // Load recent shipments
+            await this.loadRecentShipments();
+            
+            // Initialize charts
+            this.initializeCharts();
+        } catch (error) {
+            ErrorHandler.handle(error, 'MerchantDashboard');
+        } finally {
+            UIUtils.hideLoading();
+        }
     }
 
     /**
@@ -43,7 +52,7 @@ class MerchantDashboardHandler extends BasePageHandler {
             // Update merchant info display
             this.updateMerchantInfo(user);
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'MerchantDashboard.merchantData'); }
     }
 
     /**
@@ -52,17 +61,17 @@ class MerchantDashboardHandler extends BasePageHandler {
     updateMerchantInfo(user) {
         const merchantNameEl = document.getElementById('merchantName');
         if (merchantNameEl) {
-            merchantNameEl.textContent = user.name || 'التاجر';
+            merchantNameEl.textContent = user.name || 'Ø§Ù„ØªØ§Ø¬Ø±';
         }
 
         const merchantPhoneEl = document.getElementById('merchantPhone');
         if (merchantPhoneEl) {
-            merchantPhoneEl.textContent = user.phone || 'غير محدد';
+            merchantPhoneEl.textContent = user.phone || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
         }
 
         const merchantStatusEl = document.getElementById('merchantStatus');
         if (merchantStatusEl) {
-            merchantStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'غير محدد')}</span>`;
+            merchantStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span>`;
         }
     }
 
@@ -82,10 +91,10 @@ class MerchantDashboardHandler extends BasePageHandler {
                 this.shipments = response.data || [];
                 this.updateRecentShipmentsTable();
             } else {
-
+                UIUtils.showEmptyState('#recentShipmentsTable', 'لا توجد شحنات حديثة', 'box');
             }
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'MerchantDashboard.shipments'); }
     }
 
     /**
@@ -99,7 +108,7 @@ class MerchantDashboardHandler extends BasePageHandler {
         tbody.innerHTML = '';
 
         if (!this.shipments || this.shipments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">لا توجد شحنات حديثة</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø´Ø­Ù†Ø§Øª Ø­Ø¯ÙŠØ«Ø©</td></tr>';
             return;
         }
 
@@ -107,9 +116,9 @@ class MerchantDashboardHandler extends BasePageHandler {
         this.shipments.forEach(shipment => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
-                <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
-                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
+                <td>${escapeHtml(shipment.trackingNumber || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td>${escapeHtml(shipment.courier?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</span></td>
                 <td>${this.formatCurrency(shipment.totalAmount)}</td>
                 <td>${this.formatDate(shipment.createdAt)}</td>
             `;
@@ -130,7 +139,7 @@ class MerchantDashboardHandler extends BasePageHandler {
             // Initialize revenue chart
             this.initRevenueChart();
             
-        } catch (error) { console.error('Unhandled error:', error); }
+        } catch (error) { ErrorHandler.handle(error, 'MerchantDashboard.charts'); }
     }
 
     /**
@@ -204,7 +213,7 @@ class MerchantDashboardHandler extends BasePageHandler {
                 data: {
                     labels: revenueData.labels || [],
                     datasets: [{
-                        label: 'الإيرادات',
+                        label: 'Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª',
                         data: revenueData.values || [],
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',

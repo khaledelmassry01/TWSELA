@@ -1,6 +1,8 @@
 package com.twsela.security;
 
 import com.twsela.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,8 @@ import java.util.List;
 
 @Configuration
 public class ApplicationConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
     private final UserRepository userRepository;
 
@@ -49,7 +53,7 @@ public class ApplicationConfig {
                 return new org.springframework.security.core.userdetails.User(
                         user.getPhone(), user.getPassword(), isEnabled, true, true, true, authorities);
             } catch (Exception e) {
-                System.err.println("Error loading user details for: " + username + " - " + e.getMessage());
+                log.error("Error loading user details for: {} - {}", username, e.getMessage(), e);
                 throw new UsernameNotFoundException("User not found with phone: " + username);
             }
         };

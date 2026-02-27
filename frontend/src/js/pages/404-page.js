@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('404-page');
+
 /**
  * Twsela CMS - 404 Page Handler
  * Handles page-specific initialization and all 404 page functionality
@@ -82,7 +85,7 @@ function goBack() {
 
 function showHelp() {
     if (window.notificationManager) {
-        window.notificationManager.error('جاري فتح مركز المساعدة...', 'info');
+        window.notificationManager.error('Ø¬Ø§Ø±ÙŠ ÙØªØ­ Ù…Ø±ÙƒØ² Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø©...', 'info');
     }
     // This would typically open a help center or knowledge base
 }
@@ -97,14 +100,14 @@ function performSearch() {
     
     if (!searchTerm) {
         if (window.notificationManager) {
-            window.notificationManager.error('يرجى إدخال كلمة البحث', 'error');
+            window.notificationManager.error('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ø¨Ø­Ø«', 'error');
         }
         return;
     }
 
     // This would typically perform a search across the site
     if (window.notificationManager) {
-        window.notificationManager.error(`جاري البحث عن: ${searchTerm}`, 'info');
+        window.notificationManager.error(`Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù†: ${searchTerm}`, 'info');
     }
     
     // For demo purposes, redirect to contact page
@@ -127,7 +130,7 @@ function submitErrorReport() {
 
     if (!errorReport.description) {
         if (window.notificationManager) {
-            window.notificationManager.error('يرجى كتابة وصف للمشكلة', 'error');
+            window.notificationManager.error('ÙŠØ±Ø¬Ù‰ ÙƒØªØ§Ø¨Ø© ÙˆØµÙ Ù„Ù„Ù…Ø´ÙƒÙ„Ø©', 'error');
         }
         return;
     }
@@ -136,7 +139,7 @@ function submitErrorReport() {
         // This would typically send the error report to the server
         
         if (window.notificationManager) {
-            window.notificationManager.error('تم إرسال تقرير الخطأ بنجاح. شكراً لك!', 'success');
+            window.notificationManager.error('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø®Ø·Ø£ Ø¨Ù†Ø¬Ø§Ø­. Ø´ÙƒØ±Ø§Ù‹ Ù„Ùƒ!', 'success');
         }
         
         // Close modal and clear form
@@ -144,7 +147,7 @@ function submitErrorReport() {
         modal.hide();
         form.reset();
         } catch (error) {
-            console.error('❌ 404 Page Error - Error Report Submission:', {
+            log.error('âŒ 404 Page Error - Error Report Submission:', {
                 error: error.message,
                 stack: error.stack,
                 errorReport: errorReport,
@@ -152,7 +155,7 @@ function submitErrorReport() {
             });
             
             if (window.notificationManager) {
-                window.notificationManager.error('حدث خطأ في إرسال التقرير', 'error');
+                window.notificationManager.error('Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ØªÙ‚Ø±ÙŠØ±', 'error');
             }
         }
 }

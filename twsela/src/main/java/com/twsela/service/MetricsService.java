@@ -3,13 +3,16 @@ package com.twsela.service;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class MetricsService {
+
+    private static final Logger log = LoggerFactory.getLogger(MetricsService.class);
 
     private final MeterRegistry meterRegistry;
     private final Counter loginAttemptsCounter;
@@ -21,7 +24,6 @@ public class MetricsService {
     private final AtomicLong activeUsersGauge;
     private final AtomicLong activeShipmentsGauge;
 
-    @Autowired
     public MetricsService(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
         

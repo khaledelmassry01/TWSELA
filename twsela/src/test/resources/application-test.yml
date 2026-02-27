@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        show_sql: false
+    open-in-view: false
+  cache:
+    type: simple
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 0
+
+# JWT Configuration for tests
+app:
+  security:
+    jwt:
+      secret: dGVzdC1zZWNyZXQta2V5LWZvci11bml0LXRlc3RzLW9ubHktMzJieXRlcw==
+      expiration-ms: 3600000
+  cors:
+    allowed-origins: http://localhost:8080
+  otp:
+    validity-minutes: 5
+    max-attempts: 5
+
+# Disable SMS in tests
+twilio:
+  enabled: false
+
+logging:
+  level:
+    com.twsela: DEBUG

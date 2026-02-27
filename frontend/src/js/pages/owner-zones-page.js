@@ -1,3 +1,6 @@
+﻿import { Logger } from '../shared/Logger.js';
+const log = Logger.getLogger('owner-zones-page');
+
 /**
  * Twsela CMS - Owner Zones Page Initialization
  * Handles page-specific initialization and legacy functions
@@ -8,7 +11,7 @@ let currentZoneId = null;
 
 // Initialize zones page
 document.addEventListener('DOMContentLoaded', function() {
-    // انتظار تحميل app.js أولاً لتجنب التضارب
+    // Ø§Ù†ØªØ¸Ø§Ø± ØªØ­Ù…ÙŠÙ„ app.js Ø£ÙˆÙ„Ø§Ù‹ Ù„ØªØ¬Ù†Ø¨ Ø§Ù„ØªØ¶Ø§Ø±Ø¨
     waitForAppInitialization();
 });
 
@@ -17,16 +20,16 @@ async function waitForAppInitialization() {
     const maxAttempts = 50; // 5 seconds max
     
     while (attempts < maxAttempts) {
-        // فحص وجود app.js
+        // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ app.js
         if (window.twselaApp && window.twselaApp.isInitialized) {
-            console.log('✅ App.js is initialized, proceeding with zones page');
+            log.debug('âœ… App.js is initialized, proceeding with zones page');
             await initializeZonesPage();
             return;
         }
         
-        // فحص وجود الخدمات المطلوبة
+        // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©
         if (window.authService && window.apiService) {
-            console.log('✅ Services are available, proceeding with zones page');
+            log.debug('âœ… Services are available, proceeding with zones page');
             await initializeZonesPage();
             return;
         }
@@ -35,13 +38,13 @@ async function waitForAppInitialization() {
         attempts++;
     }
     
-    console.warn('⚠️ App.js not initialized after timeout, proceeding anyway');
+    log.warn('âš ï¸ App.js not initialized after timeout, proceeding anyway');
     await initializeZonesPage();
 }
 
 async function initializeZonesPage() {
     try {
-        // فحص المصادقة أولاً
+        // ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø£ÙˆÙ„Ø§Ù‹
         if (!await checkAuthentication()) {
             return;
         }
@@ -55,100 +58,100 @@ async function initializeZonesPage() {
         // Setup event listeners
         setupEventListeners();
         
-        console.log('✅ Zones page initialized successfully');
+        log.debug('âœ… Zones page initialized successfully');
     } catch (error) {
-        console.error('❌ Error initializing zones page:', error);
-        showNotification('خطأ في تحميل صفحة المناطق', 'error');
+        log.error('âŒ Error initializing zones page:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ ØµÙØ­Ø© Ø§Ù„Ù…Ù†Ø§Ø·Ù‚', 'error');
     }
 }
 
 /**
- * فحص المصادقة قبل تحميل الصفحة
+ * ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ù‚Ø¨Ù„ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙØ­Ø©
  */
 async function checkAuthentication() {
     try {
-        // فحص وجود خدمة المصادقة
+        // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ Ø®Ø¯Ù…Ø© Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø©
         if (!window.authService) {
-            console.error('❌ AuthService not available');
+            log.error('âŒ AuthService not available');
             window.location.href = '/login.html';
             return false;
         }
         
-        // فحص التوكن المحلي أولاً لتجنب استدعاء auth/me غير الضروري
+        // ÙØ­Øµ Ø§Ù„ØªÙˆÙƒÙ† Ø§Ù„Ù…Ø­Ù„ÙŠ Ø£ÙˆÙ„Ø§Ù‹ Ù„ØªØ¬Ù†Ø¨ Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ auth/me ØºÙŠØ± Ø§Ù„Ø¶Ø±ÙˆØ±ÙŠ
         const token = window.authService.getToken();
         if (!token) {
-            console.warn('⚠️ No authentication token found');
+            log.warn('âš ï¸ No authentication token found');
             window.location.href = '/login.html';
             return false;
         }
         
-        // فحص بيانات المستخدم المحلية أولاً
+        // ÙØ­Øµ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø­Ù„ÙŠØ© Ø£ÙˆÙ„Ø§Ù‹
         const user = window.authService.getCurrentUser();
         if (user && user.role) {
-            // فحص الصلاحيات من البيانات المحلية
+            // ÙØ­Øµ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª Ù…Ù† Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ©
             if (!['OWNER', 'ADMIN'].includes(user.role)) {
-                console.warn('⚠️ User does not have permission to access zones page');
+                log.warn('âš ï¸ User does not have permission to access zones page');
                 window.location.href = '/login.html';
                 return false;
             }
-            console.log('✅ Authentication verified from local data');
+            log.debug('âœ… Authentication verified from local data');
             return true;
         }
         
-        // فحص إذا كان app.js قد قام بفحص المصادقة بالفعل
+        // ÙØ­Øµ Ø¥Ø°Ø§ ÙƒØ§Ù† app.js Ù‚Ø¯ Ù‚Ø§Ù… Ø¨ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¨Ø§Ù„ÙØ¹Ù„
         if (window.twselaApp && window.twselaApp.isInitialized) {
-            console.log('✅ App.js has already verified authentication');
+            log.debug('âœ… App.js has already verified authentication');
             return true;
         }
         
-        // فحص إذا كان هناك فحص مصادقة جاري بالفعل
+        // ÙØ­Øµ Ø¥Ø°Ø§ ÙƒØ§Ù† Ù‡Ù†Ø§Ùƒ ÙØ­Øµ Ù…ØµØ§Ø¯Ù‚Ø© Ø¬Ø§Ø±ÙŠ Ø¨Ø§Ù„ÙØ¹Ù„
         if (window.authCheckInProgress) {
-            console.log('⏳ Auth check already in progress, waiting...');
-            // انتظار انتهاء الفحص الحالي
+            log.debug('â³ Auth check already in progress, waiting...');
+            // Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù†ØªÙ‡Ø§Ø¡ Ø§Ù„ÙØ­Øµ Ø§Ù„Ø­Ø§Ù„ÙŠ
             let attempts = 0;
             while (window.authCheckInProgress && attempts < 50) {
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
             
-            // فحص النتيجة بعد الانتظار
+            // ÙØ­Øµ Ø§Ù„Ù†ØªÙŠØ¬Ø© Ø¨Ø¹Ø¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
             const finalUser = window.authService.getCurrentUser();
             if (finalUser && finalUser.role && ['OWNER', 'ADMIN'].includes(finalUser.role)) {
-                console.log('✅ Authentication verified after waiting');
+                log.debug('âœ… Authentication verified after waiting');
                 return true;
             }
         }
         
-        // تعيين علامة أن فحص المصادقة جاري
+        // ØªØ¹ÙŠÙŠÙ† Ø¹Ù„Ø§Ù…Ø© Ø£Ù† ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ø¬Ø§Ø±ÙŠ
         window.authCheckInProgress = true;
         
         try {
-            // فقط إذا لم تكن البيانات المحلية متاحة، استدعاء auth/me
-            console.log('🔄 Verifying authentication with server...');
+            // ÙÙ‚Ø· Ø¥Ø°Ø§ Ù„Ù… ØªÙƒÙ† Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ© Ù…ØªØ§Ø­Ø©ØŒ Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ auth/me
+            log.debug('ðŸ”„ Verifying authentication with server...');
             const isValid = await window.authService.checkAuthStatus();
             if (!isValid) {
-                console.warn('⚠️ User not authenticated, redirecting to login');
+                log.warn('âš ï¸ User not authenticated, redirecting to login');
                 window.location.href = '/login.html';
                 return false;
             }
             
-            // فحص الصلاحيات بعد التحقق من الخادم
+            // ÙØ­Øµ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª Ø¨Ø¹Ø¯ Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø®Ø§Ø¯Ù…
             const updatedUser = window.authService.getCurrentUser();
             if (!updatedUser || !['OWNER', 'ADMIN'].includes(updatedUser.role)) {
-                console.warn('⚠️ User does not have permission to access zones page');
+                log.warn('âš ï¸ User does not have permission to access zones page');
                 window.location.href = '/login.html';
                 return false;
             }
             
-            console.log('✅ Authentication verified successfully');
+            log.debug('âœ… Authentication verified successfully');
             return true;
         } finally {
-            // إزالة علامة فحص المصادقة
+            // Ø¥Ø²Ø§Ù„Ø© Ø¹Ù„Ø§Ù…Ø© ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø©
             window.authCheckInProgress = false;
         }
     } catch (error) {
         window.authCheckInProgress = false;
-        console.error('❌ Authentication check failed:', error);
+        log.error('âŒ Authentication check failed:', error);
         window.location.href = '/login.html';
         return false;
     }
@@ -156,41 +159,41 @@ async function checkAuthentication() {
 
 async function loadZonesData() {
     try {
-        // فحص وجود خدمة API
+        // ÙØ­Øµ ÙˆØ¬ÙˆØ¯ Ø®Ø¯Ù…Ø© API
         if (!window.apiService) {
             throw new Error('API service not available');
         }
         
-        // فحص المصادقة مرة أخرى قبل الطلب
+        // ÙØ­Øµ Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø© Ù…Ø±Ø© Ø£Ø®Ø±Ù‰ Ù‚Ø¨Ù„ Ø§Ù„Ø·Ù„Ø¨
         if (!window.authService || !window.authService.isAuthenticated()) {
             throw new Error('User not authenticated');
         }
         
-        console.log('🔄 Loading zones data...');
+        log.debug('ðŸ”„ Loading zones data...');
         const response = await window.apiService.getZones();
         
         if (response.success) {
             updateZonesTable(response.data || []);
-            console.log('✅ Zones data loaded successfully');
+            log.debug('âœ… Zones data loaded successfully');
         } else {
             throw new Error(response.message || 'Failed to load zones data');
         }
     } catch (error) {
-        console.error('❌ Error loading zones data:', error);
+        log.error('âŒ Error loading zones data:', error);
         
-        // إذا كان الخطأ متعلق بالمصادقة، توجيه لصفحة تسجيل الدخول
+        // Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ø®Ø·Ø£ Ù…ØªØ¹Ù„Ù‚ Ø¨Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø©ØŒ ØªÙˆØ¬ÙŠÙ‡ Ù„ØµÙØ­Ø© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„
         if (error.message.includes('authentication') || 
             error.message.includes('401') || 
             error.message.includes('not authenticated')) {
-            console.warn('⚠️ Authentication error, redirecting to login');
+            log.warn('âš ï¸ Authentication error, redirecting to login');
             window.location.href = '/login.html';
             return;
         }
         
-        // عرض رسالة خطأ للمستخدم
-        showNotification('خطأ في تحميل بيانات المناطق: ' + error.message, 'error');
+        // Ø¹Ø±Ø¶ Ø±Ø³Ø§Ù„Ø© Ø®Ø·Ø£ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+        showNotification('Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ù†Ø§Ø·Ù‚: ' + error.message, 'error');
         
-        // عرض جدول فارغ مع رسالة خطأ
+        // Ø¹Ø±Ø¶ Ø¬Ø¯ÙˆÙ„ ÙØ§Ø±Øº Ù…Ø¹ Ø±Ø³Ø§Ù„Ø© Ø®Ø·Ø£
         updateZonesTable([]);
     }
 }
@@ -198,20 +201,20 @@ async function loadZonesData() {
 function updateZonesTable(zones) {
     const tbody = document.querySelector('#zonesTable tbody');
     if (!tbody) {
-        console.error('❌ Zones table body not found');
+        log.error('âŒ Zones table body not found');
         return;
     }
 
     tbody.innerHTML = '';
     
     if (!zones || zones.length === 0) {
-        // عرض رسالة "لا توجد بيانات"
+        // Ø¹Ø±Ø¶ Ø±Ø³Ø§Ù„Ø© "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª"
         const emptyRow = document.createElement('tr');
         emptyRow.innerHTML = `
             <td colspan="5" class="text-center py-4">
                 <div class="text-muted">
                     <i class="fas fa-info-circle me-2"></i>
-                    لا توجد مناطق متاحة
+                    Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†Ø§Ø·Ù‚ Ù…ØªØ§Ø­Ø©
                 </div>
             </td>
         `;
@@ -224,7 +227,7 @@ function updateZonesTable(zones) {
         tbody.appendChild(row);
     });
     
-    console.log(`✅ Updated zones table with ${zones.length} zones`);
+    log.debug(`âœ… Updated zones table with ${zones.length} zones`);
 }
 
 function createZoneRow(zone) {
@@ -234,13 +237,13 @@ function createZoneRow(zone) {
     } else {
         // Fallback if GlobalUIHandler is not available
         row.innerHTML = `
-            <td>${escapeHtml(zone.name || 'غير محدد')}</td>
-            <td>${escapeHtml(zone.status || 'غير محدد')}</td>
-            <td>${zone.deliveryFee || '0'} جنيه</td>
+            <td>${escapeHtml(zone.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+            <td>${escapeHtml(zone.status || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
+            <td>${zone.deliveryFee || '0'} Ø¬Ù†ÙŠÙ‡</td>
             <td>${zone.couriers || '0'}</td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editZone(${zone.id})">تعديل</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteZone(${zone.id})">حذف</button>
+                <button class="btn btn-sm btn-primary" onclick="editZone(${zone.id})">ØªØ¹Ø¯ÙŠÙ„</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteZone(${zone.id})">Ø­Ø°Ù</button>
             </td>
         `;
     }
@@ -256,7 +259,7 @@ function editZone(zoneId) {
         }
         
         currentZoneId = zoneId;
-        console.log('🔄 Editing zone:', zoneId);
+        log.debug('ðŸ”„ Editing zone:', zoneId);
         
         // Use the handler's editZone method
         if (window.ownerZonesHandler) {
@@ -272,8 +275,8 @@ function editZone(zoneId) {
             }
         }
     } catch (error) {
-        console.error('❌ Error editing zone:', error);
-        showNotification('خطأ في تحميل بيانات المنطقة للتعديل', 'error');
+        log.error('âŒ Error editing zone:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù„Ù„ØªØ¹Ø¯ÙŠÙ„', 'error');
     }
 }
 
@@ -283,18 +286,18 @@ function viewZone(zoneId) {
             throw new Error('Zone ID is required');
         }
         
-        console.log('🔄 Viewing zone:', zoneId);
+        log.debug('ðŸ”„ Viewing zone:', zoneId);
         
         // Use the handler's viewZone method
         if (window.ownerZonesHandler) {
             window.ownerZonesHandler.viewZone(zoneId);
         } else {
             // Fallback implementation
-            showNotification('عرض تفاصيل المنطقة غير متاح حالياً', 'info');
+            showNotification('Ø¹Ø±Ø¶ ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù…Ù†Ø·Ù‚Ø© ØºÙŠØ± Ù…ØªØ§Ø­ Ø­Ø§Ù„ÙŠØ§Ù‹', 'info');
         }
     } catch (error) {
-        console.error('❌ Error viewing zone:', error);
-        showNotification('خطأ في عرض تفاصيل المنطقة', 'error');
+        log.error('âŒ Error viewing zone:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'error');
     }
 }
 
@@ -304,20 +307,20 @@ function deleteZone(zoneId) {
             throw new Error('Zone ID is required');
         }
         
-        console.log('🔄 Deleting zone:', zoneId);
+        log.debug('ðŸ”„ Deleting zone:', zoneId);
         
         // Use the handler's deleteZone method
         if (window.ownerZonesHandler) {
             window.ownerZonesHandler.deleteZone(zoneId);
         } else {
             // Fallback implementation with confirmation
-            if (confirm('هل أنت متأكد من حذف هذه المنطقة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©ØŸ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.')) {
                 performDeleteZone(zoneId);
             }
         }
     } catch (error) {
-        console.error('❌ Error deleting zone:', error);
-        showNotification('خطأ في حذف المنطقة', 'error');
+        log.error('âŒ Error deleting zone:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø­Ø°Ù Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'error');
     }
 }
 
@@ -329,14 +332,14 @@ async function performDeleteZone(zoneId) {
         
         const response = await window.apiService.deleteZone(zoneId);
         if (response.success) {
-            showNotification('تم حذف المنطقة بنجاح', 'success');
-            await loadZonesData(); // إعادة تحميل البيانات
+            showNotification('ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
+            await loadZonesData(); // Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
         } else {
             throw new Error(response.message || 'Failed to delete zone');
         }
     } catch (error) {
-        console.error('❌ Error performing delete:', error);
-        showNotification('خطأ في حذف المنطقة: ' + error.message, 'error');
+        log.error('âŒ Error performing delete:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø­Ø°Ù Ø§Ù„Ù…Ù†Ø·Ù‚Ø©: ' + error.message, 'error');
     }
 }
 
@@ -350,7 +353,7 @@ function filterZones(searchTerm) {
         let visibleCount = 0;
         
         if (!searchTerm || searchTerm.trim() === '') {
-            // إظهار جميع الصفوف إذا كان البحث فارغاً
+            // Ø¥Ø¸Ù‡Ø§Ø± Ø¬Ù…ÙŠØ¹ Ø§Ù„ØµÙÙˆÙ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ø¨Ø­Ø« ÙØ§Ø±ØºØ§Ù‹
             rows.forEach(row => {
                 row.style.display = '';
                 visibleCount++;
@@ -369,27 +372,27 @@ function filterZones(searchTerm) {
             });
         }
         
-        console.log(`🔍 Filter applied: "${searchTerm}" - ${visibleCount} results`);
+        log.debug(`ðŸ” Filter applied: "${searchTerm}" - ${visibleCount} results`);
         
-        // تحديث معلومات الصفحة إذا كانت موجودة
+        // ØªØ­Ø¯ÙŠØ« Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØµÙØ­Ø© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù…ÙˆØ¬ÙˆØ¯Ø©
         const paginationInfo = document.querySelector('.pagination-info');
         if (paginationInfo) {
             if (searchTerm && searchTerm.trim() !== '') {
-                paginationInfo.textContent = `عرض ${visibleCount} نتيجة للبحث عن "${searchTerm}"`;
+                paginationInfo.textContent = `Ø¹Ø±Ø¶ ${visibleCount} Ù†ØªÙŠØ¬Ø© Ù„Ù„Ø¨Ø­Ø« Ø¹Ù† "${searchTerm}"`;
             } else {
-                paginationInfo.textContent = `عرض جميع النتائج (${visibleCount})`;
+                paginationInfo.textContent = `Ø¹Ø±Ø¶ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù†ØªØ§Ø¦Ø¬ (${visibleCount})`;
             }
         }
         
     } catch (error) {
-        console.error('❌ Error filtering zones:', error);
-        showNotification('خطأ في البحث', 'error');
+        log.error('âŒ Error filtering zones:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«', 'error');
     }
 }
 
 function setupEventListeners() {
     try {
-        console.log('🔄 Setting up event listeners...');
+        log.debug('ðŸ”„ Setting up event listeners...');
         
         // Setup event listeners for action buttons
         document.addEventListener('click', (e) => {
@@ -399,7 +402,7 @@ function setupEventListeners() {
                     const zoneId = parseInt(button.dataset.zoneId);
                     const action = button.dataset.action;
                     
-                    console.log(`🔄 Action button clicked: ${action} for zone ${zoneId}`);
+                    log.debug(`ðŸ”„ Action button clicked: ${action} for zone ${zoneId}`);
                     
                     switch (action) {
                         case 'edit':
@@ -412,12 +415,12 @@ function setupEventListeners() {
                             deleteZone(zoneId);
                             break;
                         default:
-                            console.warn('⚠️ Unknown action:', action);
+                            log.warn('âš ï¸ Unknown action:', action);
                     }
                 }
             } catch (error) {
-                console.error('❌ Error handling action button click:', error);
-                showNotification('خطأ في تنفيذ الإجراء', 'error');
+                log.error('âŒ Error handling action button click:', error);
+                showNotification('Ø®Ø·Ø£ ÙÙŠ ØªÙ†ÙÙŠØ° Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡', 'error');
             }
         });
 
@@ -427,10 +430,10 @@ function setupEventListeners() {
             searchInput.addEventListener('input', function(e) {
                 try {
                     const searchTerm = e.target.value;
-                    console.log('🔍 Searching for:', searchTerm);
+                    log.debug('ðŸ” Searching for:', searchTerm);
                     filterZones(searchTerm);
                 } catch (error) {
-                    console.error('❌ Error in search:', error);
+                    log.error('âŒ Error in search:', error);
                 }
             });
         }
@@ -443,8 +446,8 @@ function setupEventListeners() {
                 try {
                     addZone();
                 } catch (error) {
-                    console.error('❌ Error adding zone:', error);
-                    showNotification('خطأ في إضافة المنطقة', 'error');
+                    log.error('âŒ Error adding zone:', error);
+                    showNotification('Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'error');
                 }
             });
         }
@@ -456,16 +459,16 @@ function setupEventListeners() {
                 try {
                     updateZone();
                 } catch (error) {
-                    console.error('❌ Error updating zone:', error);
-                    showNotification('خطأ في تحديث المنطقة', 'error');
+                    log.error('âŒ Error updating zone:', error);
+                    showNotification('Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'error');
                 }
             });
         }
         
-        console.log('✅ Event listeners setup completed');
+        log.debug('âœ… Event listeners setup completed');
     } catch (error) {
-        console.error('❌ Error setting up event listeners:', error);
-        showNotification('خطأ في إعداد الصفحة', 'error');
+        log.error('âŒ Error setting up event listeners:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¹Ø¯Ø§Ø¯ Ø§Ù„ØµÙØ­Ø©', 'error');
     }
 }
 
@@ -487,12 +490,12 @@ async function addZone() {
             longitude: parseFloat(formData.get('longitude')) || null
         };
         
-        // التحقق من صحة البيانات
+        // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
         if (!zoneData.name || !zoneData.code) {
-            throw new Error('اسم المنطقة ورمز المنطقة مطلوبان');
+            throw new Error('Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø© ÙˆØ±Ù…Ø² Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù…Ø·Ù„ÙˆØ¨Ø§Ù†');
         }
         
-        console.log('🔄 Adding new zone:', zoneData);
+        log.debug('ðŸ”„ Adding new zone:', zoneData);
         
         if (!window.apiService) {
             throw new Error('API service not available');
@@ -500,23 +503,23 @@ async function addZone() {
         
         const response = await window.apiService.createZone(zoneData);
         if (response.success) {
-            showNotification('تم إضافة المنطقة بنجاح', 'success');
+            showNotification('ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
             
-            // إغلاق النافذة وإعادة تعيين النموذج
+            // Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù†Ø§ÙØ°Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù†Ù…ÙˆØ°Ø¬
             const modal = bootstrap.Modal.getInstance(document.getElementById('addZoneModal'));
             if (modal) {
                 modal.hide();
             }
             form.reset();
             
-            // إعادة تحميل البيانات
+            // Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
             await loadZonesData();
         } else {
             throw new Error(response.message || 'Failed to create zone');
         }
     } catch (error) {
-        console.error('❌ Error adding zone:', error);
-        showNotification('خطأ في إضافة المنطقة: ' + error.message, 'error');
+        log.error('âŒ Error adding zone:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù†Ø·Ù‚Ø©: ' + error.message, 'error');
     }
 }
 
@@ -542,12 +545,12 @@ async function updateZone() {
             longitude: parseFloat(formData.get('longitude')) || null
         };
         
-        // التحقق من صحة البيانات
+        // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
         if (!zoneData.name || !zoneData.code) {
-            throw new Error('اسم المنطقة ورمز المنطقة مطلوبان');
+            throw new Error('Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø© ÙˆØ±Ù…Ø² Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù…Ø·Ù„ÙˆØ¨Ø§Ù†');
         }
         
-        console.log('🔄 Updating zone:', currentZoneId, zoneData);
+        log.debug('ðŸ”„ Updating zone:', currentZoneId, zoneData);
         
         if (!window.apiService) {
             throw new Error('API service not available');
@@ -555,9 +558,9 @@ async function updateZone() {
         
         const response = await window.apiService.updateZone(currentZoneId, zoneData);
         if (response.success) {
-            showNotification('تم تحديث المنطقة بنجاح', 'success');
+            showNotification('ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
             
-            // إغلاق النافذة وإعادة تعيين النموذج
+            // Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù†Ø§ÙØ°Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù†Ù…ÙˆØ°Ø¬
             const modal = bootstrap.Modal.getInstance(document.getElementById('editZoneModal'));
             if (modal) {
                 modal.hide();
@@ -565,20 +568,20 @@ async function updateZone() {
             form.reset();
             currentZoneId = null;
             
-            // إعادة تحميل البيانات
+            // Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
             await loadZonesData();
         } else {
             throw new Error(response.message || 'Failed to update zone');
         }
     } catch (error) {
-        console.error('❌ Error updating zone:', error);
-        showNotification('خطأ في تحديث المنطقة: ' + error.message, 'error');
+        log.error('âŒ Error updating zone:', error);
+        showNotification('Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ù†Ø·Ù‚Ø©: ' + error.message, 'error');
     }
 }
 
 function showNotification(message, type = 'info') {
     try {
-        // محاولة استخدام خدمة الإشعارات المتاحة
+        // Ù…Ø­Ø§ÙˆÙ„Ø© Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø®Ø¯Ù…Ø© Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…ØªØ§Ø­Ø©
         if (window.notificationManager) {
             window.notificationManager.show({ message, type });
         } else if (window.NotificationService) {
@@ -586,12 +589,12 @@ function showNotification(message, type = 'info') {
         } else if (window.GlobalUIHandler && window.GlobalUIHandler.showNotification) {
             window.GlobalUIHandler.showNotification(message, type);
         } else {
-            // استخدام alert كبديل
-            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+            // Ø§Ø³ØªØ®Ø¯Ø§Ù… alert ÙƒØ¨Ø¯ÙŠÙ„
+            log.debug(`ðŸ“¢ ${type.toUpperCase()}: ${message}`);
             alert(message);
         }
     } catch (error) {
-        console.error('❌ Error showing notification:', error);
-        console.log(`📢 ${type.toUpperCase()}: ${message}`);
+        log.error('âŒ Error showing notification:', error);
+        log.debug(`ðŸ“¢ ${type.toUpperCase()}: ${message}`);
     }
 }
