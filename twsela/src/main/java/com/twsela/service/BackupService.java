@@ -72,7 +72,6 @@ public class BackupService {
             command.add("-h" + host);
             command.add("-P" + port);
             command.add("-u" + dbUsername);
-            command.add("-p" + dbPassword);
             command.add("--single-transaction");
             command.add("--routines");
             command.add("--triggers");
@@ -81,8 +80,9 @@ public class BackupService {
             command.add("--databases");
             command.add(dbName);
 
-            // Execute backup command
+            // Execute backup command — pass password via environment variable to avoid exposure in process listing
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.environment().put("MYSQL_PWD", dbPassword);
             processBuilder.redirectOutput(new File(backupFilePath));
             processBuilder.redirectErrorStream(true);
 

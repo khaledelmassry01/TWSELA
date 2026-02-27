@@ -33,10 +33,10 @@ class AuthService {
     }
 
     /**
-     * Get API base URL - Use centralized utility
+     * Get API base URL - Use centralized config
      */
     getApiBaseUrl() {
-        return 'http://localhost:8000';
+        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
     }
 
     /**
@@ -301,9 +301,9 @@ class AuthService {
             }
 
             // For other errors (network, server errors), don't clear auth data
-            // This prevents logout on temporary network issues
-            console.warn('⚠️ Auth/me returned non-200 status, keeping user logged in');
-            return true; // Return true to keep user logged in on network errors
+            // but don't bypass authentication either
+            console.warn('⚠️ Auth/me returned non-200 status, auth check inconclusive');
+            return false; // Return false — require re-authentication on server errors
         } catch (error) {
             console.error('🔐 Auth Service Error - Perform Auth Check:', {
                 method: 'performAuthCheck',
@@ -313,9 +313,9 @@ class AuthService {
             });
 
             // Don't clear auth data on network errors
-            // This prevents logout on temporary network issues
-            console.warn('⚠️ Network error during auth check, keeping user logged in');
-            return true; // Return true to keep user logged in on network errors
+            // but don't bypass authentication either
+            console.warn('⚠️ Network error during auth check, auth check inconclusive');
+            return false; // Return false — require re-authentication on network errors
         }
     }
 

@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public endpoints - no authentication required
                 .requestMatchers("/api/health").permitAll()
-                .requestMatchers("/api/auth/login", "/api/v1/auth/**", "/api/public/**", "/api/debug/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/v1/auth/**", "/api/public/**").permitAll()
                 // Swagger/OpenAPI documentation endpoints
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
@@ -78,8 +78,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/merchants/**").hasAnyRole("OWNER", "ADMIN")
                 // All other API requests require authentication
                 .requestMatchers("/api/**").authenticated()
-                // Static resources are permitted
-                .anyRequest().permitAll()
+                // All other requests require authentication
+                .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)

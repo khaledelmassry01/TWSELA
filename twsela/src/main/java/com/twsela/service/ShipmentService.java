@@ -1,6 +1,7 @@
 package com.twsela.service;
 
 import com.twsela.domain.*;
+import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,8 @@ public class ShipmentService {
     private final RecipientDetailsRepository recipientDetailsRepository;
     private final ShipmentManifestRepository shipmentManifestRepository;
     private final TelemetrySettingsRepository telemetrySettingsRepository;
+    private final CourierLocationHistoryRepository courierLocationHistoryRepository;
+    private final ReturnShipmentRepository returnShipmentRepository;
 
     public ShipmentService(ShipmentRepository shipmentRepository, UserRepository userRepository, 
                           ZoneRepository zoneRepository, CourierZoneRepository courierZoneRepository,
@@ -38,7 +41,9 @@ public class ShipmentService {
                           DeliveryPricingRepository deliveryPricingRepository,
                           RecipientDetailsRepository recipientDetailsRepository,
                           ShipmentManifestRepository shipmentManifestRepository,
-                          TelemetrySettingsRepository telemetrySettingsRepository) {
+                          TelemetrySettingsRepository telemetrySettingsRepository,
+                          CourierLocationHistoryRepository courierLocationHistoryRepository,
+                          ReturnShipmentRepository returnShipmentRepository) {
         this.shipmentRepository = shipmentRepository;
         this.userRepository = userRepository;
         this.zoneRepository = zoneRepository;
@@ -49,6 +54,8 @@ public class ShipmentService {
         this.recipientDetailsRepository = recipientDetailsRepository;
         this.shipmentManifestRepository = shipmentManifestRepository;
         this.telemetrySettingsRepository = telemetrySettingsRepository;
+        this.courierLocationHistoryRepository = courierLocationHistoryRepository;
+        this.returnShipmentRepository = returnShipmentRepository;
     }
 
     // Legacy method - redirects to unified method
@@ -95,7 +102,7 @@ public class ShipmentService {
         }
         
         // Set initial status
-        ShipmentStatus pendingStatus = shipmentStatusRepository.findByName("PENDING_APPROVAL")
+        ShipmentStatus pendingStatus = shipmentStatusRepository.findByName(PENDING_APPROVAL)
             .orElseThrow(() -> new RuntimeException("PENDING_APPROVAL status not found"));
         shipment.setStatus(pendingStatus);
         
@@ -189,7 +196,7 @@ public class ShipmentService {
         manifest = shipmentManifestRepository.save(manifest);
         
         // Assign manifest to shipments
-        ShipmentStatus assignedStatus = shipmentStatusRepository.findByName("ASSIGNED_TO_COURIER").orElseThrow();
+        ShipmentStatus assignedStatus = shipmentStatusRepository.findByName(ASSIGNED_TO_COURIER).orElseThrow();
         for (Shipment shipment : shipmentsToAssign) {
             shipment.setManifest(manifest);
             shipment.setStatus(assignedStatus);
@@ -205,7 +212,7 @@ public class ShipmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Shipment not found: " + trackingNumber));
         
         // Handle failed delivery scenarios
-        if ("FAILED_ATTEMPT".equals(status.getName()) && reason != null) {
+        if (FAILED_ATTEMPT.equals(status.getName()) && reason != null) {
             ShipmentStatus specificStatus = determineSpecificFailedStatus(reason);
             shipment.setStatus(specificStatus);
         } else {
@@ -215,7 +222,7 @@ public class ShipmentService {
         shipment.setUpdatedAt(Instant.now());
         
         // Set delivered timestamp if status is DELIVERED
-        if ("DELIVERED".equals(status.getName())) {
+        if (DELIVERED.equals(status.getName())) {
             shipment.setDeliveredAt(Instant.now());
         }
         
@@ -250,7 +257,7 @@ public class ShipmentService {
         }
         
         // Find shipments with APPROVED status in courier's zones
-        ShipmentStatus approvedStatus = shipmentStatusRepository.findByName("APPROVED").orElseThrow();
+        ShipmentStatus approvedStatus = shipmentStatusRepository.findByName(APPROVED).orElseThrow();
         return shipmentRepository.findByStatusAndZoneIdIn(approvedStatus, zoneIds);
     }
 
@@ -268,13 +275,13 @@ public class ShipmentService {
                     .orElseThrow(() -> new RuntimeException("Shipment not found: " + shipmentId));
             
             // Verify shipment status is APPROVED
-            if (!shipment.getStatus().getName().equals("APPROVED")) {
+            if (!shipment.getStatus().getName().equals(APPROVED)) {
                 throw new RuntimeException("Shipment " + shipment.getTrackingNumber() + " is not in APPROVED status");
             }
             
             // Update shipment
             shipment.setManifest(manifest);
-            ShipmentStatus assignedStatus = shipmentStatusRepository.findByName("ASSIGNED_TO_COURIER").orElseThrow();
+            ShipmentStatus assignedStatus = shipmentStatusRepository.findByName(ASSIGNED_TO_COURIER).orElseThrow();
             shipment.setStatus(assignedStatus);
             shipment.setUpdatedAt(Instant.now());
             
@@ -357,7 +364,7 @@ public class ShipmentService {
         // Update POD information
         shipment.setPodType(Shipment.PodType.PHOTO);
         shipment.setPodData(imagePath);
-        ShipmentStatus deliveredStatus = shipmentStatusRepository.findByName("DELIVERED").orElseThrow();
+        ShipmentStatus deliveredStatus = shipmentStatusRepository.findByName(DELIVERED).orElseThrow();
         shipment.setStatus(deliveredStatus);
         shipment.setDeliveredAt(Instant.now());
         shipment.setUpdatedAt(Instant.now());
@@ -373,16 +380,16 @@ public class ShipmentService {
         
         if (lowerReason.contains("reschedule") || lowerReason.contains("postpone") || 
             lowerReason.contains("later") || lowerReason.contains("tomorrow")) {
-            return shipmentStatusRepository.findByName("POSTPONED").orElseThrow();
+            return shipmentStatusRepository.findByName(POSTPONED).orElseThrow();
         } else if (lowerReason.contains("address") || lowerReason.contains("phone") || 
                    lowerReason.contains("update") || lowerReason.contains("wrong")) {
-            return shipmentStatusRepository.findByName("PENDING_UPDATE").orElseThrow();
+            return shipmentStatusRepository.findByName(PENDING_UPDATE).orElseThrow();
         } else if (lowerReason.contains("return") || lowerReason.contains("refuse") || 
                    lowerReason.contains("reject") || lowerReason.contains("back")) {
-            return shipmentStatusRepository.findByName("PENDING_RETURN").orElseThrow();
+            return shipmentStatusRepository.findByName(PENDING_RETURN).orElseThrow();
         } else {
             // Default to POSTPONED for unknown reasons
-            return shipmentStatusRepository.findByName("POSTPONED").orElseThrow();
+            return shipmentStatusRepository.findByName(POSTPONED).orElseThrow();
         }
     }
 
@@ -474,8 +481,8 @@ public class ShipmentService {
             }
             
             // Set initial status
-            ShipmentStatus pendingStatus = shipmentStatusRepository.findByName("PENDING_APPROVAL")
-                .orElse(shipmentStatusRepository.findByName("PENDING")
+            ShipmentStatus pendingStatus = shipmentStatusRepository.findByName(PENDING_APPROVAL)
+                .orElse(shipmentStatusRepository.findByName(PENDING)
                     .orElseThrow(() -> new RuntimeException("PENDING status not found")));
             shipment.setStatus(pendingStatus);
             
@@ -556,7 +563,7 @@ public class ShipmentService {
     public Shipment createReturnShipment(Shipment originalShipment, String reason) {
         try {
             // 1. Update original shipment status to RETURNED_TO_ORIGIN
-            ShipmentStatus returnedStatus = shipmentStatusRepository.findByName("RETURNED_TO_ORIGIN")
+            ShipmentStatus returnedStatus = shipmentStatusRepository.findByName(RETURNED_TO_ORIGIN)
                     .orElseThrow(() -> new RuntimeException("RETURNED_TO_ORIGIN status not found"));
             
             originalShipment.setStatus(returnedStatus);
@@ -580,8 +587,8 @@ public class ShipmentService {
             returnShipment.setCashReconciled(false);
             
             // Set initial status for return shipment
-            ShipmentStatus pendingStatus = shipmentStatusRepository.findByName("PENDING_APPROVAL")
-                    .orElse(shipmentStatusRepository.findByName("PENDING")
+            ShipmentStatus pendingStatus = shipmentStatusRepository.findByName(PENDING_APPROVAL)
+                    .orElse(shipmentStatusRepository.findByName(PENDING)
                             .orElseThrow(() -> new RuntimeException("PENDING status not found")));
             returnShipment.setStatus(pendingStatus);
             
@@ -595,10 +602,8 @@ public class ShipmentService {
             createStatusHistory(savedReturnShipment, pendingStatus, "Return shipment created for: " + originalShipment.getTrackingNumber());
             
             // 3. Record the relationship in return_shipments table
-            // This would require a ReturnShipment entity and repository
-            // For now, we'll add a note to the return shipment
-            savedReturnShipment.setRecipientNotes("Return shipment for: " + originalShipment.getTrackingNumber() + " - Reason: " + reason);
-            shipmentRepository.save(savedReturnShipment);
+            ReturnShipment returnRecord = new ReturnShipment(originalShipment, savedReturnShipment, reason);
+            returnShipmentRepository.save(returnRecord);
             
             return savedReturnShipment;
         } catch (Exception e) {
@@ -631,9 +636,7 @@ public class ShipmentService {
             locationHistory.setTimestamp(Instant.now());
             
             // Save location history
-            // This would require CourierLocationHistoryRepository
-            // For now, we'll just log the action
-            System.out.println("Courier " + courier.getName() + " location updated: " + latitude + ", " + longitude);
+            courierLocationHistoryRepository.save(locationHistory);
             
         } catch (Exception e) {
             throw new RuntimeException("Failed to update courier location: " + e.getMessage(), e);

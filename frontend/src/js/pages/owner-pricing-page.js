@@ -23,9 +23,7 @@ async function loadPricingData() {
     try {
         const pricingData = await apiService.getPricingPlans();
         updatePricingDisplay(pricingData);
-    } catch (error) {
-        
-    }
+    } catch (error) { console.error('Unhandled error:', error); }
 }
 
 function updatePricingDisplay(pricingData) {

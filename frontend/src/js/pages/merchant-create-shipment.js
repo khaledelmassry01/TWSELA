@@ -27,10 +27,7 @@ class MerchantCreateShipmentHandler {
             await this.loadZones();
             this.setupEventListeners();
             this.initializeForm();
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -310,10 +307,7 @@ class MerchantCreateShipmentHandler {
             } else {
                 
             }
-        } catch (error) {
-
-            
-        } finally {
+        } catch (error) { console.error('Unhandled error:', error); } finally {
             UIUtils.hideLoading();
         }
     }

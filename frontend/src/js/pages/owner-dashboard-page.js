@@ -130,9 +130,9 @@ class OwnerDashboardHandler extends BasePageHandler {
         shipmentsArray.forEach(shipment => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${shipment.trackingNumber || 'غير محدد'}</td>
-                <td>${shipment.merchant?.name || 'غير محدد'}</td>
-                <td><span class="badge bg-primary">${shipment.status?.name || 'غير محدد'}</span></td>
+                <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
+                <td>${escapeHtml(shipment.merchant?.name || 'غير محدد')}</td>
+                <td><span class="badge bg-primary">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
                 <td>${shipment.createdAt ? new Date(shipment.createdAt).toLocaleDateString('ar-SA') : 'غير محدد'}</td>
             `;
             tbody.appendChild(row);

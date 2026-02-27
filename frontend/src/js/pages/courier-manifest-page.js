@@ -21,9 +21,7 @@ async function loadManifestData() {
     try {
         const manifestData = await apiService.getCourierManifest();
         updateManifestDisplay(manifestData);
-    } catch (error) {
-        
-    }
+    } catch (error) { console.error('Unhandled error:', error); }
 }
 
 function updateManifestDisplay(manifestData) {

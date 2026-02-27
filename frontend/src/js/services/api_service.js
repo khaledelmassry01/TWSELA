@@ -16,10 +16,10 @@ class ApiService {
     }
 
     /**
-     * Get API base URL - Use centralized utility
+     * Get API base URL - Use centralized config
      */
     getApiBaseUrl() {
-        return 'http://localhost:8000';
+        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
     }
 
     /**
@@ -37,6 +37,7 @@ class ApiService {
      * @returns {Promise<Object>} API response
      */
     async request(endpoint, options = {}) {
+        let url = '';
         try {
             // فحص وجود التوكن قبل الطلب
             const token = localStorage.getItem('authToken');
@@ -50,7 +51,7 @@ class ApiService {
                 };
             }
 
-            const url = `${this.apiBaseUrl}${endpoint}`;
+            url = `${this.apiBaseUrl}${endpoint}`;
             const headers = {
                 ...this.defaultHeaders,
                 ...this.getAuthHeaders(),
@@ -1092,14 +1093,15 @@ class ApiService {
      * Get paginated data
      */
     async getPaginatedData(endpoint, page = 1, limit = 10, filters = {}) {
-        const params = {
-            page,
-            limit,
-            ...filters
-        };
-        return this.request(endpoint, {
-            method: 'GET',
-            body: JSON.stringify(params)
+        const params = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            ...Object.fromEntries(
+                Object.entries(filters).map(([k, v]) => [k, String(v)])
+            )
+        });
+        return this.request(`${endpoint}?${params.toString()}`, {
+            method: 'GET'
         });
     }
 
@@ -1107,13 +1109,14 @@ class ApiService {
      * Search data
      */
     async searchData(endpoint, query, filters = {}) {
-        const params = {
+        const params = new URLSearchParams({
             q: query,
-            ...filters
-        };
-        return this.request(endpoint, {
-            method: 'GET',
-            body: JSON.stringify(params)
+            ...Object.fromEntries(
+                Object.entries(filters).map(([k, v]) => [k, String(v)])
+            )
+        });
+        return this.request(`${endpoint}?${params.toString()}`, {
+            method: 'GET'
         });
     }
 

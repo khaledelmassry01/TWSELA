@@ -8,6 +8,18 @@
 
 class SharedDataUtils {
     /**
+     * Escape HTML to prevent XSS attacks
+     * @param {string} str - Raw string (potentially from user/server data)
+     * @returns {string} HTML-safe string
+     */
+    static escapeHtml(str) {
+        if (str == null) return '';
+        const s = String(str);
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return s.replace(/[&<>"']/g, c => map[c]);
+    }
+
+    /**
      * Get status badge class
      * @param {string} status - Status value
      * @returns {string} CSS class for badge
@@ -545,6 +557,8 @@ class SharedDataUtils {
 
 // Create global instance
 window.SharedDataUtils = SharedDataUtils;
+// Shorthand for XSS-safe HTML escaping
+window.escapeHtml = SharedDataUtils.escapeHtml;
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {

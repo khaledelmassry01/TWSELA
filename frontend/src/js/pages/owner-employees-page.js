@@ -74,10 +74,10 @@ class OwnerEmployeesHandler extends BasePageHandler {
         this.employees.forEach(employee => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${employee.name || 'غير محدد'}</td>
-                <td>${employee.phone || 'غير محدد'}</td>
-                <td><span class="badge bg-${this.getStatusColor(employee.status)}">${employee.status?.name || 'غير محدد'}</span></td>
-                <td>${employee.role?.name || 'غير محدد'}</td>
+                <td>${escapeHtml(employee.name || 'غير محدد')}</td>
+                <td>${escapeHtml(employee.phone || 'غير محدد')}</td>
+                <td><span class="badge bg-${this.getStatusColor(employee.status)}">${escapeHtml(employee.status?.name || 'غير محدد')}</span></td>
+                <td>${escapeHtml(employee.role?.name || 'غير محدد')}</td>
                 <td>${this.formatDate(employee.createdAt)}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary" onclick="ownerEmployeesHandler.editEmployee(${employee.id})">

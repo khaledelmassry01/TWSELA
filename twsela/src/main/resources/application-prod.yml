@@ -1,0 +1,44 @@
+# Production Profile — Override development defaults
+# Activate with: SPRING_PROFILES_ACTIVE=prod
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+
+server:
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:true}
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration-ms: ${JWT_EXPIRATION:86400000}
+
+logging:
+  level:
+    root: WARN
+    com.twsela: INFO
+  file:
+    name: ${LOG_FILE_PATH:/var/log/twsela/twsela.log}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false

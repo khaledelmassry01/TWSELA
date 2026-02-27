@@ -55,10 +55,7 @@ class OwnerReportsHandler extends BasePageHandler {
                     await this.loadOverviewReport();
             }
             
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -85,9 +82,7 @@ class OwnerReportsHandler extends BasePageHandler {
 
             this.updateOverviewDisplay();
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -104,9 +99,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateShipmentsReport();
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -123,9 +116,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateCouriersReport();
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -142,9 +133,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateMerchantsReport();
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -170,9 +159,7 @@ class OwnerReportsHandler extends BasePageHandler {
                 this.updateRevenueReport();
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -214,10 +201,10 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(shipment => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${shipment.trackingNumber || 'غير محدد'}</td>
-                    <td>${shipment.merchant?.name || 'غير محدد'}</td>
-                    <td>${shipment.courier?.name || 'غير محدد'}</td>
-                    <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${shipment.status?.name || 'غير محدد'}</span></td>
+                    <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
+                    <td>${escapeHtml(shipment.merchant?.name || 'غير محدد')}</td>
+                    <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
                     <td>${this.formatCurrency(shipment.totalAmount)}</td>
                     <td>${this.formatDate(shipment.createdAt)}</td>
                 `;
@@ -241,9 +228,9 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(courier => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${courier.name || 'غير محدد'}</td>
-                    <td>${courier.phone || 'غير محدد'}</td>
-                    <td><span class="badge bg-${this.getStatusColor(courier.status)}">${courier.status?.name || 'غير محدد'}</span></td>
+                    <td>${escapeHtml(courier.name || 'غير محدد')}</td>
+                    <td>${escapeHtml(courier.phone || 'غير محدد')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(courier.status)}">${escapeHtml(courier.status?.name || 'غير محدد')}</span></td>
                     <td>${courier.totalDeliveries || 0}</td>
                     <td>${this.formatDate(courier.createdAt)}</td>
                 `;
@@ -267,9 +254,9 @@ class OwnerReportsHandler extends BasePageHandler {
             data.forEach(merchant => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${merchant.name || 'غير محدد'}</td>
-                    <td>${merchant.phone || 'غير محدد'}</td>
-                    <td><span class="badge bg-${this.getStatusColor(merchant.status)}">${merchant.status?.name || 'غير محدد'}</span></td>
+                    <td>${escapeHtml(merchant.name || 'غير محدد')}</td>
+                    <td>${escapeHtml(merchant.phone || 'غير محدد')}</td>
+                    <td><span class="badge bg-${this.getStatusColor(merchant.status)}">${escapeHtml(merchant.status?.name || 'غير محدد')}</span></td>
                     <td>${merchant.totalShipments || 0}</td>
                     <td>${this.formatDate(merchant.createdAt)}</td>
                 `;
@@ -321,9 +308,7 @@ class OwnerReportsHandler extends BasePageHandler {
             // Initialize revenue chart
             this.initRevenueChart();
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -502,10 +487,7 @@ class OwnerReportsHandler extends BasePageHandler {
 
             // TODO: Implement export functionality
             this.showInfo('تصدير التقرير قيد التطوير');
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 }
 

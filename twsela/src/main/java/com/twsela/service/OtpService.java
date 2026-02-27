@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -35,7 +35,7 @@ public class OtpService {
      */
     public String generateOtp(String phone) {
         // Generate 6-digit OTP
-        String otp = String.format("%06d", new Random().nextInt(1000000));
+        String otp = String.format("%06d", new SecureRandom().nextInt(1000000));
         
         // Store OTP with expiry time
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES);

@@ -32,7 +32,7 @@ services:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     networks:
@@ -55,13 +55,12 @@ services:
   mysql:
     image: mysql:8.0
     container_name: twsela-mysql
-    ports:
-      - "3306:3306"
+    # Port not exposed externally for security - access via Docker network only
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: twsela
       MYSQL_USER: twsela
-      MYSQL_PASSWORD: twsela123
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-twsela123}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./twsela/src/main/resources/db/migration/twsela.sql:/docker-entrypoint-initdb.d/init.sql

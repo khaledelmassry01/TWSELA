@@ -2,6 +2,8 @@ package com.twsela.config;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,8 +13,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-//@Component  // Temporarily disabled for Swagger testing
+@Component
 public class DataInitializer implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
     private RoleRepository roleRepository;
@@ -41,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            System.out.println("🚀 Starting data initialization...");
+            log.info("Starting data initialization...");
             initializeRoles();
             initializeUserStatuses();
             initializeShipmentStatuses();
@@ -49,20 +53,17 @@ public class DataInitializer implements CommandLineRunner {
             initializeZones();
             initializeTelemetrySettings();
             initializeUsers();
-            System.out.println("✅ Data initialization completed successfully!");
+            log.info("Data initialization completed successfully");
             
             // Verify zones were created
             long zoneCount = zoneRepository.count();
-            System.out.println("📊 Total zones in database: " + zoneCount);
-            if (zoneCount > 0) {
-                System.out.println("✅ Zones are available in database");
-            } else {
-                System.err.println("❌ No zones found in database!");
+            log.info("Total zones in database: {}", zoneCount);
+            if (zoneCount == 0) {
+                log.warn("No zones found in database!");
             }
         } catch (Exception e) {
-            System.err.println("❌ DataInitializer: Critical error during initialization: " + e.getMessage());
-            e.printStackTrace();
-            throw e; // Re-throw to prevent application startup with incomplete data
+            log.error("Critical error during data initialization", e);
+            throw e;
         }
     }
 
@@ -92,15 +93,12 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeShipmentStatuses() {
-        if (shipmentStatusRepository.count() == 0) {
-            List<String> statusNames = Arrays.asList(
-                    "PENDING", "PROCESSING", "OUT_FOR_DELIVERY", "DELIVERED",
-                    "FAILED_DELIVERY", "RETURNED", "CANCELLED", "ON_HOLD"
-            );
-            for (String name : statusNames) {
+        for (String name : ShipmentStatusConstants.ALL_STATUSES) {
+            if (!shipmentStatusRepository.existsByName(name)) {
                 ShipmentStatus status = new ShipmentStatus();
                 status.setName(name);
                 shipmentStatusRepository.save(status);
+                log.info("Created shipment status: {}", name);
             }
         }
     }
@@ -118,22 +116,21 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializeZones() {
         if (zoneRepository.count() == 0) {
-            System.out.println("🏗️ Initializing zones...");
+            log.info("Initializing zones...");
             List<String> zoneNames = Arrays.asList("CAIRO", "GIZA", "ALEXANDRIA", "SHARQIA", "DAKAHLEIA");
             for (String name : zoneNames) {
                 Zone zone = new Zone();
                 zone.setName(name);
                 zone.setDescription(name + " zone");
                 zone.setStatus(ZoneStatus.ZONE_ACTIVE);
-                zone.setDefaultFee(new java.math.BigDecimal("50.00")); // إضافة الرسوم الافتراضية
-                zone.setCenterLatitude(new java.math.BigDecimal("30.0444")); // إضافة إحداثيات افتراضية
+                zone.setDefaultFee(new java.math.BigDecimal("50.00"));
+                zone.setCenterLatitude(new java.math.BigDecimal("30.0444"));
                 zone.setCenterLongitude(new java.math.BigDecimal("31.2357"));
                 zoneRepository.save(zone);
-                System.out.println("✅ Created zone: " + name);
+                log.info("Created zone: {}", name);
             }
-            System.out.println("✅ Zones initialization completed!");
         } else {
-            System.out.println("ℹ️ Zones already exist, skipping initialization");
+            log.debug("Zones already exist, skipping initialization");
         }
     }
 
@@ -189,8 +186,7 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(admin);
 
             } catch (Exception e) {
-                System.err.println("❌ DataInitializer: Error initializing users: " + e.getMessage());
-                e.printStackTrace();
+                log.error("Error initializing users", e);
                 throw new RuntimeException("Failed to initialize users: " + e.getMessage(), e);
             }
         }

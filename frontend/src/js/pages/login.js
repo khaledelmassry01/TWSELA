@@ -518,9 +518,7 @@ class LoginPageHandler {
      * @returns {string} API base URL
      */
     getApiBaseUrl() {
-        // Force localhost for development - no external domains
-        const url = 'http://localhost:8000';
-        return url;
+        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
     }
 
     /**
@@ -751,10 +749,7 @@ class LoginPageHandler {
         try {
             // Here you would implement the password reset logic
             this.showSuccessMessage('تم إرسال رمز إعادة تعيين كلمة المرور');
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**

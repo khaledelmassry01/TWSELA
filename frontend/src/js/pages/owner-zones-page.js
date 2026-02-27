@@ -234,8 +234,8 @@ function createZoneRow(zone) {
     } else {
         // Fallback if GlobalUIHandler is not available
         row.innerHTML = `
-            <td>${zone.name || 'غير محدد'}</td>
-            <td>${zone.status || 'غير محدد'}</td>
+            <td>${escapeHtml(zone.name || 'غير محدد')}</td>
+            <td>${escapeHtml(zone.status || 'غير محدد')}</td>
             <td>${zone.deliveryFee || '0'} جنيه</td>
             <td>${zone.couriers || '0'}</td>
             <td>

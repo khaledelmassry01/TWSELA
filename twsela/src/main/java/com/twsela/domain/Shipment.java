@@ -21,6 +21,17 @@ import java.util.Set;
         @Index(name = "idx_ship_zone", columnList = "zone_id")
     }
 )
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "Shipment.summary",
+        attributeNodes = {
+            @NamedAttributeNode("merchant"),
+            @NamedAttributeNode("zone"),
+            @NamedAttributeNode("status"),
+            @NamedAttributeNode("recipientDetails")
+        }
+    )
+})
 public class Shipment {
 
     @Id
@@ -30,7 +41,7 @@ public class Shipment {
     @Column(name = "tracking_number", nullable = false, unique = true, length = 50)
     private String trackingNumber;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id", nullable = false)
     private User merchant;
 
@@ -38,15 +49,15 @@ public class Shipment {
     @JoinColumn(name = "manifest_id")
     private ShipmentManifest manifest;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", nullable = false)
     private ShipmentStatus status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_detail_id", nullable = false)
     private RecipientDetails recipientDetails;
 

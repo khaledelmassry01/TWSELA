@@ -24,9 +24,7 @@ async function loadWarehouseData() {
     try {
         const warehouseData = await apiService.getWarehouseReports();
         updateWarehouseDisplay(warehouseData);
-    } catch (error) {
-        
-    }
+    } catch (error) { console.error('Unhandled error:', error); }
 }
 
 function updateWarehouseDisplay(warehouseData) {

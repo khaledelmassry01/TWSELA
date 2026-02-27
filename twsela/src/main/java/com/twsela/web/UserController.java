@@ -3,6 +3,10 @@ package com.twsela.web;
 import com.twsela.domain.User;
 import com.twsela.domain.Role;
 import com.twsela.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,7 @@ import java.util.HashMap;
 @RequestMapping("/api")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -35,8 +40,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error retrieving users: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving users", e);
             
             response.put("success", false);
             response.put("message", "Failed to retrieve users: " + e.getMessage());
@@ -48,7 +52,7 @@ public class UserController {
 
     @PostMapping("/users")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<Map<String, Object>> createUser(@Valid @RequestBody CreateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             
@@ -69,8 +73,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error creating user: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error creating user", e);
             
             response.put("success", false);
             response.put("message", "Failed to create user: " + e.getMessage());
@@ -81,7 +84,7 @@ public class UserController {
 
     @PutMapping("/users/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             
@@ -100,8 +103,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error updating user: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error updating user", e);
             
             response.put("success", false);
             response.put("message", "Failed to update user: " + e.getMessage());
@@ -124,8 +126,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error deleting user: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error deleting user", e);
             
             response.put("success", false);
             response.put("message", "Failed to delete user: " + e.getMessage());
@@ -136,9 +137,13 @@ public class UserController {
 
     // DTOs for request/response
     public static class CreateUserRequest {
+        @NotBlank(message = "الاسم مطلوب")
         private String name;
+        @NotBlank(message = "رقم الهاتف مطلوب")
         private String phone;
+        @NotBlank(message = "كلمة المرور مطلوبة")
         private String password;
+        @NotBlank(message = "الدور مطلوب")
         private String role;
         private Boolean active;
 
@@ -196,8 +201,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error retrieving couriers: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving couriers", e);
             
             response.put("success", false);
             response.put("message", "Failed to retrieve couriers: " + e.getMessage());
@@ -231,8 +235,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error retrieving merchants: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving merchants", e);
             
             response.put("success", false);
             response.put("message", "Failed to retrieve merchants: " + e.getMessage());
@@ -267,8 +270,7 @@ public class UserController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error retrieving employees: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving employees", e);
             
             response.put("success", false);
             response.put("message", "Failed to retrieve employees: " + e.getMessage());
@@ -280,7 +282,7 @@ public class UserController {
 
     @PostMapping("/employees")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createEmployee(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<Map<String, Object>> createEmployee(@Valid @RequestBody CreateUserRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             // Validate required fields
@@ -336,8 +338,7 @@ public class UserController {
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
-            System.err.println("❌ UserController: Error creating employee: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error creating employee", e);
             
             response.put("success", false);
             response.put("message", "فشل في إنشاء الموظف: " + e.getMessage());

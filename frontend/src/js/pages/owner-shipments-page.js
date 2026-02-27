@@ -58,10 +58,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
                 
             }
             
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -83,10 +80,10 @@ class OwnerShipmentsHandler extends BasePageHandler {
         this.shipments.forEach(shipment => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${shipment.trackingNumber || 'غير محدد'}</td>
-                <td>${shipment.merchant?.name || 'غير محدد'}</td>
-                <td>${shipment.courier?.name || 'غير محدد'}</td>
-                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${shipment.status?.name || 'غير محدد'}</span></td>
+                <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
+                <td>${escapeHtml(shipment.merchant?.name || 'غير محدد')}</td>
+                <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
+                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
                 <td>${this.formatCurrency(shipment.totalAmount)}</td>
                 <td>${this.formatDate(shipment.createdAt)}</td>
                 <td>${this.formatDate(shipment.deliveryDate)}</td>
@@ -232,10 +229,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
 
             // TODO: Implement view functionality
             this.showInfo('عرض تفاصيل الشحنة قيد التطوير');
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -246,10 +240,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
 
             // TODO: Implement edit functionality
             this.showInfo('تعديل الشحنة قيد التطوير');
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -283,10 +274,7 @@ class OwnerShipmentsHandler extends BasePageHandler {
 
             // TODO: Implement export functionality
             this.showInfo('تصدير الشحنات قيد التطوير');
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 }
 

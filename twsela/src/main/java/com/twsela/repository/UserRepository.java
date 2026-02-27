@@ -3,6 +3,8 @@ package com.twsela.repository;
 import com.twsela.domain.User;
 import com.twsela.domain.Role;
 import com.twsela.domain.UserStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +24,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPhoneWithRoleAndStatus(@Param("phone") String phone);
     
     boolean existsByPhone(String phone);
+    
+    // Paginated query excluding OWNER role (for ADMIN use)
+    @Query("SELECT u FROM User u JOIN u.role r WHERE r.name <> 'OWNER' AND u.isDeleted = false")
+    Page<User> findAllExcludingOwners(Pageable pageable);
+    
+    // Paginated query for all non-deleted users
+    @Query("SELECT u FROM User u WHERE u.isDeleted = false")
+    Page<User> findAllNonDeleted(Pageable pageable);
     
     // Optimized queries with JOIN FETCH to avoid N+1 problems
     @Query("SELECT u FROM User u JOIN FETCH u.role WHERE u.role.name = :roleName")

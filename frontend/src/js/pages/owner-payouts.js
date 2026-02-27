@@ -30,10 +30,7 @@ class OwnerPayoutsHandler {
             await this.loadPayouts();
             this.initializeDataTable();
             this.loadSummaryStats();
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -167,10 +164,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to load payouts');
             }
-        } catch (error) {
-
-            
-        } finally {
+        } catch (error) { console.error('Unhandled error:', error); } finally {
             GlobalUIHandler.hideLoading();
         }
     }
@@ -188,9 +182,7 @@ class OwnerPayoutsHandler {
             if (response.success) {
                 this.updateSummaryStats(response.data);
             }
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -344,10 +336,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to load payout');
             }
-        } catch (error) {
-
-            
-        } finally {
+        } catch (error) { console.error('Unhandled error:', error); } finally {
             GlobalUIHandler.hideLoading();
         }
     }
@@ -371,10 +360,7 @@ class OwnerPayoutsHandler {
                 } else {
                     throw new Error(response.message || 'Failed to approve payout');
                 }
-            } catch (error) {
-
-                
-            } finally {
+            } catch (error) { console.error('Unhandled error:', error); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -400,10 +386,7 @@ class OwnerPayoutsHandler {
                 } else {
                     throw new Error(response.message || 'Failed to reject payout');
                 }
-            } catch (error) {
-
-                
-            } finally {
+            } catch (error) { console.error('Unhandled error:', error); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -438,10 +421,7 @@ class OwnerPayoutsHandler {
                 
                 this.loadPayouts();
                 this.loadSummaryStats();
-            } catch (error) {
-
-                
-            } finally {
+            } catch (error) { console.error('Unhandled error:', error); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -477,10 +457,7 @@ class OwnerPayoutsHandler {
                 
                 this.loadPayouts();
                 this.loadSummaryStats();
-            } catch (error) {
-
-                
-            } finally {
+            } catch (error) { console.error('Unhandled error:', error); } finally {
                 GlobalUIHandler.hideLoading();
             }
         }
@@ -540,10 +517,7 @@ class OwnerPayoutsHandler {
             } else {
                 throw new Error(response.message || 'Failed to export data');
             }
-        } catch (error) {
-
-            
-        } finally {
+        } catch (error) { console.error('Unhandled error:', error); } finally {
             GlobalUIHandler.hideLoading();
         }
     }

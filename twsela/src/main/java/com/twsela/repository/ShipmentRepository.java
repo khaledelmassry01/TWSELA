@@ -4,10 +4,12 @@ import com.twsela.domain.Shipment;
 import com.twsela.domain.ShipmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +17,39 @@ import java.util.Optional;
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     Optional<Shipment> findByTrackingNumber(String trackingNumber);
     
+    @EntityGraph(value = "Shipment.summary")
     Page<Shipment> findByStatus(ShipmentStatus status, Pageable pageable);
     List<Shipment> findByStatus(ShipmentStatus status);
+    
+    // ── Dashboard-optimised queries ─────────────────────────────────────
+
+    @EntityGraph(value = "Shipment.summary")
+    List<Shipment> findTop10ByOrderByUpdatedAtDesc();
+
+    @EntityGraph(value = "Shipment.summary")
+    List<Shipment> findTop10ByMerchantIdOrderByUpdatedAtDesc(Long merchantId);
+
+    @Query("SELECT COALESCE(SUM(s.deliveryFee), 0) FROM Shipment s WHERE s.status.name = :statusName")
+    BigDecimal sumDeliveryFeeByStatusName(@Param("statusName") String statusName);
+
+    @Query("SELECT COALESCE(SUM(s.deliveryFee), 0) FROM Shipment s WHERE s.merchant.id = :merchantId AND s.status.name = :statusName")
+    BigDecimal sumDeliveryFeeByMerchantIdAndStatusName(@Param("merchantId") Long merchantId, @Param("statusName") String statusName);
+
+    long countByMerchantIdAndCreatedAtBetween(Long merchantId, Instant start, Instant end);
+
+    long countByMerchantIdAndStatusName(Long merchantId, String statusName);
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.manifest.courier.id = :courierId AND s.createdAt BETWEEN :start AND :end")
+    long countByCourierIdAndCreatedAtBetween(@Param("courierId") Long courierId, @Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.manifest.courier.id = :courierId AND s.status.name = :statusName")
+    long countByCourierIdAndStatusName(@Param("courierId") Long courierId, @Param("statusName") String statusName);
+
+    @EntityGraph(value = "Shipment.summary")
+    @Query("SELECT s FROM Shipment s JOIN s.manifest m WHERE m.courier.id = :courierId ORDER BY s.updatedAt DESC LIMIT 10")
+    List<Shipment> findTop10ByCourierIdOrderByUpdatedAtDesc(@Param("courierId") Long courierId);
+
+    long countByStatusName(String statusName);
     
     // Optimized queries with proper joins and indexes
     @Query("SELECT s FROM Shipment s JOIN FETCH s.manifest m WHERE m.courier.id = :courierId")

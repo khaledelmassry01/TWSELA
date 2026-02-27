@@ -12,7 +12,7 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileUploadService {
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/pod/";
+    private static final String UPLOAD_DIR = System.getProperty("app.upload.dir", "uploads/pod/");
     private static final String PUBLIC_PATH = "/uploads/pod/";
 
     public String uploadPodImage(MultipartFile file, String trackingNumber) throws IOException {
@@ -27,21 +27,33 @@ public class FileUploadService {
             throw new IllegalArgumentException("File must be an image");
         }
 
+        // Sanitize tracking number to prevent path traversal
+        String sanitizedTrackingNumber = trackingNumber.replaceAll("[^a-zA-Z0-9_-]", "_");
+
         // Create upload directory if it doesn't exist
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+        Path uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Generate filename using tracking number
+        // Generate filename using sanitized tracking number
         String originalFilename = file.getOriginalFilename();
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            // Only allow safe extensions
+            if (!fileExtension.matches("\\.(jpg|jpeg|png|gif|webp)")) {
+                throw new IllegalArgumentException("Unsupported image format");
+            }
         }
 
-        String filename = trackingNumber + fileExtension;
-        Path filePath = uploadPath.resolve(filename);
+        String filename = sanitizedTrackingNumber + fileExtension;
+        Path filePath = uploadPath.resolve(filename).normalize();
+        
+        // Verify resolved path is still within upload directory (prevent path traversal)
+        if (!filePath.startsWith(uploadPath)) {
+            throw new SecurityException("Invalid file path detected");
+        }
 
         // Save file
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);

@@ -115,14 +115,19 @@ public class User {
     public Set<Payout> getPayouts() { return payouts; }
     public void setPayouts(Set<Payout> payouts) { this.payouts = payouts; }
     
-    // Additional methods for testing
+    // Convenience methods
     public void setActive(boolean active) {
-        // This method is for testing purposes only
-        // In production, status should be managed through proper status management
+        // Active status is derived from UserStatus + isDeleted flag.
+        // This setter toggles the isDeleted flag as a convenience:
+        // setActive(true)  → isDeleted = false
+        // setActive(false) → isDeleted = true  (soft-delete)
+        this.isDeleted = !active;
     }
     
     public void setDeleted(boolean deleted) {
-        // This method is for testing purposes only
-        // In production, deletion should be managed through soft delete mechanism
+        this.isDeleted = deleted;
+        if (deleted) {
+            this.deletedAt = java.time.Instant.now();
+        }
     }
 }

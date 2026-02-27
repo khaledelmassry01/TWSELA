@@ -46,10 +46,7 @@ class CourierDashboardHandler extends BasePageHandler {
             // Update courier info display
             this.updateCourierInfo(user);
             
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -68,7 +65,7 @@ class CourierDashboardHandler extends BasePageHandler {
 
         const courierStatusEl = document.getElementById('courierStatus');
         if (courierStatusEl) {
-            courierStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${user.status?.name || 'غير محدد'}</span>`;
+            courierStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'غير محدد')}</span>`;
         }
     }
 
@@ -93,9 +90,7 @@ class CourierDashboardHandler extends BasePageHandler {
 
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -147,9 +142,7 @@ class CourierDashboardHandler extends BasePageHandler {
 
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -190,9 +183,7 @@ class CourierDashboardHandler extends BasePageHandler {
             // Initialize performance chart
             this.initPerformanceChart();
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -346,10 +337,7 @@ class CourierDashboardHandler extends BasePageHandler {
                     
                 }
             }
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**

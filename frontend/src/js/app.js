@@ -177,12 +177,12 @@ class TwselaApp {
 
         // Global error handler
         window.addEventListener('error', (e) => {
-            // Global error handler
+            console.error('[Twsela Global Error]', e.message, '\nFile:', e.filename, '\nLine:', e.lineno, '\nCol:', e.colno);
         });
 
         // Unhandled promise rejection handler
         window.addEventListener('unhandledrejection', (e) => {
-            // Unhandled promise rejection handler
+            console.error('[Twsela Unhandled Rejection]', e.reason);
         });
     }
 
@@ -375,10 +375,10 @@ class TwselaApp {
     }
 
     /**
-     * Get API base URL - Use centralized utility
+     * Get API base URL - Use centralized config
      */
     getApiBaseUrl() {
-        return 'http://localhost:8000';
+        return window.TwselaConfig ? window.TwselaConfig.getApiBaseUrl() : 'http://localhost:8000';
     }
 
     /**

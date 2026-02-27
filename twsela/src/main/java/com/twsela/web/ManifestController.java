@@ -1,7 +1,10 @@
 package com.twsela.web;
 
 import com.twsela.domain.*;
+import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,7 +57,7 @@ public class ManifestController {
     }
 
     @PostMapping
-    public ResponseEntity<ShipmentManifest> createManifest(@RequestBody CreateManifestRequest request, Authentication authentication) {
+    public ResponseEntity<ShipmentManifest> createManifest(@Valid @RequestBody CreateManifestRequest request, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         
         // Only OWNER and ADMIN can create manifests
@@ -116,8 +119,11 @@ public class ManifestController {
         
         // Assign shipments to manifest
         for (Long shipmentId : shipmentIds) {
-            // TODO: Implement shipment assignment logic
-            System.out.println("Assigning shipment " + shipmentId + " to manifest " + manifestId);
+            Shipment shipment = shipmentRepository.findById(shipmentId).orElse(null);
+            if (shipment != null) {
+                shipment.setManifest(manifest);
+                shipmentRepository.save(shipment);
+            }
         }
         
         // Refresh manifest
@@ -235,9 +241,9 @@ public class ManifestController {
     
     private boolean isEligibleForManifestAssignment(Shipment shipment) {
         String statusName = shipment.getStatus().getName();
-        return statusName.equals("APPROVED") || 
-               statusName.equals("RECEIVED_AT_HUB") || 
-               statusName.equals("READY_FOR_DISPATCH");
+        return statusName.equals(APPROVED) || 
+               statusName.equals(RECEIVED_AT_HUB) || 
+               statusName.equals(READY_FOR_DISPATCH);
     }
 
     private User getCurrentUser(Authentication authentication) {
@@ -245,6 +251,7 @@ public class ManifestController {
     }
 
     public static class CreateManifestRequest {
+        @NotNull(message = "معرف المندوب مطلوب")
         public Long courierId;
         
         public CreateManifestRequest() {}

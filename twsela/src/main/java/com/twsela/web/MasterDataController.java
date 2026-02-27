@@ -2,6 +2,8 @@ package com.twsela.web;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN')")
 public class MasterDataController {
 
+    private static final Logger log = LoggerFactory.getLogger(MasterDataController.class);
+
     @Autowired
     private UserRepository userRepository;
     
@@ -35,6 +40,9 @@ public class MasterDataController {
     
     @Autowired
     private TelemetrySettingsRepository telemetrySettingsRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // ========== USER MANAGEMENT ==========
     
@@ -54,10 +62,10 @@ public class MasterDataController {
         // Filter users based on role
         Page<User> users;
         if (currentUser.getRole().getName().equals("OWNER")) {
-            users = userRepository.findAll(pageable);
+            users = userRepository.findAllNonDeleted(pageable);
         } else {
             // ADMIN can only see non-OWNER users
-            users = userRepository.findAll(pageable);
+            users = userRepository.findAllExcludingOwners(pageable);
         }
         
         return ResponseEntity.ok(users);
@@ -70,6 +78,11 @@ public class MasterDataController {
         // Only OWNER can create users
         if (!currentUser.getRole().getName().equals("OWNER")) {
             return ResponseEntity.status(403).build();
+        }
+        
+        // Hash password before saving
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         
         User createdUser = userRepository.save(user);
@@ -109,7 +122,14 @@ public class MasterDataController {
             return ResponseEntity.status(403).build();
         }
         
-        userRepository.deleteById(id);
+        // Soft delete — mark as deleted instead of removing from database
+        User userToDelete = userRepository.findById(id).orElse(null);
+        if (userToDelete == null) {
+            return ResponseEntity.notFound().build();
+        }
+        userToDelete.setIsDeleted(true);
+        userToDelete.setDeletedAt(java.time.Instant.now());
+        userRepository.save(userToDelete);
         return ResponseEntity.ok().build();
     }
 
@@ -119,29 +139,22 @@ public class MasterDataController {
     public ResponseEntity<List<Zone>> getAllZones(Authentication authentication) {
         try {
             User currentUser = getCurrentUser(authentication);
-            System.out.println("🔍 MasterDataController: Getting zones for user: " + currentUser.getName() + " (" + currentUser.getPhone() + ") with role: " + currentUser.getRole().getName());
+            log.debug("Getting zones for user: {} ({})", currentUser.getName(), currentUser.getRole().getName());
             
             // Filter zones based on role
             List<Zone> zones;
             if (currentUser.getRole().getName().equals("OWNER")) {
                 zones = zoneRepository.findAll();
-                System.out.println("📊 MasterDataController: Found " + zones.size() + " zones for OWNER");
+                log.debug("Found {} zones for OWNER", zones.size());
             } else {
                 // ADMIN can only see active zones
                 zones = zoneRepository.findByStatus(ZoneStatus.ZONE_ACTIVE);
-                System.out.println("📊 MasterDataController: Found " + zones.size() + " active zones for ADMIN");
-            }
-            
-            // Log zone details
-            for (Zone zone : zones) {
-                System.out.println("🏢 Zone: " + zone.getName() + " - Status: " + zone.getStatus() + " - Fee: " + zone.getDefaultFee());
+                log.debug("Found {} active zones for ADMIN", zones.size());
             }
             
             return ResponseEntity.ok(zones);
         } catch (Exception e) {
-            // Log the error and return empty list instead of 500
-            System.err.println("❌ MasterDataController: Error retrieving zones: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving zones", e);
             return ResponseEntity.ok(new ArrayList<>());
         }
     }
@@ -281,7 +294,7 @@ public class MasterDataController {
             return ResponseEntity.ok(settings);
         } catch (Exception e) {
             // Log the error and return empty list instead of 500
-            System.err.println("❌ MasterDataController: Error retrieving telemetry settings: " + e.getMessage());
+            log.error("Error retrieving telemetry settings", e);
             return ResponseEntity.ok(new ArrayList<>());
         }
     }

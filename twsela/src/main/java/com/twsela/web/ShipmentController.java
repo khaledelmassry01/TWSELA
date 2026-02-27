@@ -6,6 +6,7 @@ import com.twsela.domain.ShipmentStatusHistory;
 import com.twsela.domain.User;
 import com.twsela.domain.RecipientDetails;
 import com.twsela.domain.Zone;
+import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.ShipmentRepository;
 import com.twsela.repository.ShipmentStatusHistoryRepository;
 import com.twsela.repository.UserRepository;
@@ -19,6 +20,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +42,8 @@ import java.math.BigDecimal;
 @RequestMapping("/api/shipments")
 @Tag(name = "Shipments", description = "إدارة الشحنات والتتبع")
 public class ShipmentController {
+
+    private static final Logger log = LoggerFactory.getLogger(ShipmentController.class);
 
     @Autowired
     private ShipmentRepository shipmentRepository;
@@ -418,7 +423,7 @@ public class ShipmentController {
                     Shipment shipment = shipmentOpt.get();
                     
                     // Update status to RECEIVED_AT_HUB
-                    ShipmentStatus receivedStatus = shipmentService.getStatusByName("RECEIVED_AT_HUB")
+                    ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
                         .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
                     shipment.setStatus(receivedStatus);
                     shipment.setUpdatedAt(Instant.now());
@@ -467,9 +472,9 @@ public class ShipmentController {
             Pageable pageable = PageRequest.of(page, size, sort);
 
             // Get shipments with RECEIVED_AT_HUB or RETURNED_TO_HUB status
-            ShipmentStatus receivedStatus = shipmentService.getStatusByName("RECEIVED_AT_HUB")
+            ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
-            ShipmentStatus returnedStatus = shipmentService.getStatusByName("RETURNED_TO_HUB")
+            ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
             List<ShipmentStatus> warehouseStatuses = List.of(receivedStatus, returnedStatus);
             Page<Shipment> shipments = shipmentRepository.findByStatusIn(warehouseStatuses, pageable);
@@ -519,14 +524,14 @@ public class ShipmentController {
                     Shipment shipment = shipmentOpt.get();
                     
                     // Check if shipment is in warehouse
-                    if (!shipment.getStatus().getName().equals("RECEIVED_AT_HUB") && 
-                        !shipment.getStatus().getName().equals("RETURNED_TO_HUB")) {
+                    if (!shipment.getStatus().getName().equals(RECEIVED_AT_HUB) && 
+                        !shipment.getStatus().getName().equals(RETURNED_TO_HUB)) {
                         errors.add("Shipment " + shipment.getTrackingNumber() + " is not in warehouse");
                         continue;
                     }
 
                     // Update status to ASSIGNED_TO_COURIER
-                    ShipmentStatus assignedStatus = shipmentService.getStatusByName("ASSIGNED_TO_COURIER")
+                    ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
                         .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
                     shipment.setStatus(assignedStatus);
                     shipment.setCourier(courier);
@@ -626,7 +631,7 @@ public class ShipmentController {
                     }
 
                     // Update status to RETURNED_TO_HUB
-                    ShipmentStatus returnedStatus = shipmentService.getStatusByName("RETURNED_TO_HUB")
+                    ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
                         .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
                     shipment.setStatus(returnedStatus);
                     shipment.setUpdatedAt(Instant.now());
@@ -709,15 +714,15 @@ public class ShipmentController {
             }
 
             // Get all shipments assigned to this courier (not just today's)
-            ShipmentStatus assignedStatus = shipmentService.getStatusByName("ASSIGNED_TO_COURIER")
+            ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
-            ShipmentStatus outForDeliveryStatus = shipmentService.getStatusByName("OUT_FOR_DELIVERY")
+            ShipmentStatus outForDeliveryStatus = shipmentService.getStatusByName(OUT_FOR_DELIVERY)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'OUT_FOR_DELIVERY' غير موجودة في النظام"));
-            ShipmentStatus deliveredStatus = shipmentService.getStatusByName("DELIVERED")
+            ShipmentStatus deliveredStatus = shipmentService.getStatusByName(DELIVERED)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'DELIVERED' غير موجودة في النظام"));
-            ShipmentStatus failedAttemptStatus = shipmentService.getStatusByName("FAILED_ATTEMPT")
+            ShipmentStatus failedAttemptStatus = shipmentService.getStatusByName(FAILED_ATTEMPT)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'FAILED_ATTEMPT' غير موجودة في النظام"));
-            ShipmentStatus returnedToHubStatus = shipmentService.getStatusByName("RETURNED_TO_HUB")
+            ShipmentStatus returnedToHubStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
             
             List<ShipmentStatus> relevantStatuses = List.of(
@@ -755,21 +760,21 @@ public class ShipmentController {
             Instant endOfDay = Instant.now().atZone(java.time.ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59).toInstant();
 
             // Count shipments received today
-            ShipmentStatus receivedStatus = shipmentService.getStatusByName("RECEIVED_AT_HUB")
+            ShipmentStatus receivedStatus = shipmentService.getStatusByName(RECEIVED_AT_HUB)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RECEIVED_AT_HUB' غير موجودة في النظام"));
             long receivedToday = shipmentRepository.countByStatusAndUpdatedAtBetween(
                 receivedStatus, startOfDay, endOfDay
             );
 
             // Count shipments dispatched today
-            ShipmentStatus assignedStatus = shipmentService.getStatusByName("ASSIGNED_TO_COURIER")
+            ShipmentStatus assignedStatus = shipmentService.getStatusByName(ASSIGNED_TO_COURIER)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'ASSIGNED_TO_COURIER' غير موجودة في النظام"));
             long dispatchedToday = shipmentRepository.countByStatusAndUpdatedAtBetween(
                 assignedStatus, startOfDay, endOfDay
             );
 
             // Count current inventory
-            ShipmentStatus returnedStatus = shipmentService.getStatusByName("RETURNED_TO_HUB")
+            ShipmentStatus returnedStatus = shipmentService.getStatusByName(RETURNED_TO_HUB)
                 .orElseThrow(() -> new RuntimeException("حالة الشحنة 'RETURNED_TO_HUB' غير موجودة في النظام"));
             long currentInventory = shipmentRepository.countByStatusIn(
                 Arrays.asList(receivedStatus, returnedStatus)
@@ -848,7 +853,8 @@ public class ShipmentController {
     @PutMapping("/courier/location/update")
     @PreAuthorize("hasRole('COURIER')")
     public ResponseEntity<Map<String, Object>> updateCourierLocation(
-            @RequestBody Map<String, Object> request) {
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
         try {
             Double latitude = (Double) request.get("latitude");
             Double longitude = (Double) request.get("longitude");
@@ -860,10 +866,9 @@ public class ShipmentController {
                 return ResponseEntity.badRequest().body(error);
             }
 
-            // Get current user (courier) from security context
-            // This would need to be implemented based on your security setup
-            // For now, we'll use a placeholder
-            Long courierId = 1L; // This should be extracted from security context
+            // Get current courier from security context
+            User courier = getCurrentUser(authentication);
+            Long courierId = courier.getId();
 
             // Update courier location using the service
             shipmentService.updateCourierLocation(courierId, latitude, longitude);
@@ -887,9 +892,9 @@ public class ShipmentController {
     private boolean isEligibleForReturn(Shipment shipment) {
         // Check if shipment is in a state that allows return
         String statusName = shipment.getStatus().getName();
-        return !statusName.equals("DELIVERED") && 
-               !statusName.equals("CANCELLED") && 
-               !statusName.equals("RETURNED_TO_ORIGIN");
+        return !statusName.equals(DELIVERED) && 
+               !statusName.equals(CANCELLED) && 
+               !statusName.equals(RETURNED_TO_ORIGIN);
     }
     
     /**
@@ -955,21 +960,39 @@ public class ShipmentController {
         
         Map<String, Object> response = new HashMap<>();
         try {
-            // For now, return empty list to test the endpoint
-            List<Shipment> shipments = new ArrayList<>();
+            User currentUser = getCurrentUser(authentication);
+            String role = currentUser.getRole().getName();
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            
+            Page<Shipment> shipmentPage;
+            
+            switch (role) {
+                case "MERCHANT":
+                    shipmentPage = shipmentRepository.findByMerchantId(currentUser.getId(), pageable);
+                    break;
+                case "COURIER":
+                    shipmentPage = shipmentRepository.findByCourierId(currentUser.getId(), pageable);
+                    break;
+                default: // OWNER, ADMIN
+                    if (courierId != null) {
+                        shipmentPage = shipmentRepository.findByCourierId(courierId, pageable);
+                    } else {
+                        shipmentPage = shipmentRepository.findAll(pageable);
+                    }
+                    break;
+            }
             
             response.put("success", true);
-            response.put("data", shipments);
+            response.put("data", shipmentPage.getContent());
             response.put("message", "Shipments retrieved successfully");
-            response.put("count", 0);
+            response.put("count", shipmentPage.getTotalElements());
             response.put("page", page);
             response.put("size", size);
-            response.put("totalPages", 0);
+            response.put("totalPages", shipmentPage.getTotalPages());
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("❌ ShipmentController: Error retrieving shipments: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error retrieving shipments", e);
             
             response.put("success", false);
             response.put("message", "Failed to retrieve shipments: " + e.getMessage());

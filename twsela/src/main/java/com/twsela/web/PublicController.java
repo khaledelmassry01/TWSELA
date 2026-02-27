@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,7 @@ import java.util.Optional;
 @Tag(name = "Public APIs", description = "الخدمات العامة المتاحة بدون مصادقة")
 public class PublicController {
 
+    private static final Logger log = LoggerFactory.getLogger(PublicController.class);
     private final ShipmentRepository shipmentRepository;
     private final ServiceFeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
@@ -160,10 +163,7 @@ public class PublicController {
             userRepository.save(user);
             
             // Log the new password to console (in production, this would send SMS)
-            System.out.println("=== FORGOT PASSWORD RESET ===");
-            System.out.println("User: " + user.getName() + " (" + user.getPhone() + ")");
-            System.out.println("New Password: " + newPassword);
-            System.out.println("=============================");
+            log.info("Password reset completed for user: {}", user.getPhone());
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -270,11 +270,8 @@ public class PublicController {
             user.setPassword(hashedPassword);
             userRepository.save(user);
             
-            // Log success to console
-            System.out.println("=== PASSWORD RESET SUCCESS ===");
-            System.out.println("User: " + user.getName() + " (" + user.getPhone() + ")");
-            System.out.println("Password updated successfully");
-            System.out.println("==============================");
+            // Log success
+            log.info("Password reset via OTP completed for user: {}", user.getPhone());
             
             return ResponseEntity.ok(Map.of(
                 "success", true,

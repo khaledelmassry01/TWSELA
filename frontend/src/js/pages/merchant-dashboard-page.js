@@ -43,10 +43,7 @@ class MerchantDashboardHandler extends BasePageHandler {
             // Update merchant info display
             this.updateMerchantInfo(user);
             
-        } catch (error) {
-
-            
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -65,7 +62,7 @@ class MerchantDashboardHandler extends BasePageHandler {
 
         const merchantStatusEl = document.getElementById('merchantStatus');
         if (merchantStatusEl) {
-            merchantStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${user.status?.name || 'غير محدد'}</span>`;
+            merchantStatusEl.innerHTML = `<span class="badge bg-${this.getStatusColor(user.status)}">${escapeHtml(user.status?.name || 'غير محدد')}</span>`;
         }
     }
 
@@ -88,9 +85,7 @@ class MerchantDashboardHandler extends BasePageHandler {
 
             }
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**
@@ -112,9 +107,9 @@ class MerchantDashboardHandler extends BasePageHandler {
         this.shipments.forEach(shipment => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${shipment.trackingNumber || 'غير محدد'}</td>
-                <td>${shipment.courier?.name || 'غير محدد'}</td>
-                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${shipment.status?.name || 'غير محدد'}</span></td>
+                <td>${escapeHtml(shipment.trackingNumber || 'غير محدد')}</td>
+                <td>${escapeHtml(shipment.courier?.name || 'غير محدد')}</td>
+                <td><span class="badge bg-${this.getStatusColor(shipment.status)}">${escapeHtml(shipment.status?.name || 'غير محدد')}</span></td>
                 <td>${this.formatCurrency(shipment.totalAmount)}</td>
                 <td>${this.formatDate(shipment.createdAt)}</td>
             `;
@@ -135,9 +130,7 @@ class MerchantDashboardHandler extends BasePageHandler {
             // Initialize revenue chart
             this.initRevenueChart();
             
-        } catch (error) {
-
-        }
+        } catch (error) { console.error('Unhandled error:', error); }
     }
 
     /**

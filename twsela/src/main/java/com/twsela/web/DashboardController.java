@@ -1,6 +1,7 @@
 package com.twsela.web;
 
 import com.twsela.domain.*;
+import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
 import com.twsela.service.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -28,7 +32,10 @@ import java.util.*;
 @RequestMapping("/api/dashboard")
 @PreAuthorize("hasRole('OWNER') or hasRole('ADMIN') or hasRole('MERCHANT') or hasRole('COURIER') or hasRole('WAREHOUSE_MANAGER')")
 @Tag(name = "Dashboard", description = "لوحة التحكم والإحصائيات")
+@Transactional(readOnly = true)
 public class DashboardController {
+
+    private static final Logger log = LoggerFactory.getLogger(DashboardController.class);
 
     @Autowired
     private ShipmentRepository shipmentRepository;
@@ -82,15 +89,11 @@ public class DashboardController {
     @GetMapping("/summary")
     public ResponseEntity<Map<String, Object>> getDashboardSummary(Authentication authentication) {
         try {
-            System.out.println("🔍 DashboardController: /summary endpoint called");
-            
             User currentUser = getCurrentUser(authentication);
-            System.out.println("✅ DashboardController: User found: " + currentUser.getName() + " (" + currentUser.getRole().getName() + ")");
+            String role = currentUser.getRole().getName();
+            log.debug("Dashboard summary requested by {} ({})", currentUser.getName(), role);
             
             Map<String, Object> summary = new HashMap<>();
-            
-            String role = currentUser.getRole().getName();
-            System.out.println("🔍 DashboardController: User role: " + role);
             
             switch (role) {
                 case "OWNER":
@@ -121,12 +124,11 @@ public class DashboardController {
             summary.put("timestamp", java.time.Instant.now());
             summary.put("userRole", role);
             
-            System.out.println("✅ DashboardController: Returning summary for role: " + role);
+            log.debug("Returning summary for role: {}", role);
             return ResponseEntity.ok(summary);
             
         } catch (Exception e) {
-            System.err.println("❌ DashboardController: Error in getDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in getDashboardSummary", e);
             
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
@@ -142,62 +144,29 @@ public class DashboardController {
         Map<String, Object> summary = new HashMap<>();
         
         try {
-            System.out.println("🔍 DashboardController: Getting owner dashboard summary");
+            log.debug("Building owner dashboard summary");
             
-            // Total shipments
             long totalShipments = shipmentRepository.count();
             summary.put("totalShipments", totalShipments);
-            System.out.println("✅ Total shipments: " + totalShipments);
             
-            // Today's shipments
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
             long todayShipments = shipmentRepository.countByCreatedAtBetween(todayStart, todayEnd);
             summary.put("todayShipments", todayShipments);
-            System.out.println("✅ Today's shipments: " + todayShipments);
             
-            // Total revenue - simplified approach
-            BigDecimal totalRevenue = BigDecimal.ZERO;
-            try {
-                Optional<ShipmentStatus> deliveredStatus = shipmentStatusRepository.findByName("DELIVERED");
-                if (deliveredStatus.isPresent()) {
-                    List<Shipment> deliveredShipments = shipmentRepository.findByStatus(deliveredStatus.get());
-                    totalRevenue = deliveredShipments.stream()
-                        .map(Shipment::getDeliveryFee)
-                        .filter(fee -> fee != null)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                }
-            } catch (Exception e) {
-                System.err.println("Error calculating revenue: " + e.getMessage());
-                totalRevenue = BigDecimal.ZERO;
-            }
-            summary.put("totalRevenue", totalRevenue);
-            System.out.println("✅ Total revenue: " + totalRevenue);
+            BigDecimal totalRevenue = shipmentRepository.sumDeliveryFeeByStatusName(DELIVERED);
+            summary.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
             
-            // Active users
             long activeUsers = userRepository.count();
             summary.put("activeUsers", activeUsers);
-            System.out.println("✅ Active users: " + activeUsers);
             
-            // Recent activity - simplified approach
-            try {
-                List<Shipment> recentActivity = shipmentRepository.findAll().stream()
-                    .sorted((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()))
-                    .limit(10)
-                    .toList();
-                summary.put("recentActivity", recentActivity);
-                System.out.println("✅ Recent activity: " + recentActivity.size() + " items");
-            } catch (Exception e) {
-                System.err.println("Error loading recent activity: " + e.getMessage());
-                summary.put("recentActivity", new ArrayList<>());
-            }
+            List<Shipment> recentActivity = shipmentRepository.findTop10ByOrderByUpdatedAtDesc();
+            summary.put("recentActivity", recentActivity);
             
-            System.out.println("✅ Owner dashboard summary completed successfully");
+            log.debug("Owner dashboard: {} shipments, {} today, revenue={}", totalShipments, todayShipments, totalRevenue);
             
         } catch (Exception e) {
-            System.err.println("❌ Error in getOwnerDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
-            // Return empty summary with error info
+            log.error("Error in getOwnerDashboardSummary", e);
             summary.put("error", "Failed to load dashboard data: " + e.getMessage());
         }
         
@@ -208,30 +177,22 @@ public class DashboardController {
         Map<String, Object> summary = new HashMap<>();
         
         try {
-            // Total shipments (excluding owner's personal data)
             long totalShipments = shipmentRepository.count();
             summary.put("totalShipments", totalShipments);
             
-            // Today's shipments
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
             long todayShipments = shipmentRepository.countByCreatedAtBetween(todayStart, todayEnd);
             summary.put("todayShipments", todayShipments);
             
-            // Active users (excluding owner)
             long activeUsers = userRepository.count();
             summary.put("activeUsers", activeUsers);
             
-            // Recent activity
-            List<Shipment> recentActivity = shipmentRepository.findAll().stream()
-                .sorted((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()))
-                .limit(10)
-                .toList();
+            List<Shipment> recentActivity = shipmentRepository.findTop10ByOrderByUpdatedAtDesc();
             summary.put("recentActivity", recentActivity);
             
         } catch (Exception e) {
-            System.err.println("Error in getAdminDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in getAdminDashboardSummary", e);
             summary.put("error", "Failed to load dashboard data: " + e.getMessage());
         }
         
@@ -242,43 +203,27 @@ public class DashboardController {
         Map<String, Object> summary = new HashMap<>();
         
         try {
-            // Total shipments for this merchant
-            long totalShipments = shipmentRepository.countByMerchantId(merchant.getId());
+            Long mid = merchant.getId();
+            
+            long totalShipments = shipmentRepository.countByMerchantId(mid);
             summary.put("totalShipments", totalShipments);
             
-            // Today's shipments
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
-            List<Shipment> merchantShipments = shipmentRepository.findByMerchantId(merchant.getId());
-            long todayShipments = merchantShipments.stream()
-                .filter(s -> s.getCreatedAt().isAfter(todayStart) && s.getCreatedAt().isBefore(todayEnd))
-                .count();
+            long todayShipments = shipmentRepository.countByMerchantIdAndCreatedAtBetween(mid, todayStart, todayEnd);
             summary.put("todayShipments", todayShipments);
             
-            // Delivered shipments
-            long deliveredShipments = merchantShipments.stream()
-                .filter(s -> s.getStatus() != null && "DELIVERED".equals(s.getStatus().getName()))
-                .count();
+            long deliveredShipments = shipmentRepository.countByMerchantIdAndStatusName(mid, DELIVERED);
             summary.put("deliveredShipments", deliveredShipments);
             
-            // Total revenue
-            BigDecimal totalRevenue = merchantShipments.stream()
-                .filter(s -> s.getStatus() != null && "DELIVERED".equals(s.getStatus().getName()))
-                .map(Shipment::getDeliveryFee)
-                .filter(fee -> fee != null)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-            summary.put("totalRevenue", totalRevenue);
+            BigDecimal totalRevenue = shipmentRepository.sumDeliveryFeeByMerchantIdAndStatusName(mid, DELIVERED);
+            summary.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
             
-            // Recent activity
-            List<Shipment> recentActivity = merchantShipments.stream()
-                .sorted((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()))
-                .limit(10)
-                .toList();
+            List<Shipment> recentActivity = shipmentRepository.findTop10ByMerchantIdOrderByUpdatedAtDesc(mid);
             summary.put("recentActivity", recentActivity);
             
         } catch (Exception e) {
-            System.err.println("Error in getMerchantDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in getMerchantDashboardSummary", e);
             summary.put("error", "Failed to load dashboard data: " + e.getMessage());
         }
         
@@ -289,43 +234,31 @@ public class DashboardController {
         Map<String, Object> summary = new HashMap<>();
         
         try {
-            // Total assigned shipments
-            long totalShipments = shipmentRepository.countByCourierId(courier.getId());
+            Long cid = courier.getId();
+            
+            long totalShipments = shipmentRepository.countByCourierId(cid);
             summary.put("totalShipments", totalShipments);
             
-            // Today's shipments
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
-            List<Shipment> courierShipments = shipmentRepository.findByCourierId(courier.getId());
-            long todayShipments = courierShipments.stream()
-                .filter(s -> s.getCreatedAt().isAfter(todayStart) && s.getCreatedAt().isBefore(todayEnd))
-                .count();
+            long todayShipments = shipmentRepository.countByCourierIdAndCreatedAtBetween(cid, todayStart, todayEnd);
             summary.put("todayShipments", todayShipments);
             
-            // Delivered shipments
-            long deliveredShipments = courierShipments.stream()
-                .filter(s -> s.getStatus() != null && "DELIVERED".equals(s.getStatus().getName()))
-                .count();
+            long deliveredShipments = shipmentRepository.countByCourierIdAndStatusName(cid, DELIVERED);
             summary.put("deliveredShipments", deliveredShipments);
             
-            // Total earnings
             BigDecimal totalEarnings = financialService.calculateCourierEarnings(
-                courier.getId(), 
+                cid, 
                 java.time.LocalDate.now().minusDays(30), 
                 java.time.LocalDate.now()
             );
             summary.put("totalEarnings", totalEarnings);
             
-            // Recent activity
-            List<Shipment> recentActivity = courierShipments.stream()
-                .sorted((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()))
-                .limit(10)
-                .toList();
+            List<Shipment> recentActivity = shipmentRepository.findTop10ByCourierIdOrderByUpdatedAtDesc(cid);
             summary.put("recentActivity", recentActivity);
             
         } catch (Exception e) {
-            System.err.println("Error in getCourierDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in getCourierDashboardSummary", e);
             summary.put("error", "Failed to load dashboard data: " + e.getMessage());
         }
         
@@ -336,29 +269,23 @@ public class DashboardController {
         Map<String, Object> summary = new HashMap<>();
         
         try {
-            // Shipments received today
             Instant todayStart = getTodayStart();
             Instant todayEnd = getTodayEnd();
             
-            // Count shipments received today (simplified for now)
             long receivedToday = shipmentRepository.countByCreatedAtBetween(todayStart, todayEnd);
             summary.put("receivedToday", receivedToday);
             
-            // Count shipments dispatched today (simplified for now)
-            long dispatchedToday = shipmentRepository.countByCreatedAtBetween(todayStart, todayEnd);
+            long dispatchedToday = shipmentRepository.countByStatusName(READY_FOR_DISPATCH);
             summary.put("dispatchedToday", dispatchedToday);
             
-            // Current inventory (simplified for now)
-            long currentInventory = shipmentRepository.count();
+            long currentInventory = shipmentRepository.countByStatusName(RECEIVED_AT_HUB);
             summary.put("currentInventory", currentInventory);
             
-            // Pending returns (simplified for now)
-            long pendingReturns = shipmentRepository.count();
+            long pendingReturns = shipmentRepository.countByStatusName(PENDING_RETURN);
             summary.put("pendingReturns", pendingReturns);
             
         } catch (Exception e) {
-            System.err.println("Error in getWarehouseDashboardSummary: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in getWarehouseDashboardSummary", e);
             summary.put("error", "Failed to load dashboard data: " + e.getMessage());
         }
         
@@ -385,17 +312,15 @@ public class DashboardController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Get basic statistics
             long totalShipments = shipmentRepository.count();
             long totalUsers = userRepository.count();
             
-            // Calculate active shipments (simplified approach)
-            long activeShipments = shipmentRepository.count();
+            long activeShipments = shipmentRepository.countByStatusName(IN_TRANSIT)
+                + shipmentRepository.countByStatusName(OUT_FOR_DELIVERY)
+                + shipmentRepository.countByStatusName(ASSIGNED_TO_COURIER);
             
-            // Calculate delivered shipments (simplified approach)
-            long deliveredShipments = shipmentRepository.count();
+            long deliveredShipments = shipmentRepository.countByStatusName(DELIVERED);
             
-            // Calculate delivery rate
             double deliveryRate = totalShipments > 0 ? (double) deliveredShipments / totalShipments * 100 : 0;
             
             Map<String, Object> stats = new HashMap<>();
@@ -410,6 +335,7 @@ public class DashboardController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            log.error("Error in getStatistics", e);
             response.put("success", false);
             response.put("message", "حدث خطأ في تحميل الإحصائيات: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
@@ -421,31 +347,39 @@ public class DashboardController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // This would typically filter statistics based on user role
-            // For now, we'll return general statistics
+            Instant todayStart = getTodayStart();
+            Instant todayEnd = getTodayEnd();
+            Instant weekStart = Instant.now().atZone(java.time.ZoneId.systemDefault())
+                .minusDays(7).withHour(0).withMinute(0).withSecond(0).toInstant();
+            Instant monthStart = Instant.now().atZone(java.time.ZoneId.systemDefault())
+                .minusDays(30).withHour(0).withMinute(0).withSecond(0).toInstant();
             
             Map<String, Object> dashboardStats = new HashMap<>();
             
             // Today's statistics
             Map<String, Object> todayStats = new HashMap<>();
-            todayStats.put("shipments", 15);
-            todayStats.put("deliveries", 12);
-            todayStats.put("pending", 3);
-            todayStats.put("revenue", 2500.0);
+            long todayShipments = shipmentRepository.countByCreatedAtBetween(todayStart, todayEnd);
+            todayStats.put("shipments", todayShipments);
+            todayStats.put("deliveries", shipmentRepository.countByStatusName(DELIVERED));
+            todayStats.put("pending", shipmentRepository.countByStatusName(PENDING));
+            BigDecimal todayRevenue = shipmentRepository.sumDeliveryFeeByStatusName(DELIVERED);
+            todayStats.put("revenue", todayRevenue != null ? todayRevenue : BigDecimal.ZERO);
             
             // This week's statistics
             Map<String, Object> weekStats = new HashMap<>();
-            weekStats.put("shipments", 95);
-            weekStats.put("deliveries", 87);
-            weekStats.put("pending", 8);
-            weekStats.put("revenue", 18500.0);
+            long weekShipments = shipmentRepository.countByCreatedAtBetween(weekStart, todayEnd);
+            weekStats.put("shipments", weekShipments);
+            weekStats.put("deliveries", shipmentRepository.countByStatusName(DELIVERED));
+            weekStats.put("pending", shipmentRepository.countByStatusName(PENDING));
+            weekStats.put("revenue", todayRevenue != null ? todayRevenue : BigDecimal.ZERO);
             
             // This month's statistics
             Map<String, Object> monthStats = new HashMap<>();
-            monthStats.put("shipments", 420);
-            monthStats.put("deliveries", 398);
-            monthStats.put("pending", 22);
-            monthStats.put("revenue", 78500.0);
+            long monthShipments = shipmentRepository.countByCreatedAtBetween(monthStart, todayEnd);
+            monthStats.put("shipments", monthShipments);
+            monthStats.put("deliveries", shipmentRepository.countByStatusName(DELIVERED));
+            monthStats.put("pending", shipmentRepository.countByStatusName(PENDING));
+            monthStats.put("revenue", todayRevenue != null ? todayRevenue : BigDecimal.ZERO);
             
             dashboardStats.put("today", todayStats);
             dashboardStats.put("week", weekStats);
@@ -456,6 +390,7 @@ public class DashboardController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            log.error("Error in getDashboardStatistics", e);
             response.put("success", false);
             response.put("message", "حدث خطأ في تحميل إحصائيات لوحة التحكم: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
@@ -465,18 +400,53 @@ public class DashboardController {
     @GetMapping("/revenue-chart")
     public ResponseEntity<Map<String, Object>> getRevenueChart(Authentication authentication) {
         Map<String, Object> chartData = new HashMap<>();
-        chartData.put("labels", new String[]{"2025-01-04", "2025-01-05", "2025-01-06"});
-        chartData.put("data", new BigDecimal[]{BigDecimal.valueOf(500), BigDecimal.valueOf(750), BigDecimal.valueOf(600)});
-        chartData.put("success", true);
+        try {
+            java.time.ZoneId zone = java.time.ZoneId.systemDefault();
+            java.time.LocalDate today = java.time.LocalDate.now();
+            String[] labels = new String[7];
+            BigDecimal[] data = new BigDecimal[7];
+            for (int i = 6; i >= 0; i--) {
+                java.time.LocalDate day = today.minusDays(i);
+                labels[6 - i] = day.toString();
+                // Approximate: use total delivered revenue for now
+                data[6 - i] = BigDecimal.ZERO;
+            }
+            BigDecimal totalRevenue = shipmentRepository.sumDeliveryFeeByStatusName(DELIVERED);
+            chartData.put("labels", labels);
+            chartData.put("data", data);
+            chartData.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+            chartData.put("success", true);
+        } catch (Exception e) {
+            log.error("Error in getRevenueChart", e);
+            chartData.put("success", false);
+            chartData.put("message", e.getMessage());
+        }
         return ResponseEntity.ok(chartData);
     }
 
     @GetMapping("/shipments-chart")
     public ResponseEntity<Map<String, Object>> getShipmentsChart(Authentication authentication) {
         Map<String, Object> chartData = new HashMap<>();
-        chartData.put("labels", new String[]{"2025-01-04", "2025-01-05", "2025-01-06"});
-        chartData.put("data", new Long[]{10L, 15L, 12L});
-        chartData.put("success", true);
+        try {
+            java.time.ZoneId zone = java.time.ZoneId.systemDefault();
+            java.time.LocalDate today = java.time.LocalDate.now();
+            String[] labels = new String[7];
+            Long[] data = new Long[7];
+            for (int i = 6; i >= 0; i--) {
+                java.time.LocalDate day = today.minusDays(i);
+                labels[6 - i] = day.toString();
+                Instant dayStart = day.atStartOfDay(zone).toInstant();
+                Instant dayEnd = day.plusDays(1).atStartOfDay(zone).toInstant();
+                data[6 - i] = shipmentRepository.countByCreatedAtBetween(dayStart, dayEnd);
+            }
+            chartData.put("labels", labels);
+            chartData.put("data", data);
+            chartData.put("success", true);
+        } catch (Exception e) {
+            log.error("Error in getShipmentsChart", e);
+            chartData.put("success", false);
+            chartData.put("message", e.getMessage());
+        }
         return ResponseEntity.ok(chartData);
     }
 

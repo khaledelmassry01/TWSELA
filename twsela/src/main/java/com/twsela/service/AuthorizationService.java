@@ -1,6 +1,7 @@
 package com.twsela.service;
 
 import com.twsela.domain.User;
+import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.ShipmentRepository;
 import com.twsela.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -100,8 +101,8 @@ public class AuthorizationService {
                     if ("MERCHANT".equals(role)) {
                         return shipment.getMerchant().getId().equals(currentUser.getId()) &&
                                (shipment.getCourier() == null || 
-                                "APPROVED".equals(shipment.getStatus().getName()) ||
-                                "RECEIVED_AT_HUB".equals(shipment.getStatus().getName()));
+                                APPROVED.equals(shipment.getStatus().getName()) ||
+                                RECEIVED_AT_HUB.equals(shipment.getStatus().getName()));
                     }
                     // Courier can modify shipments assigned to them
                     if ("COURIER".equals(role)) {

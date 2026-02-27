@@ -24,9 +24,7 @@ async function loadMerchantsData() {
     try {
         const merchantsData = await apiService.getMerchantsReports();
         updateMerchantsDisplay(merchantsData);
-    } catch (error) {
-        
-    }
+    } catch (error) { console.error('Unhandled error:', error); }
 }
 
 function updateMerchantsDisplay(merchantsData) {

@@ -24,9 +24,7 @@ async function loadCouriersData() {
     try {
         const couriersData = await apiService.getCouriersReports();
         updateCouriersDisplay(couriersData);
-    } catch (error) {
-        
-    }
+    } catch (error) { console.error('Unhandled error:', error); }
 }
 
 function updateCouriersDisplay(couriersData) {

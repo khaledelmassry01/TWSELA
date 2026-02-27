@@ -1,6 +1,8 @@
 package com.twsela.web;
 
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,6 +21,8 @@ import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
@@ -74,7 +78,7 @@ public class GlobalExceptionHandler {
             NoSuchElementException ex, WebRequest request) {
         
         // Log the error for debugging
-        System.err.println("❌ NoSuchElementException: " + ex.getMessage());
+        log.warn("NoSuchElementException: {}", ex.getMessage());
         
         // Return 404 instead of 500 for missing data
         return AppUtils.error(HttpStatus.NOT_FOUND, "البيانات المطلوبة غير موجودة في النظام");
@@ -85,7 +89,7 @@ public class GlobalExceptionHandler {
             RuntimeException ex, WebRequest request) {
         
         // Log the error for debugging
-        System.err.println("❌ RuntimeException: " + ex.getMessage());
+        log.warn("RuntimeException: {}", ex.getMessage());
         
         // Check if it's a data initialization error
         if (ex.getMessage() != null && ex.getMessage().contains("غير موجودة")) {
@@ -100,9 +104,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGenericException(
             Exception ex, WebRequest request) {
         
-        // Log the actual exception for debugging (in production, use proper logging)
-        System.err.println("Unexpected error: " + ex.getMessage());
-        ex.printStackTrace();
+        // Log the actual exception for debugging
+        log.error("Unexpected error", ex);
         
         // CRITICAL FIX: Check if this is an authentication-related error
         String requestPath = request.getDescription(false);
