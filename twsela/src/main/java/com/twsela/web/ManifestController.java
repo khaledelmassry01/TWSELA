@@ -3,6 +3,8 @@ package com.twsela.web;
 import com.twsela.domain.*;
 import static com.twsela.domain.ShipmentStatusConstants.*;
 import com.twsela.repository.*;
+import com.twsela.security.AuthenticationHelper;
+import com.twsela.web.dto.CreateManifestRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +32,16 @@ public class ManifestController {
     private final ShipmentManifestRepository shipmentManifestRepository;
     private final UserRepository userRepository;
     private final ShipmentRepository shipmentRepository;
+    private final AuthenticationHelper authHelper;
 
     public ManifestController(ShipmentManifestRepository shipmentManifestRepository,
                               UserRepository userRepository,
-                              ShipmentRepository shipmentRepository) {
+                              ShipmentRepository shipmentRepository,
+                              AuthenticationHelper authHelper) {
         this.shipmentManifestRepository = shipmentManifestRepository;
         this.userRepository = userRepository;
         this.shipmentRepository = shipmentRepository;
+        this.authHelper = authHelper;
     }
 
     @Operation(summary = "جميع المانيفست", description = "عرض قائمة جميع المانيفست")
@@ -77,7 +82,7 @@ public class ManifestController {
         }
         
         // Verify courier exists
-        User courier = userRepository.findById(request.courierId).orElse(null);
+        User courier = userRepository.findById(request.getCourierId()).orElse(null);
         if (courier == null || !courier.getRole().getName().equals("COURIER")) {
             return ResponseEntity.badRequest().build();
         }
@@ -258,17 +263,6 @@ public class ManifestController {
     }
 
     private User getCurrentUser(Authentication authentication) {
-        return (User) authentication.getPrincipal();
-    }
-
-    public static class CreateManifestRequest {
-        @NotNull(message = "معرف المندوب مطلوب")
-        public Long courierId;
-        
-        public CreateManifestRequest() {}
-        
-        public CreateManifestRequest(Long courierId) {
-            this.courierId = courierId;
-        }
+        return authHelper.getCurrentUser(authentication);
     }
 }

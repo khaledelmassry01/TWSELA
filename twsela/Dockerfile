@@ -1,51 +1,52 @@
-# Multi-stage build for production
-FROM maven:3.8.4-openjdk-17-slim as builder
+# ==================================================================
+# Multi-stage build for Twsela Spring Boot application
+# ==================================================================
 
-# Set working directory
+# ---- Stage 1: Build ----
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+
 WORKDIR /app
 
-# Copy Maven files
+# Copy only POM first — layer is cached until pom.xml changes
 COPY pom.xml .
-
-# Download dependencies
 RUN mvn dependency:go-offline -B
 
-# Copy source code
+# Copy source and build (this layer rebuilds only when src changes)
 COPY src src
+RUN mvn clean package -DskipTests -B
 
-# Build the application
-RUN mvn clean package -DskipTests
-
-# Production stage
+# ---- Stage 2: Runtime ----
 FROM eclipse-temurin:17-jre-alpine
 
-# Install necessary packages
+# Install curl for health checks
 RUN apk add --no-cache curl
 
-# Create app user
+# Create non-root user
 RUN addgroup -S twsela && adduser -S twsela -G twsela
 
-# Set working directory
 WORKDIR /app
 
-# Copy the built jar
+# Copy the built jar from the builder stage
 COPY --from=builder /app/target/twsela-0.0.1-SNAPSHOT.jar app.jar
 
-# Create log directory
-RUN mkdir -p /var/log/twsela && chown -R twsela:twsela /var/log/twsela
-
-# Change ownership
-RUN chown -R twsela:twsela /app
+# Create log directory and set ownership
+RUN mkdir -p /var/log/twsela \
+    && chown -R twsela:twsela /var/log/twsela \
+    && chown -R twsela:twsela /app
 
 # Switch to non-root user
 USER twsela
 
-# Expose port
-EXPOSE 8080
+# Expose application port
+EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
+# Health check against the custom /api/health endpoint
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/api/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Optimised JVM flags for containers
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-jar", "app.jar"]

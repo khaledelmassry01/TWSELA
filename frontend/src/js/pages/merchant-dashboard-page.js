@@ -256,28 +256,19 @@ class MerchantDashboardHandler extends BasePageHandler {
 
         
         // Create shipment button
-        const createShipmentBtn = document.getElementById('createShipmentBtn');
-        if (createShipmentBtn) {
-            createShipmentBtn.addEventListener('click', () => {
-                this.createShipment();
-            });
-        }
+        document.getElementById('createShipmentBtn')?.addEventListener('click', () => {
+            this.createShipment();
+        });
 
         // View all shipments button
-        const viewAllShipmentsBtn = document.getElementById('viewAllShipmentsBtn');
-        if (viewAllShipmentsBtn) {
-            viewAllShipmentsBtn.addEventListener('click', () => {
-                this.viewAllShipments();
-            });
-        }
+        document.getElementById('viewAllShipmentsBtn')?.addEventListener('click', () => {
+            this.viewAllShipments();
+        });
 
         // Logout button
-        const logoutBtn = document.querySelector('.logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                this.handleLogout();
-            });
-        }
+        document.querySelector('.logout-btn')?.addEventListener('click', () => {
+            this.handleLogout();
+        });
     }
 
     /**

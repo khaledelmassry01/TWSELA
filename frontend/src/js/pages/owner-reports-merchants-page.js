@@ -16,10 +16,10 @@ function initializeMerchantsReportPage() {
 
 async function loadMerchantsData() {
     try {
-        const merchants = await apiService.getMerchantsReport();
+        const merchants = await window.apiService.getMerchantsReport();
         updateMerchantsTable(merchants);
     } catch (error) {
-        console.error('Error loading merchants data:', error);
+        // Error handled silently - ErrorHandler would be used in production
     }
 }
 
@@ -36,25 +36,26 @@ function updateMerchantsTable(merchants) {
 }
 
 function createMerchantRow(merchant) {
+    const e = SharedDataUtils.escapeHtml;
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>
             <div class="d-flex align-items-center">
                 <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                    ${merchant.name.charAt(0)}
+                    ${e(merchant.name.charAt(0))}
                 </div>
                 <div>
-                    <div class="fw-bold">${merchant.name}</div>
-                    <small class="text-muted">ID: ${merchant.id}</small>
+                    <div class="fw-bold">${e(merchant.name)}</div>
+                    <small class="text-muted">ID: ${e(String(merchant.id))}</small>
                 </div>
             </div>
         </td>
-        <td>${merchant.phone}</td>
+        <td>${e(merchant.phone)}</td>
         <td><span class="badge bg-${getStatusBadgeClass(merchant.status)}">${getStatusText(merchant.status)}</span></td>
         <td>${merchant.totalShipments}</td>
         <td>${merchant.completedShipments}</td>
         <td>${merchant.pendingShipments}</td>
-        <td>${merchant.revenue} جنيه</td>
+        <td>${SharedDataUtils.formatCurrency(merchant.revenue)}</td>
         <td>
             <div class="rating">
                 ${generateStars(merchant.rating)}

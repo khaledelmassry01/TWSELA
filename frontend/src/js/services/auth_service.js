@@ -294,7 +294,8 @@ class AuthService {
 
             // If response is ok, update user data and cache
             if (response.ok) {
-                const user = await response.json();
+                const body = await response.json();
+                const user = body.data || body;
                 if (user) {
                     this.storeUserData(user);
                     this.updateAuthCache(user, true);

@@ -156,7 +156,7 @@ class OwnerPayoutsHandler {
                 ...this.filters
             };
 
-            const response = await apiService.getPayouts(params);
+            const response = await window.apiService.getPayouts(params);
             
             if (response.success) {
                 this.payouts = response.data || [];
@@ -177,7 +177,7 @@ class OwnerPayoutsHandler {
      */
     async loadSummaryStats() {
         try {
-            const response = await apiService.getFinancialReports({
+            const response = await window.apiService.getFinancialReports({
                 type: 'payouts_summary',
                 ...this.filters
             });
@@ -332,7 +332,7 @@ class OwnerPayoutsHandler {
         try {
             GlobalUIHandler.showLoading();
             
-            const response = await apiService.getPayout(payoutId);
+            const response = await window.apiService.getPayout(payoutId);
             if (response.success) {
                 const modalHtml = GlobalUIHandler.createModal(response.data, 'payout', 'viewPayoutModal');
                 GlobalUIHandler.showModalWithContent(modalHtml, 'viewPayoutModal');
@@ -351,13 +351,23 @@ class OwnerPayoutsHandler {
         const payout = this.payouts.find(p => p.id === payoutId);
         if (!payout) return;
 
-        if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù‚ÙŠÙ…Ø© ${SharedDataUtils.formatCurrency(payout.amount)}ØŸ`)) {
+        const result = await Swal.fire({
+            title: 'تأكيد الموافقة',
+            text: `هل أنت متأكد من الموافقة على المدفوعات بقيمة ${SharedDataUtils.formatCurrency(payout.amount)}؟`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'نعم، موافقة',
+            cancelButtonText: 'إلغاء'
+        });
+        if (result.isConfirmed) {
             try {
                 GlobalUIHandler.showLoading();
                 
-                const response = await apiService.approvePayout(payoutId);
+                const response = await window.apiService.approvePayout(payoutId);
                 if (response.success) {
-                    NotificationService.success('ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­');
+                    NotificationService.success('تم الموافقة على المدفوعات بنجاح');
                     this.loadPayouts();
                     this.loadSummaryStats();
                 } else {
@@ -376,14 +386,29 @@ class OwnerPayoutsHandler {
         const payout = this.payouts.find(p => p.id === payoutId);
         if (!payout) return;
 
-        const reason = prompt('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶:');
+        const { value: reason } = await Swal.fire({
+            title: 'سبب الرفض',
+            input: 'textarea',
+            inputLabel: 'يرجى إدخال سبب الرفض',
+            inputPlaceholder: 'اكتب سبب الرفض هنا...',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'رفض',
+            cancelButtonText: 'إلغاء',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'يرجى إدخال سبب الرفض';
+                }
+            }
+        });
         if (reason && reason.trim()) {
             try {
                 GlobalUIHandler.showLoading();
                 
-                const response = await apiService.rejectPayout(payoutId, reason.trim());
+                const response = await window.apiService.rejectPayout(payoutId, reason.trim());
                 if (response.success) {
-                    NotificationService.success('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­');
+                    NotificationService.success('تم رفض المدفوعات بنجاح');
                     this.loadPayouts();
                     this.loadSummaryStats();
                 } else {
@@ -399,63 +424,44 @@ class OwnerPayoutsHandler {
      * Bulk approve payouts
      */
     async bulkApprovePayouts() {
+        const selectedIds = this.async bulkRejectPayouts() {
         const selectedIds = this.getSelectedPayoutIds();
         if (selectedIds.length === 0) {
-            NotificationService.warning('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø±Ø§Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„ÙŠÙ‡Ø§');
+            NotificationService.warning('يرجى اختيار المدفوعات المراد رفضها');
             return;
         }
 
-        if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${selectedIds.length} Ù…Ø¯ÙÙˆØ¹Ø§ØªØŸ`)) {
-            try {
-                GlobalUIHandler.showLoading();
-                
-                const promises = selectedIds.map(id => apiService.approvePayout(id));
-                const results = await Promise.allSettled(promises);
-                
-                const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
-                const failed = results.length - successful;
-                
-                if (successful > 0) {
-                    NotificationService.success(`ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${successful} Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­`);
+        const { value: reason } = await Swal.fire({
+            title: 'سبب الرفض الجماعي',
+            input: 'textarea',
+            inputLabel: 'يرجى إدخال سبب الرفض (سيتم تطبيقه على جميع المدفوعات المختارة)',
+            inputPlaceholder: 'اكتب سبب الرفض هنا...',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'رفض',
+            cancelButtonText: 'إلغاء',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'يرجى إدخال سبب الرفض';
                 }
-                if (failed > 0) {
-                    NotificationService.warning(`ÙØ´Ù„ ÙÙŠ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ ${failed} Ù…Ø¯ÙÙˆØ¹Ø§Øª`);
-                }
-                
-                this.loadPayouts();
-                this.loadSummaryStats();
-            } catch (error) { ErrorHandler.handle(error, 'OwnerPayouts.bulkApprove'); } finally {
-                GlobalUIHandler.hideLoading();
             }
-        }
-    }
-
-    /**
-     * Bulk reject payouts
-     */
-    async bulkRejectPayouts() {
-        const selectedIds = this.getSelectedPayoutIds();
-        if (selectedIds.length === 0) {
-            NotificationService.warning('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø±Ø§Ø¯ Ø±ÙØ¶Ù‡Ø§');
-            return;
-        }
-
-        const reason = prompt('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ (Ø³ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚Ù‡ Ø¹Ù„Ù‰ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø§Ù„Ù…Ø®ØªØ§Ø±Ø©):');
+        });
         if (reason && reason.trim()) {
             try {
                 GlobalUIHandler.showLoading();
                 
-                const promises = selectedIds.map(id => apiService.rejectPayout(id, reason.trim()));
+                const promises = selectedIds.map(id => window.apiService.rejectPayout(id, reason.trim()));
                 const results = await Promise.allSettled(promises);
                 
                 const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
                 const failed = results.length - successful;
                 
                 if (successful > 0) {
-                    NotificationService.success(`ØªÙ… Ø±ÙØ¶ ${successful} Ù…Ø¯ÙÙˆØ¹Ø§Øª Ø¨Ù†Ø¬Ø§Ø­`);
+                    NotificationService.success(`تم رفض ${successful} مدفوعات بنجاح`);
                 }
                 if (failed > 0) {
-                    NotificationService.warning(`ÙØ´Ù„ ÙÙŠ Ø±ÙØ¶ ${failed} Ù…Ø¯ÙÙˆØ¹Ø§Øª`);
+                    NotificationService.warning(`فشل في رفض ${failed} مدفوعات`);
                 }
                 
                 this.loadPayouts();
@@ -503,7 +509,7 @@ class OwnerPayoutsHandler {
         try {
             GlobalUIHandler.showLoading();
             
-            const response = await apiService.exportData('payouts', this.filters);
+            const response = await window.apiService.exportData('payouts', this.filters);
             if (response.success) {
                 // Create download link
                 const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

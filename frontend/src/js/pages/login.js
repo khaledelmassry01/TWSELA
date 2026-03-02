@@ -194,10 +194,11 @@ class LoginPageHandler {
             });
 
             if (response.ok) {
-                const user = await response.json();
+                const body = await response.json();
+                const user = body.data || body;
                 if (user) {
                     // User is already authenticated, redirect to dashboard
-                    const userRole = user.role ? user.role.name : null;
+                    const userRole = typeof user.role === 'string' ? user.role : (user.role ? user.role.name : null);
                     if (userRole) {
                         this.redirectToDashboard(userRole);
                     } else {
@@ -765,7 +766,8 @@ class LoginPageHandler {
         if (window.UIUtils) {
             window.UIUtils.showInfo(message);
         } else {
-            alert(message);
+            // Fallback when UIUtils not available
+            console.info(message);
         }
     }
 }

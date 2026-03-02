@@ -43,6 +43,8 @@ class ShipmentControllerTest {
     @MockBean private ShipmentService shipmentService;
     @MockBean private ZoneRepository zoneRepository;
     @MockBean private JwtService jwtService;
+    @MockBean private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean private com.twsela.security.AuthenticationHelper authHelper;
     @MockBean private UserDetailsService userDetailsService;
 
     private User ownerUser;

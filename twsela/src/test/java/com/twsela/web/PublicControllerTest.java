@@ -39,6 +39,8 @@ class PublicControllerTest {
     @MockBean private ShipmentRepository shipmentRepository;
     @MockBean private ServiceFeedbackRepository feedbackRepository;
     @MockBean private JwtService jwtService;
+    @MockBean private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean private com.twsela.security.AuthenticationHelper authHelper;
     @MockBean private UserRepository userRepository;
     @MockBean private PasswordEncoder passwordEncoder;
     @MockBean private OtpService otpService;

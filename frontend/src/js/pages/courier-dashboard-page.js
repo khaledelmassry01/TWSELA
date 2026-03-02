@@ -305,28 +305,19 @@ class CourierDashboardHandler extends BasePageHandler {
 
         
         // View manifest button
-        const viewManifestBtn = document.getElementById('viewManifestBtn');
-        if (viewManifestBtn) {
-            viewManifestBtn.addEventListener('click', () => {
-                this.viewManifest();
-            });
-        }
+        document.getElementById('viewManifestBtn')?.addEventListener('click', () => {
+            this.viewManifest();
+        });
 
         // Start delivery button
-        const startDeliveryBtn = document.getElementById('startDeliveryBtn');
-        if (startDeliveryBtn) {
-            startDeliveryBtn.addEventListener('click', () => {
-                this.startDelivery();
-            });
-        }
+        document.getElementById('startDeliveryBtn')?.addEventListener('click', () => {
+            this.startDelivery();
+        });
 
         // Logout button
-        const logoutBtn = document.querySelector('.logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                this.handleLogout();
-            });
-        }
+        document.querySelector('.logout-btn')?.addEventListener('click', () => {
+            this.handleLogout();
+        });
     }
 
     /**
@@ -334,7 +325,17 @@ class CourierDashboardHandler extends BasePageHandler {
      */
     async markAsDelivered(shipmentId) {
         try {
-            if (confirm('هل أنت متأكد من تسليم هذه الشحنة؟')) {
+            const result = await Swal.fire({
+                title: 'تأكيد التسليم',
+                text: 'هل أنت متأكد من تسليم هذه الشحنة؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'نعم، تم التسليم',
+                cancelButtonText: 'إلغاء'
+            });
+            if (result.isConfirmed) {
                 const btn = event?.target?.closest('button');
                 if (btn) UIUtils.showButtonLoading(btn, 'جاري التسليم...');
                 

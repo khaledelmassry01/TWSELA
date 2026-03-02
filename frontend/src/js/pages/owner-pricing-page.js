@@ -67,13 +67,14 @@ function renderPricingPlansTable(plans) {
         UIUtils.showEmptyState('#pricingPlansTable tbody', 'لا توجد خطط تسعير', 'tags');
         return;
     }
+    const e = SharedDataUtils.escapeHtml;
     tbody.innerHTML = plans.map(plan => `
         <tr>
-            <td>${plan.name || 'غير محدد'}</td>
-            <td>${plan.type || 'غير محدد'}</td>
+            <td>${e(plan.name || 'غير محدد')}</td>
+            <td>${e(plan.type || 'غير محدد')}</td>
             <td>${plan.baseFee ?? 0}</td>
             <td>${plan.weightFee ?? 0}</td>
-            <td><span class="badge bg-${plan.status === 'ACTIVE' ? 'success' : 'secondary'}">${plan.status || 'غير محدد'}</span></td>
+            <td><span class="badge bg-${plan.status === 'ACTIVE' ? 'success' : 'secondary'}">${e(plan.status || 'غير محدد')}</span></td>
             <td>
                 <button class="action-btn edit" data-id="${plan.id}"><i class="fas fa-edit"></i></button>
                 <button class="action-btn delete" data-id="${plan.id}"><i class="fas fa-trash"></i></button>

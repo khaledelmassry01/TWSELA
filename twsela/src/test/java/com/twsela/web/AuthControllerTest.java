@@ -5,7 +5,9 @@ import com.twsela.domain.Role;
 import com.twsela.domain.User;
 import com.twsela.domain.UserStatus;
 import com.twsela.repository.UserRepository;
+import com.twsela.security.AuthenticationHelper;
 import com.twsela.security.JwtService;
+import com.twsela.security.TokenBlacklistService;
 import com.twsela.service.AuditService;
 import com.twsela.service.MetricsService;
 import com.twsela.web.dto.LoginRequest;
@@ -47,6 +49,12 @@ class AuthControllerTest {
 
     @MockBean
     private JwtService jwtService;
+
+    @MockBean
+    private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+
+    @MockBean
+    private com.twsela.security.AuthenticationHelper authHelper;
 
     @MockBean
     private UserRepository userRepository;
@@ -97,8 +105,8 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.token").value("test.jwt.token"))
-                .andExpect(jsonPath("$.role").value("MERCHANT"));
+                .andExpect(jsonPath("$.data.token").value("test.jwt.token"))
+                .andExpect(jsonPath("$.data.role").value("MERCHANT"));
 
         verify(metricsService).recordLoginAttempt();
     }
@@ -171,6 +179,6 @@ class AuthControllerTest {
     void health_ReturnsOk() throws Exception {
         mockMvc.perform(get("/api/auth/health"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
+                .andExpect(jsonPath("$.data.status").value("UP"));
     }
 }

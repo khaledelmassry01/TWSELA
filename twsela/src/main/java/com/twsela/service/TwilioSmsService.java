@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -69,52 +72,39 @@ public class TwilioSmsService implements SmsService {
     }
     
     @Override
+    @Retryable(
+        retryFor = Exception.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public boolean sendSms(String phoneNumber, String message) {
         if (!smsEnabled) {
             logger.info("SMS is disabled. Would send to {}: {}", phoneNumber, message);
             return false;
         }
-        
+
         initializeTwilio();
-        
+
         if (!initialized) {
             logger.error("Twilio not initialized. Cannot send SMS.");
             return false;
         }
-        
-        // Retry logic
-        for (int attempt = 1; attempt <= retryAttempts; attempt++) {
-            try {
-                // Ensure phone number has country code
-                String formattedNumber = formatPhoneNumber(phoneNumber);
-                
-                Message.creator(
-                    new PhoneNumber(formattedNumber),
-                    new PhoneNumber(fromPhoneNumber),
-                    message
-                ).create();
-                
-                logger.info("SMS sent successfully to {} on attempt {}", phoneNumber, attempt);
-                return true;
-                
-            } catch (Exception e) {
-                logger.warn("SMS send attempt {} failed for {}: {}", attempt, phoneNumber, e.getMessage());
-                
-                if (attempt == retryAttempts) {
-                    logger.error("All SMS send attempts failed for {}: {}", phoneNumber, e.getMessage());
-                    return false;
-                }
-                
-                // Wait before retry (exponential backoff)
-                try {
-                    Thread.sleep(1000 * attempt);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return false;
-                }
-            }
-        }
-        
+
+        String formattedNumber = formatPhoneNumber(phoneNumber);
+
+        Message.creator(
+            new PhoneNumber(formattedNumber),
+            new PhoneNumber(fromPhoneNumber),
+            message
+        ).create();
+
+        logger.info("SMS sent successfully to {}", phoneNumber);
+        return true;
+    }
+
+    @Recover
+    public boolean recoverSendSms(Exception e, String phoneNumber, String message) {
+        logger.error("All SMS retry attempts failed for {}: {}", phoneNumber, e.getMessage());
         return false;
     }
     

@@ -116,6 +116,7 @@ class ApiService {
                 return {
                     success: false,
                     message: data.message || `HTTP ${response.status}`,
+                    errors: data.errors || [],
                     status: response.status,
                     data: null
                 };
@@ -195,11 +196,12 @@ class ApiService {
                 };
             }
 
-            const user = await response.json();
+            const body = await response.json();
+            const user = body.data || body;
             return {
                 success: true,
                 data: user,
-                message: 'Token verified successfully',
+                message: body.message || 'Token verified successfully',
                 status: response.status
             };
         } catch (error) {
@@ -245,11 +247,12 @@ class ApiService {
                 };
             }
 
-            const user = await response.json();
+            const body = await response.json();
+            const user = body.data || body;
             return {
                 success: true,
                 data: user,
-                message: 'User data retrieved successfully',
+                message: body.message || 'User data retrieved successfully',
                 status: response.status
             };
         } catch (error) {

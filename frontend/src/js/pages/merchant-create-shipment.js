@@ -39,7 +39,7 @@ class MerchantCreateShipmentHandler {
     async loadZones() {
         try {
             UIUtils.showLoading();
-            const response = await apiService.getZones({ status: 'ACTIVE' });
+            const response = await window.apiService.getZones({ status: 'ACTIVE' });
             
             if (response.success) {
                 this.zones = response.data || [];
@@ -297,7 +297,7 @@ class MerchantCreateShipmentHandler {
             UIUtils.showLoading();
             
             const formData = this.collectFormData();
-            const response = await apiService.createShipment(formData);
+            const response = await window.apiService.createShipment(formData);
 
             if (response.success) {
                 NotificationService.success('ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø´Ø­Ù†Ø© Ø¨Ù†Ø¬Ø§Ø­');

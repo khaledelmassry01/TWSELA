@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع الشحنة - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="src/css/pages/tracking-page.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">🚚 Twsela</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" href="index.html">الرئيسية</a>
+                <a class="nav-link active" href="tracking.html">تتبع الشحنة</a>
+                <a class="nav-link" href="contact.html">تواصل معنا</a>
+            </div>
+            <a href="login.html" class="btn btn-outline-light btn-sm">تسجيل الدخول</a>
+        </div>
+    </nav>
+
+    <!-- Search Section -->
+    <section class="tracking-hero py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6 text-center">
+                    <h1 class="mb-3">تتبع شحنتك</h1>
+                    <p class="text-muted mb-4">أدخل رقم التتبع للاطلاع على حالة شحنتك</p>
+                    <div class="input-group input-group-lg" id="trackingSearchGroup">
+                        <input type="text" class="form-control" id="trackingInput"
+                               placeholder="أدخل رقم التتبع مثل TS123456789"
+                               aria-label="رقم التتبع">
+                        <button class="btn btn-primary" type="button" id="trackBtn">
+                            تتبع
+                        </button>
+                    </div>
+                    <div id="errorMsg" class="text-danger mt-2 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="py-5 d-none" id="resultsSection">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8">
+                    <!-- Status Card -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="mb-1">رقم التتبع: <span id="resultTrackingNumber" class="text-primary"></span></h5>
+                                    <span class="badge bg-info fs-6" id="resultStatus"></span>
+                                </div>
+                                <div id="etaSection" class="text-end d-none">
+                                    <small class="text-muted">الوقت المقدر للوصول</small>
+                                    <div class="fs-4 fw-bold text-success" id="resultETA"></div>
+                                </div>
+                            </div>
+                            <!-- Courier Info -->
+                            <div id="courierSection" class="d-none border-top pt-3 mt-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-dark">🏍️ المندوب</span>
+                                    <span id="resultCourierName"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">مسار الشحنة</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="tracking-timeline" id="timelineContainer">
+                                <!-- Timeline entries injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 bg-dark text-white text-center mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 Twsela — جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/pages/tracking-page.js"></script>
+</body>
+</html>

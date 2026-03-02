@@ -20,4 +20,14 @@ public interface ReturnShipmentRepository extends JpaRepository<ReturnShipment, 
     Optional<ReturnShipment> findByOriginalShipmentIdAndReturnShipmentId(@Param("originalId") Long originalId, @Param("returnId") Long returnId);
     
     List<ReturnShipment> findByReasonContainingIgnoreCaseOrderByCreatedAtDesc(String reason);
+
+    List<ReturnShipment> findByStatusOrderByCreatedAtDesc(ReturnShipment.ReturnStatusEnum status);
+
+    @Query("SELECT r FROM ReturnShipment r WHERE r.originalShipment.merchant.id = :merchantId ORDER BY r.createdAt DESC")
+    List<ReturnShipment> findByMerchantId(@Param("merchantId") Long merchantId);
+
+    @Query("SELECT r FROM ReturnShipment r WHERE r.assignedCourier.id = :courierId ORDER BY r.createdAt DESC")
+    List<ReturnShipment> findByAssignedCourierId(@Param("courierId") Long courierId);
+
+    boolean existsByOriginalShipmentIdAndStatusNot(Long originalShipmentId, ReturnShipment.ReturnStatusEnum status);
 }

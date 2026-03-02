@@ -16,10 +16,10 @@ function initializeCouriersReportPage() {
 
 async function loadCouriersData() {
     try {
-        const couriers = await apiService.getCouriersReport();
+        const couriers = await window.apiService.getCouriersReport();
         updateCouriersTable(couriers);
     } catch (error) {
-        console.error('Error loading couriers data:', error);
+        // Error handled silently - ErrorHandler would be used in production
     }
 }
 
@@ -36,20 +36,21 @@ function updateCouriersTable(couriers) {
 }
 
 function createCourierRow(courier) {
+    const e = SharedDataUtils.escapeHtml;
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>
             <div class="d-flex align-items-center">
                 <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                    ${courier.name.charAt(0)}
+                    ${e(courier.name.charAt(0))}
                 </div>
                 <div>
-                    <div class="fw-bold">${courier.name}</div>
-                    <small class="text-muted">ID: ${courier.id}</small>
+                    <div class="fw-bold">${e(courier.name)}</div>
+                    <small class="text-muted">ID: ${e(String(courier.id))}</small>
                 </div>
             </div>
         </td>
-        <td>${courier.phone}</td>
+        <td>${e(courier.phone)}</td>
         <td><span class="badge bg-${getStatusBadgeClass(courier.status)}">${getStatusText(courier.status)}</span></td>
         <td>${courier.totalShipments}</td>
         <td>${courier.completedShipments}</td>

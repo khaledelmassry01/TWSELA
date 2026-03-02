@@ -164,14 +164,18 @@ class GlobalUIHandler {
         }
     }
 
+    /** @private Shorthand for XSS-safe escaping */
+    static _e(str) { return SharedDataUtils.escapeHtml(str); }
+
     /**
      * Create payout row HTML
      */
     static createPayoutRow(payout) {
+        const e = this._e;
         const statusBadge = SharedDataUtils.createStatusBadge(payout.status);
         const requestDate = SharedDataUtils.formatDate(payout.requestDate);
         const amount = SharedDataUtils.formatCurrency(payout.amount);
-        const merchantName = payout.merchant?.name || 'غير محدد';
+        const merchantName = e(payout.merchant?.name || 'غير محدد');
 
         return `
             <tr data-payout-id="${payout.id}">
@@ -188,7 +192,7 @@ class GlobalUIHandler {
                         </div>
                         <div>
                             <div class="fw-bold">${merchantName}</div>
-                            <small class="text-muted">${payout.merchant?.email || ''}</small>
+                            <small class="text-muted">${e(payout.merchant?.email || '')}</small>
                         </div>
                     </div>
                 </td>
@@ -197,8 +201,8 @@ class GlobalUIHandler {
                 </td>
                 <td>${amount}</td>
                 <td>${requestDate}</td>
-                <td>${payout.paymentMethod || 'غير محدد'}</td>
-                <td>${payout.bankAccount || 'غير محدد'}</td>
+                <td>${e(payout.paymentMethod || 'غير محدد')}</td>
+                <td>${e(payout.bankAccount || 'غير محدد')}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="action-btn view" data-payout-id="${payout.id}" title="عرض">
@@ -222,16 +226,17 @@ class GlobalUIHandler {
      * Create shipment row HTML
      */
     static createShipmentRow(shipment) {
+        const e = this._e;
         const statusBadge = SharedDataUtils.createStatusBadge(shipment.status);
         const codAmount = SharedDataUtils.formatCurrency(shipment.codAmount || 0);
         const createdDate = SharedDataUtils.formatDate(shipment.createdAt);
 
         return `
             <tr data-shipment-id="${shipment.id}">
-                <td>${shipment.trackingNumber || 'غير محدد'}</td>
-                <td>${shipment.recipientName || 'غير محدد'}</td>
-                <td>${shipment.recipientPhone || 'غير محدد'}</td>
-                <td>${shipment.address || 'غير محدد'}</td>
+                <td>${e(shipment.trackingNumber || 'غير محدد')}</td>
+                <td>${e(shipment.recipientName || 'غير محدد')}</td>
+                <td>${e(shipment.recipientPhone || 'غير محدد')}</td>
+                <td>${e(shipment.address || 'غير محدد')}</td>
                 <td>${codAmount}</td>
                 <td>
                     <span class="badge ${statusBadge.class}">${statusBadge.text}</span>
@@ -255,6 +260,7 @@ class GlobalUIHandler {
      * Create user row HTML
      */
     static createUserRow(user) {
+        const e = this._e;
         const roleBadge = SharedDataUtils.createRoleBadge(user.role);
         const statusBadge = SharedDataUtils.createStatusBadge(user.status);
         const createdDate = SharedDataUtils.formatDate(user.createdAt);
@@ -267,8 +273,8 @@ class GlobalUIHandler {
                             <i class="fas fa-user"></i>
                         </div>
                         <div>
-                            <div class="fw-bold">${user.name || 'غير محدد'}</div>
-                            <small class="text-muted">${user.email || ''}</small>
+                            <div class="fw-bold">${e(user.name || 'غير محدد')}</div>
+                            <small class="text-muted">${e(user.email || '')}</small>
                         </div>
                     </div>
                 </td>
@@ -278,7 +284,7 @@ class GlobalUIHandler {
                 <td>
                     <span class="badge ${statusBadge.class}">${statusBadge.text}</span>
                 </td>
-                <td>${user.phone || 'غير محدد'}</td>
+                <td>${e(user.phone || 'غير محدد')}</td>
                 <td>${createdDate}</td>
                 <td>
                     <div class="action-buttons">
@@ -301,6 +307,7 @@ class GlobalUIHandler {
      * Create zone row HTML
      */
     static createZoneRow(zone) {
+        const e = this._e;
         const statusBadge = SharedDataUtils.createStatusBadge(zone.status);
         const createdDate = SharedDataUtils.formatDate(zone.createdAt);
         const defaultFee = SharedDataUtils.formatCurrency(zone.defaultFee || 0);
@@ -313,8 +320,8 @@ class GlobalUIHandler {
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div>
-                            <div class="fw-bold">${zone.name || 'غير محدد'}</div>
-                            <small class="text-muted">${zone.city || 'غير محدد'}</small>
+                            <div class="fw-bold">${e(zone.name || 'غير محدد')}</div>
+                            <small class="text-muted">${e(zone.city || 'غير محدد')}</small>
                         </div>
                     </div>
                 </td>
@@ -322,8 +329,8 @@ class GlobalUIHandler {
                     <span class="badge ${statusBadge.class}">${statusBadge.text}</span>
                 </td>
                 <td>${defaultFee}</td>
-                <td>${zone.codFee ? zone.codFee + '%' : 'غير محدد'}</td>
-                <td>${zone.estimatedDeliveryTime || 'غير محدد'}</td>
+                <td>${zone.codFee ? e(String(zone.codFee)) + '%' : 'غير محدد'}</td>
+                <td>${e(zone.estimatedDeliveryTime || 'غير محدد')}</td>
                 <td>${createdDate}</td>
                 <td>
                     <div class="action-buttons">
@@ -412,15 +419,15 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>الاسم:</strong></td>
-                                            <td>${payoutData.merchant?.name || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.merchant?.name || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>البريد الإلكتروني:</strong></td>
-                                            <td>${payoutData.merchant?.email || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.merchant?.email || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>رقم الهاتف:</strong></td>
-                                            <td>${payoutData.merchant?.phone || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.merchant?.phone || 'غير محدد')}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -441,7 +448,7 @@ class GlobalUIHandler {
                                         </tr>
                                         <tr>
                                             <td><strong>طريقة الدفع:</strong></td>
-                                            <td>${payoutData.paymentMethod || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.paymentMethod || 'غير محدد')}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -450,22 +457,22 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>اسم البنك:</strong></td>
-                                            <td>${payoutData.bankName || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.bankName || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>رقم الحساب:</strong></td>
-                                            <td>${payoutData.bankAccount || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.bankAccount || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>IBAN:</strong></td>
-                                            <td>${payoutData.iban || 'غير محدد'}</td>
+                                            <td>${this._e(payoutData.iban || 'غير محدد')}</td>
                                         </tr>
                                     </table>
                                 </div>
                                 ${payoutData.rejectionReason ? `
                                     <div class="col-12">
                                         <h6>سبب الرفض</h6>
-                                        <p class="text-danger">${payoutData.rejectionReason}</p>
+                                        <p class="text-danger">${this._e(payoutData.rejectionReason)}</p>
                                     </div>
                                 ` : ''}
                             </div>
@@ -510,7 +517,7 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>رقم التتبع:</strong></td>
-                                            <td>${shipmentData.trackingNumber || 'غير محدد'}</td>
+                                            <td>${this._e(shipmentData.trackingNumber || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>الحالة:</strong></td>
@@ -531,15 +538,15 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>الاسم:</strong></td>
-                                            <td>${shipmentData.recipientName || 'غير محدد'}</td>
+                                            <td>${this._e(shipmentData.recipientName || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>رقم الهاتف:</strong></td>
-                                            <td>${shipmentData.recipientPhone || 'غير محدد'}</td>
+                                            <td>${this._e(shipmentData.recipientPhone || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>العنوان:</strong></td>
-                                            <td>${shipmentData.address || 'غير محدد'}</td>
+                                            <td>${this._e(shipmentData.address || 'غير محدد')}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -580,15 +587,15 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>الاسم:</strong></td>
-                                            <td>${userData.name || 'غير محدد'}</td>
+                                            <td>${this._e(userData.name || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>البريد الإلكتروني:</strong></td>
-                                            <td>${userData.email || 'غير محدد'}</td>
+                                            <td>${this._e(userData.email || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>رقم الهاتف:</strong></td>
-                                            <td>${userData.phone || 'غير محدد'}</td>
+                                            <td>${this._e(userData.phone || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>الدور:</strong></td>
@@ -636,15 +643,15 @@ class GlobalUIHandler {
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>المعرف:</strong></td>
-                                            <td>${data.id || 'غير محدد'}</td>
+                                            <td>${this._e(String(data.id || 'غير محدد'))}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>الاسم:</strong></td>
-                                            <td>${data.name || 'غير محدد'}</td>
+                                            <td>${this._e(data.name || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>الوصف:</strong></td>
-                                            <td>${data.description || 'غير محدد'}</td>
+                                            <td>${this._e(data.description || 'غير محدد')}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>تاريخ الإنشاء:</strong></td>

@@ -5,6 +5,7 @@ import com.twsela.domain.*;
 import com.twsela.repository.*;
 import com.twsela.security.JwtService;
 import com.twsela.service.FinancialService;
+import com.twsela.web.dto.CreatePayoutRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ class FinancialControllerTest {
     @MockBean private PayoutRepository payoutRepository;
     @MockBean private UserRepository userRepository;
     @MockBean private JwtService jwtService;
+    @MockBean private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean private com.twsela.security.AuthenticationHelper authHelper;
     @MockBean private UserDetailsService userDetailsService;
 
     private User ownerUser;
@@ -68,6 +71,9 @@ class FinancialControllerTest {
         // FinancialController.getCurrentUser does: (User) authentication.getPrincipal()
         ownerAuth = new UsernamePasswordAuthenticationToken(
                 ownerUser, null, List.of(new SimpleGrantedAuthority("ROLE_OWNER")));
+
+        when(authHelper.getCurrentUser(any(Authentication.class)))
+                .thenAnswer(inv -> (User) ((Authentication) inv.getArgument(0)).getPrincipal());
     }
 
     // ======== GET /api/financial/payouts ========
@@ -116,8 +122,8 @@ class FinancialControllerTest {
         when(financialService.createCourierPayout(eq(5L), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(samplePayout);
 
-        FinancialController.CreatePayoutRequest request =
-                new FinancialController.CreatePayoutRequest(5L, "COURIER", LocalDate.now().minusDays(30), LocalDate.now());
+        CreatePayoutRequest request =
+                new CreatePayoutRequest(5L, "COURIER", LocalDate.now().minusDays(30), LocalDate.now());
 
         mockMvc.perform(post("/api/financial/payouts")
                         .with(authentication(ownerAuth))

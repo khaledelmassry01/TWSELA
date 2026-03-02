@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.twsela.security.AuthenticationHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,9 +47,11 @@ public class SettingsController {
     );
 
     private final SystemSettingRepository settingRepository;
+    private final AuthenticationHelper authHelper;
 
-    public SettingsController(SystemSettingRepository settingRepository) {
+    public SettingsController(SystemSettingRepository settingRepository, AuthenticationHelper authHelper) {
         this.settingRepository = settingRepository;
+        this.authHelper = authHelper;
     }
 
     @Operation(summary = "عرض الإعدادات", description = "الحصول على إعدادات المستخدم")
@@ -56,7 +59,7 @@ public class SettingsController {
     @GetMapping
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getSettings(Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
+        User currentUser = authHelper.getCurrentUser(authentication);
 
         // Start with defaults
         Map<String, Object> settings = new HashMap<>(DEFAULTS);
@@ -75,7 +78,7 @@ public class SettingsController {
     @PostMapping
     @Transactional
     public ResponseEntity<Map<String, Object>> saveSettings(@RequestBody Map<String, Object> settings, Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
+        User currentUser = authHelper.getCurrentUser(authentication);
         Long userId = currentUser.getId();
 
         for (Map.Entry<String, Object> entry : settings.entrySet()) {
@@ -101,7 +104,7 @@ public class SettingsController {
     @PostMapping("/reset")
     @Transactional
     public ResponseEntity<Map<String, Object>> resetSettings(Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
+        User currentUser = authHelper.getCurrentUser(authentication);
         settingRepository.deleteByUserId(currentUser.getId());
 
         Map<String, Object> response = new HashMap<>();

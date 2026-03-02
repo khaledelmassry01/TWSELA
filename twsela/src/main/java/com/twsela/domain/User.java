@@ -66,6 +66,14 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    @JsonIgnore
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "locked_until")
+    @JsonIgnore
+    private Instant lockedUntil;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private MerchantDetails merchantDetails;
@@ -115,6 +123,10 @@ public class User {
     public void setCreatedShipments(Set<Shipment> createdShipments) { this.createdShipments = createdShipments; }
     public Set<Payout> getPayouts() { return payouts; }
     public void setPayouts(Set<Payout> payouts) { this.payouts = payouts; }
+    public int getFailedLoginAttempts() { return failedLoginAttempts; }
+    public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
+    public Instant getLockedUntil() { return lockedUntil; }
+    public void setLockedUntil(Instant lockedUntil) { this.lockedUntil = lockedUntil; }
     
     // Convenience methods
     public void setActive(boolean active) {

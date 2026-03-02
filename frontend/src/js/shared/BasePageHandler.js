@@ -170,7 +170,8 @@ class BasePageHandler {
             }
 
             if (response.ok) {
-                const user = await response.json();
+                const body = await response.json();
+                const user = body.data || body;
                 
                 // Store updated user data
                 this.services.auth.storeUserData(user);

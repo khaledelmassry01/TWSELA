@@ -289,12 +289,9 @@ class OwnerDashboardHandler extends BasePageHandler {
         });
 
         // Logout button
-        const logoutBtn = document.querySelector('.logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                this.handleLogout();
-            });
-        }
+        document.querySelector('.logout-btn')?.addEventListener('click', () => {
+            this.handleLogout();
+        });
     }
 
     /**

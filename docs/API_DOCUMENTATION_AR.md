@@ -1,6 +1,6 @@
 # TWSELA API Documentation (Arabic)
 
-تاريخ التحديث: 2026-02-25
+تاريخ التحديث: 2026-02-28
 
 ## 1) معلومات عامة
 
@@ -90,6 +90,51 @@ Authorization: Bearer <JWT_TOKEN>
 - **GET** `/api/auth/health`
 - **Auth:** Public
 
+### 4.4 Logout
+- **POST** `/api/auth/logout`
+- **Auth:** Required
+- **وصف:** تسجيل خروج المستخدم الحالي وإبطال التوكن
+- **200:**
+```json
+{
+  "success": true,
+  "message": "تم تسجيل الخروج بنجاح"
+}
+```
+
+### 4.5 Change Password
+- **POST** `/api/auth/change-password`
+- **Auth:** Required
+- **Body:**
+```json
+{
+  "currentPassword": "...",
+  "newPassword": "...",
+  "confirmPassword": "..."
+}
+```
+- **200:**
+```json
+{
+  "success": true,
+  "message": "تم تغيير كلمة المرور بنجاح"
+}
+```
+- **400:** كلمة المرور الحالية غير صحيحة أو كلمة المرور الجديدة لا تتطابق
+
+### 4.6 Refresh Token
+- **POST** `/api/auth/refresh`
+- **Auth:** Required (Bearer Token)
+- **وصف:** تجديد التوكن قبل انتهاء صلاحيته
+- **200:**
+```json
+{
+  "success": true,
+  "token": "<NEW_JWT_TOKEN>"
+}
+```
+- **401:** التوكن منتهي الصلاحية أو غير صالح
+
 ---
 
 ## 5) Health API
@@ -97,7 +142,19 @@ Authorization: Bearer <JWT_TOKEN>
 ### 5.1 App Health
 - **GET** `/api/health`
 - **Auth:** Public
-- **200:** status/version/environment
+- **وصف:** فحص صحة التطبيق مع حالة قاعدة البيانات و Redis (محدّث في Sprint 10)
+- **200:**
+```json
+{
+  "status": "UP",
+  "version": "1.0.0",
+  "environment": "local",
+  "components": {
+    "database": "UP",
+    "redis": "UP"
+  }
+}
+```
 
 ---
 
@@ -169,11 +226,95 @@ Base: `/api`
 }
 ```
 
-### 7.2 Role-based listings
+### 7.2 Update Profile
+- **PUT** `/api/users/profile`
+- **Auth:** Required (أي مستخدم مسجّل)
+- **وصف:** تحديث بيانات الملف الشخصي للمستخدم الحالي
+- **Body:**
+```json
+{
+  "name": "...",
+  "phone": "...",
+  "email": "..."
+}
+```
+- **200:**
+```json
+{
+  "success": true,
+  "message": "تم تحديث الملف الشخصي",
+  "data": { "id": 1, "name": "...", "phone": "..." }
+}
+```
+
+### 7.3 Role-based listings
 - **GET** `/api/couriers?page=0&limit=20`
 - **GET** `/api/merchants?page=0&limit=20`
 - **GET** `/api/employees?page=0&size=10`
 - **POST** `/api/employees`
+
+### 7.4 Courier CRUD
+- **GET** `/api/couriers/{id}` — جلب بيانات مندوب محدد
+- **POST** `/api/couriers` — إنشاء مندوب جديد
+- **PUT** `/api/couriers/{id}` — تحديث بيانات مندوب
+- **DELETE** `/api/couriers/{id}` — حذف مندوب
+- **Auth:** OWNER/ADMIN
+
+#### Create/Update Courier Body
+```json
+{
+  "name": "...",
+  "phone": "...",
+  "password": "...",
+  "active": true,
+  "vehicleType": "MOTORCYCLE|CAR|VAN",
+  "zoneId": 1
+}
+```
+
+### 7.5 Courier Location
+- **GET** `/api/couriers/{id}/location` — جلب آخر موقع للمندوب
+- **PUT** `/api/couriers/{id}/location` — تحديث موقع المندوب
+- **Auth:** OWNER/ADMIN/COURIER (المندوب نفسه فقط للتحديث)
+- **Body (PUT):**
+```json
+{
+  "latitude": 30.0444,
+  "longitude": 31.2357
+}
+```
+- **200 (GET):**
+```json
+{
+  "courierId": 5,
+  "latitude": 30.0444,
+  "longitude": 31.2357,
+  "updatedAt": "2026-02-28T12:00:00"
+}
+```
+
+### 7.6 Merchant CRUD
+- **GET** `/api/merchants/{id}` — جلب بيانات تاجر محدد
+- **POST** `/api/merchants` — إنشاء تاجر جديد
+- **PUT** `/api/merchants/{id}` — تحديث بيانات تاجر
+- **Auth:** OWNER/ADMIN
+
+#### Create/Update Merchant Body
+```json
+{
+  "name": "...",
+  "phone": "...",
+  "password": "...",
+  "businessName": "...",
+  "address": "...",
+  "active": true
+}
+```
+
+### 7.7 Employee Management
+- **GET** `/api/employees/{id}` — جلب بيانات موظف محدد
+- **PUT** `/api/employees/{id}` — تحديث بيانات موظف
+- **Auth:** OWNER/ADMIN
 
 ---
 
@@ -354,6 +495,19 @@ Base: `/api/reports`
 2. **GET** `/api/reports/couriers?startDate=...&endDate=...`
 3. **GET** `/api/reports/merchants?startDate=...&endDate=...`
 4. **GET** `/api/reports/warehouse?startDate=...&endDate=...`
+5. **GET** `/api/reports/dashboard`
+   - **Auth:** OWNER/ADMIN
+   - **وصف:** ملخص شامل للوحة التحكم يشمل إحصائيات عامة
+   - **200:**
+```json
+{
+  "totalShipments": 1250,
+  "deliveredToday": 45,
+  "pendingShipments": 120,
+  "activeCouriers": 18,
+  "revenue": 25000.00
+}
+```
 
 ---
 
@@ -361,9 +515,39 @@ Base: `/api/reports`
 
 Base: `/api/settings`
 
+> **تحديث Sprint 8:** الإعدادات تُحفظ الآن في قاعدة البيانات عبر `SystemSetting` entity بدلاً من الذاكرة فقط.
+
 1. **GET** `/api/settings`
+   - **Auth:** OWNER/ADMIN
+   - **وصف:** جلب جميع إعدادات النظام من قاعدة البيانات
+   - **200:**
+```json
+{
+  "success": true,
+  "data": {
+    "companyName": "Twsela",
+    "defaultCurrency": "EGP",
+    "smsEnabled": true,
+    "maxDeliveryAttempts": 3
+  }
+}
+```
+
 2. **POST** `/api/settings`
+   - **Auth:** OWNER/ADMIN
+   - **وصف:** حفظ/تحديث إعدادات النظام (تُحفظ في DB)
+   - **Body:**
+```json
+{
+  "companyName": "Twsela",
+  "defaultCurrency": "EGP",
+  "smsEnabled": true
+}
+```
+
 3. **POST** `/api/settings/reset`
+   - **Auth:** OWNER
+   - **وصف:** إعادة تعيين الإعدادات للقيم الافتراضية
 
 ---
 
@@ -404,7 +588,67 @@ Base: `/api/backup`
 
 ---
 
-## 18) Debug APIs (`DebugController`) — Development Only
+## 18) Notification APIs
+
+Base: `/api/notifications`
+
+1. **GET** `/api/notifications`
+   - **Auth:** Required
+   - **وصف:** جلب جميع إشعارات المستخدم الحالي
+   - **200:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "message": "تم تسليم الشحنة TS123456",
+      "type": "SHIPMENT_DELIVERED",
+      "read": false,
+      "createdAt": "2026-02-28T10:00:00"
+    }
+  ]
+}
+```
+
+2. **PUT** `/api/notifications/{id}/read`
+   - **Auth:** Required
+   - **وصف:** تحديد إشعار واحد كمقروء
+   - **200:** `{ "success": true }`
+
+3. **PUT** `/api/notifications/read-all`
+   - **Auth:** Required
+   - **وصف:** تحديد جميع الإشعارات كمقروءة
+   - **200:** `{ "success": true }`
+
+---
+
+## 19) Telemetry APIs
+
+Base: `/api/telemetry`
+
+1. **POST** `/api/telemetry`
+   - **Auth:** Required
+   - **وصف:** إرسال بيانات القياس عن بُعد (telemetry)
+   - **Body:**
+```json
+{
+  "event": "page_view",
+  "page": "/dashboard",
+  "duration": 1500,
+  "metadata": {}
+}
+```
+   - **200:** `{ "success": true }`
+
+2. **GET** `/api/telemetry`
+   - **Auth:** OWNER/ADMIN
+   - **وصف:** جلب بيانات القياس عن بُعد
+   - **Query:** `startDate`, `endDate`
+
+---
+
+## 20) Debug APIs (`DebugController`) — Development Only
 
 Base: `/api/debug`
 
@@ -419,7 +663,78 @@ Base: `/api/debug`
 
 ---
 
-## 19) أكواد الأخطاء المتوقعة
+## 21) DTOs الجديدة (Sprint 8)
+
+تم إنشاء 6 DTOs جديدة لتوحيد استجابات الـ API:
+
+### 21.1 CourierResponseDTO
+```json
+{
+  "id": 5,
+  "name": "أحمد",
+  "phone": "01012345678",
+  "active": true,
+  "vehicleType": "MOTORCYCLE",
+  "currentZone": "القاهرة"
+}
+```
+
+### 21.2 MerchantResponseDTO
+```json
+{
+  "id": 10,
+  "name": "محل الأمانة",
+  "phone": "01098765432",
+  "businessName": "محل الأمانة للملابس",
+  "totalShipments": 230
+}
+```
+
+### 21.3 ShipmentResponseDTO
+```json
+{
+  "id": 100,
+  "trackingNumber": "TS20260228001",
+  "status": "IN_TRANSIT",
+  "recipientName": "محمد",
+  "createdAt": "2026-02-28T08:00:00"
+}
+```
+
+### 21.4 DashboardStatsDTO
+```json
+{
+  "totalShipments": 1250,
+  "deliveredToday": 45,
+  "activeCouriers": 18,
+  "revenue": 25000.00
+}
+```
+
+### 21.5 SettingsResponseDTO
+```json
+{
+  "settings": { "key": "value" },
+  "lastUpdated": "2026-02-28T12:00:00"
+}
+```
+
+### 21.6 HealthResponseDTO
+```json
+{
+  "status": "UP",
+  "version": "1.0.0",
+  "environment": "local",
+  "components": {
+    "database": "UP",
+    "redis": "UP"
+  }
+}
+```
+
+---
+
+## 22) أكواد الأخطاء المتوقعة
 
 - `200` نجاح
 - `400` بيانات ناقصة/غير صحيحة
@@ -430,7 +745,7 @@ Base: `/api/debug`
 
 ---
 
-## 20) أمثلة عملية سريعة
+## 23) أمثلة عملية سريعة
 
 ### 20.1 Login
 
@@ -469,7 +784,7 @@ curl -X POST "http://localhost:8000/api/shipments" \
 
 ---
 
-## 21) ملاحظات جودة API (مهمة)
+## 24) ملاحظات جودة API (مهمة)
 
 1. بعض endpoints تُرجع Domain مباشرة، وبعضها يُرجع wrapper object.
 2. بعض endpoints حاليًا placeholder/hardcoded.
@@ -478,7 +793,7 @@ curl -X POST "http://localhost:8000/api/shipments" \
 
 ---
 
-## 22) مسار التطوير المقترح لتوثيق احترافي أكثر
+## 25) مسار التطوير المقترح لتوثيق احترافي أكثر
 
 1. اعتماد OpenAPI annotations لكل endpoint (summary/description/request/response).
 2. تعريف SecuritySchemes (Bearer JWT) في OpenAPI config.

@@ -1,8 +1,8 @@
-# 📊 تقرير شامل — تاريخ جميع السبرنتات (Sprint 1-5)
+# 📊 تقرير شامل — تاريخ جميع السبرنتات (Sprint 1-10)
 
-> **تاريخ التقرير:** 27 فبراير 2026
-> **إجمالي المهام المنجزة:** 158 مهمة
-> **إجمالي الاختبارات:** 89 test, 0 failures
+> **تاريخ التقرير:** 28 فبراير 2026
+> **إجمالي السبرنتات:** 10
+> **إجمالي الاختبارات:** 123 test, 0 failures
 > **حالة البناء:** ✅ BUILD SUCCESS
 
 ---
@@ -16,7 +16,12 @@
 | Sprint 3 | 38 | 6 WPs | JWT + Rate Limiting + Constructor Injection + Cache + اختبارات | 14 |
 | Sprint 4 | 28+2 مؤجل | 4 WPs | اختبارات موسعة + Logger + أمان متقدم | 89 |
 | Sprint 5 | 30 | 4 WPs | بنية تحتية + توثيق API + تنظيف نهائي | 89 |
-| **المجموع** | **158** | **24 WPs** | | **89 test** |
+| Sprint 6 | 4 WPs | 4 WPs | تقوية أمان + إصلاح نموذج بيانات | 89 |
+| Sprint 7 | 4 WPs | 4 WPs | أداء + endpoints جديدة | 100 |
+| Sprint 8 | 4 WPs | 4 WPs | توثيق API + جودة كود | 100 |
+| Sprint 9 | 4 WPs | 4 WPs | إصلاح شامل للواجهة الأمامية | 100 |
+| Sprint 10 | 4 WPs | 4 WPs | اختبارات + ترقيات + بنية تحتية | 123 |
+| **المجموع** | **10 Sprints** | **44 WPs** | | **123 test** |
 
 ---
 
@@ -249,35 +254,213 @@
 
 ---
 
-## 📊 مقاييس التقدم التراكمية
+## � Sprint 6 — تقوية الأمان وإصلاح نموذج البيانات
+**4 حزم عمل**
 
-| المقياس | قبل Sprint 1 | بعد Sprint 5 |
+### WP-1: تقوية الأمان
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Security hardening | تعزيز حماية endpoints الحساسة |
+| Input validation | تحسين التحقق من المدخلات |
+
+### WP-2: إصلاح نموذج البيانات
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Data model fixes | تصحيح العلاقات والقيود في نموذج البيانات |
+| Entity corrections | إصلاح entities المتأثرة |
+
+### WP-3: تحسينات Backend
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Service layer | تحسين طبقة الخدمات |
+| Error handling | تحسين معالجة الأخطاء |
+
+### WP-4: اختبارات وتوثيق
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Tests | الحفاظ على 89 test, 0 failures |
+
+---
+
+## 🟤 Sprint 7 — أداء و Endpoints جديدة
+**4 حزم عمل**
+
+### WP-1: Endpoints جديدة — Authentication
+| الإنجاز | التفاصيل |
+|---------|----------|
+| POST /api/auth/logout | تسجيل خروج وإبطال التوكن |
+| POST /api/auth/change-password | تغيير كلمة المرور |
+| POST /api/auth/refresh | تجديد التوكن |
+
+### WP-2: Endpoints جديدة — User & Courier & Merchant
+| الإنجاز | التفاصيل |
+|---------|----------|
+| PUT /api/users/profile | تحديث الملف الشخصي |
+| CRUD /api/couriers/{id} | GET, POST, PUT, DELETE للمناديب |
+| GET/PUT /api/couriers/{id}/location | موقع المندوب (جلب/تحديث) |
+| CRUD /api/merchants/{id} | GET, POST, PUT للتجار |
+| GET/PUT /api/employees/{id} | إدارة الموظفين |
+
+### WP-3: Endpoints جديدة — Notifications & Telemetry & Reports
+| الإنجاز | التفاصيل |
+|---------|----------|
+| GET /api/notifications | جلب إشعارات المستخدم |
+| PUT /api/notifications/{id}/read | تحديد إشعار كمقروء |
+| PUT /api/notifications/read-all | تحديد جميع الإشعارات كمقروءة |
+| POST/GET /api/telemetry | إرسال/جلب بيانات القياس عن بُعد |
+| GET /api/reports/dashboard | ملخص شامل للوحة التحكم |
+
+### WP-4: أداء
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Performance tuning | تحسينات أداء متنوعة |
+| **المجموع التراكمي** | **100 test, 0 failures** |
+
+---
+
+## ⚪ Sprint 8 — توثيق API وجودة الكود
+**4 حزم عمل**
+
+### WP-1: Swagger @Operation annotations
+| الإنجاز | التفاصيل |
+|---------|----------|
+| @Operation annotations | إضافة 32 annotation على 7 controllers متبقية |
+| Response DTOs | إنشاء 6 DTOs جديدة: CourierResponseDTO, MerchantResponseDTO, ShipmentResponseDTO, DashboardStatsDTO, SettingsResponseDTO, HealthResponseDTO |
+
+### WP-2: SystemSettings Persistence
+| الإنجاز | التفاصيل |
+|---------|----------|
+| SystemSetting entity | إنشاء entity + repository جديد |
+| SettingsController | الإعدادات تُحفظ الآن في DB بدلاً من الذاكرة |
+| HealthController | إخراج version/profile من application.yml بدل hardcoded |
+
+### WP-3: Code Quality
+| الإنجاز | التفاصيل |
+|---------|----------|
+| ErrorMessages.java | إنشاء ملف constants مركزي لرسائل الأخطاء |
+| Config extraction | استخراج القيم hardcoded إلى ملفات التكوين |
+| ShipmentService | إنشاء service يحتوي 5 methods لمنطق الأعمال |
+
+### WP-4: اختبارات جديدة (11 test)
+| ملف الاختبار | العدد | الحالة |
+|-------------|-------|--------|
+| SettingsControllerTest | 4 | ✅ |
+| ReportsControllerTest | 4 | ✅ |
+| HealthControllerTest | 3 | ✅ |
+| **المجموع التراكمي** | **100 test** | **0 failures** |
+
+---
+
+## 🔘 Sprint 9 — إصلاح شامل للواجهة الأمامية
+**4 حزم عمل**
+
+### WP-1: API Path Audit
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Path alignment | تأكيد تطابق المسارات عبر 131 method في api_service.js |
+| Backend/Frontend sync | جميع المسارات متوافقة بين الواجهتين |
+
+### WP-2: إنشاء أدوات مشتركة (Shared Utilities)
+| الإنجاز | التفاصيل |
+|---------|----------|
+| UIUtils | إنشاء: toast notifications, loading states, empty states, network error overlay |
+| ErrorHandler | معالجة أخطاء مركزية (centralized error routing) |
+| loading.css | أنماط CSS جديدة لحالات التحميل |
+
+### WP-3: تحديث صفحات Frontend (10 ملفات)
+| الإنجاز | التفاصيل |
+|---------|----------|
+| Try/catch | إضافة معالجة أخطاء لجميع العمليات غير المتزامنة |
+| UIUtils integration | حالات تحميل وحالات فارغة في جميع الصفحات |
+| ErrorHandler | توجيه الأخطاء المركزي في جميع الصفحات |
+| owner-pricing-page | تطبيق API حقيقي بدل بيانات وهمية |
+
+### WP-4: Accessibility + RTL
+| الإنجاز | التفاصيل |
+|---------|----------|
+| RTL + lang="ar" | تأكيد في جميع ملفات HTML |
+| ARIA landmarks | إضافة في 5 صفحات dashboard |
+| Null-safety | حراسات أمان في 3 ملفات page scripts |
+| **المجموع التراكمي** | **100 test, 0 failures** |
+
+---
+
+## 🟠 Sprint 10 — اختبارات + ترقيات + بنية تحتية
+**4 حزم عمل**
+
+### WP-1: اختبارات جديدة (22 test)
+| ملف الاختبار | العدد | الحالة |
+|-------------|-------|--------|
+| SmsControllerTest | 4 | ✅ |
+| ManifestControllerTest | 3 | ✅ |
+| UserControllerTest | 3 | ✅ |
+| AuditControllerTest | 3 | ✅ |
+| BackupControllerTest | 3 | ✅ |
+| NotificationControllerTest | 3 | ✅ |
+| TelemetryControllerTest | 3 | ✅ |
+| **المجموع التراكمي** | **122 → 123 test** | **0 failures** |
+
+### WP-2: ترقية Dependencies
+| الإنجاز | التفاصيل |
+|---------|----------|
+| jjwt | 0.11.5 → 0.12.6 (تحديث JwtService API) |
+| springdoc | 2.2.0 → 2.7.0 |
+| ✅ عناصر مؤجلة | تم إنجاز الترقيات المؤجلة من Sprint 4 |
+
+### WP-3: بنية تحتية
+| الإنجاز | التفاصيل |
+|---------|----------|
+| OtpService | إعادة هيكلة لاستخدام Redis مع fallback للذاكرة |
+| @Scheduled cleanup | تنظيف دوري للـ OTP المنتهية |
+| HealthController | تقرير حالة DB + Redis (components) |
+| Dockerfile | تحسين: multi-stage build, non-root user, healthcheck |
+
+### WP-4: توثيق
+| الإنجاز | التفاصيل |
+|---------|----------|
+| API_DOCUMENTATION_AR.md | إضافة جميع endpoints الجديدة (Sprints 6-10) |
+| SPRINTS_HISTORY_REPORT.md | إضافة ملخصات Sprint 8, 9, 10 |
+| README.md | إضافة قسم Sprint History |
+| **المجموع النهائي** | **123 test, 0 failures** |
+
+---
+
+## �📊 مقاييس التقدم التراكمية
+
+| المقياس | قبل Sprint 1 | بعد Sprint 10 |
 |---------|-------------|-------------|
 | ثغرات أمان حرجة | 12+ | 0 معروف |
 | `System.out.println` | 100+ | 0 |
 | `@Autowired` field injection | 38 | 0 |
 | Empty catch blocks | 55 | 0 |
 | TypeScript dead files | 21 | 0 |
-| Test coverage | 0 tests | 89 tests, 0 failures |
+| Test coverage | 0 tests | 123 tests, 0 failures |
 | SLF4J Logger coverage | 3/14 services | 14/14 services |
 | Swagger @Tag | 5/14 controllers | 14/14 controllers |
+| Swagger @Operation | 0 | 32 annotations |
 | Inline `<script>` | 9 HTML files | 1 (redirect stub) |
 | Hardcoded credentials | 5+ files | 0 |
 | Rate Limiting | None | 5 req/min on auth endpoints |
 | Constructor Injection | 0% | 100% |
 | CSP Headers | None | Full CSP + Permissions-Policy |
 | Redis Cache | Disabled | Active (dev: ConcurrentMap, prod: Redis) |
+| OTP Storage | In-memory only | Redis with in-memory fallback |
 | JWT Storage | localStorage | sessionStorage |
 | DB Indexes | Basic | +8 new indexes on 6 tables |
+| jjwt version | 0.11.5 | 0.12.6 |
+| springdoc version | 2.2.0 | 2.7.0 |
+| Frontend error handling | Inconsistent | Centralized (UIUtils + ErrorHandler) |
+| ARIA accessibility | None | Landmarks in 5 dashboards |
+| Dockerfile | Basic | Multi-stage, non-root, healthcheck |
 
 ---
 
 ## 🔄 عناصر مؤجلة من السبرنتات السابقة
 
-| العنصر | السبب | السبرنت الأصلي |
+| العنصر | الحالة | السبرنت الأصلي |
 |--------|-------|---------------|
-| jjwt upgrade (0.11.5→0.12.6) | خطر كسر API | Sprint 4 |
-| springdoc upgrade (2.2.0→2.7.0) | خطر كسر API | Sprint 4 |
+| ~~jjwt upgrade (0.11.5→0.12.6)~~ | ✅ مكتمل (Sprint 10) | Sprint 4 |
+| ~~springdoc upgrade (2.2.0→2.7.0)~~ | ✅ مكتمل (Sprint 10) | Sprint 4 |
 | httpOnly Cookie auth | يحتاج إعادة هيكلة كاملة | Sprint 2 |
 | CI/CD Pipeline | يحتاج setup منفصل | Sprint 3 |
 | WebSocket notifications | feature جديد | Sprint 3 |

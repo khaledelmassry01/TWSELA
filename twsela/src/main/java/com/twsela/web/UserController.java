@@ -2,22 +2,31 @@ package com.twsela.web;
 
 import com.twsela.domain.User;
 import com.twsela.domain.Role;
+import com.twsela.repository.UserRepository;
+import com.twsela.repository.CourierLocationHistoryRepository;
+import com.twsela.security.AuthenticationHelper;
 import com.twsela.service.UserService;
+import com.twsela.web.dto.ApiPageResponse;
+import com.twsela.web.dto.CreateUserRequest;
+import com.twsela.web.dto.DtoMapper;
+import com.twsela.web.dto.UpdateUserRequest;
+import com.twsela.web.dto.UserResponseDTO;
+import com.twsela.web.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.stream.Collectors;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -27,433 +36,232 @@ public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    private final com.twsela.repository.UserRepository userRepository;
-    private final com.twsela.repository.CourierLocationHistoryRepository courierLocationHistoryRepository;
+    private final UserRepository userRepository;
+    private final CourierLocationHistoryRepository courierLocationHistoryRepository;
+    private final AuthenticationHelper authHelper;
 
-    public UserController(UserService userService, 
-                         com.twsela.repository.UserRepository userRepository,
-                         com.twsela.repository.CourierLocationHistoryRepository courierLocationHistoryRepository) {
+    public UserController(UserService userService,
+                         UserRepository userRepository,
+                         CourierLocationHistoryRepository courierLocationHistoryRepository,
+                         AuthenticationHelper authHelper) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.courierLocationHistoryRepository = courierLocationHistoryRepository;
+        this.authHelper = authHelper;
     }
 
+    @Operation(summary = "الحصول على جميع المستخدمين")
     @GetMapping("/users")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getAllUsers() {
-        Map<String, Object> response = new HashMap<>();
-            List<User> users = userService.listAll();
-            
-            response.put("success", true);
-            response.put("data", users);
-            response.put("message", "Users retrieved successfully");
-            response.put("count", users.size());
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<List<UserResponseDTO>>> getAllUsers() {
+        List<UserResponseDTO> users = userService.listAll().stream()
+                .map(DtoMapper::toUserDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(users, "Users retrieved successfully"));
     }
 
+    @Operation(summary = "إنشاء مستخدم جديد")
     @PostMapping("/users")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createUser(@Valid @RequestBody CreateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-            
-            Role role = userService.getRoleByName(request.getRole())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.getRole()));
-            
-            User user = userService.createUser(
-                request.getName(),
-                request.getPhone(),
-                request.getPassword(),
-                role
-            );
-            
-            
-            response.put("success", true);
-            response.put("data", user);
-            response.put("message", "User created successfully");
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> createUser(@Valid @RequestBody CreateUserRequest request) {
+        Role role = userService.getRoleByName(request.getRole())
+            .orElseThrow(() -> new ResourceNotFoundException("Role", "name", request.getRole()));
+        User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(user), "User created successfully"));
     }
 
+    @Operation(summary = "تحديث مستخدم")
     @PutMapping("/users/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-            
-            User user = userService.updateUser(
-                id,
-                request.getName(),
-                request.getPhone(),
-                request.getActive(),
-                request.getPassword()
-            );
-            
-            
-            response.put("success", true);
-            response.put("data", user);
-            response.put("message", "User updated successfully");
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        User user = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(user), "User updated successfully"));
     }
 
+    @Operation(summary = "حذف مستخدم")
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-            
-            userService.deleteUser(id);
-            
-            
-            response.put("success", true);
-            response.put("message", "User deleted successfully");
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok("User deleted successfully"));
     }
 
+    @Operation(summary = "تحديث الملف الشخصي")
     @PutMapping("/users/profile")
-    public ResponseEntity<Map<String, Object>> updateProfile(
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> updateProfile(
             @RequestBody Map<String, String> request,
             Authentication authentication) {
-        Map<String, Object> response = new HashMap<>();
-        
-        com.twsela.domain.User currentUser = (com.twsela.domain.User) authentication.getPrincipal();
-        
+        User currentUser = authHelper.getCurrentUser(authentication);
         String name = request.get("name");
         String phone = request.get("phone");
-        
-        com.twsela.domain.User updated = userService.updateUser(
-            currentUser.getId(), name, phone, null, null);
-        
-        response.put("success", true);
-        response.put("data", updated);
-        response.put("message", "تم تحديث الملف الشخصي بنجاح");
-        return ResponseEntity.ok(response);
+        User updated = userService.updateUser(currentUser.getId(), name, phone, null, null);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(updated), "تم تحديث الملف الشخصي بنجاح"));
     }
 
+    @Operation(summary = "الحصول على مندوب بالمعرف")
     @GetMapping("/couriers/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getCourier(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
-        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
-            response.put("success", false);
-            response.put("message", "Courier not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        response.put("success", true);
-        response.put("data", courier);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> getCourier(@PathVariable Long id) {
+        User courier = userRepository.findById(id)
+                .filter(u -> "COURIER".equals(u.getRole().getName()))
+                .orElseThrow(() -> new ResourceNotFoundException("Courier", "id", id));
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(courier)));
     }
 
+    @Operation(summary = "إنشاء مندوب جديد")
     @PostMapping("/couriers")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createCourier(@Valid @RequestBody CreateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.Role role = userService.getRoleByName("COURIER").orElseThrow();
-        com.twsela.domain.User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
-        response.put("success", true);
-        response.put("data", user);
-        response.put("message", "تم إنشاء المندوب بنجاح");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> createCourier(@Valid @RequestBody CreateUserRequest request) {
+        Role role = userService.getRoleByName("COURIER").orElseThrow();
+        User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(user), "تم إنشاء المندوب بنجاح"));
     }
 
+    @Operation(summary = "تحديث بيانات مندوب")
     @PutMapping("/couriers/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateCourier(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
-        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
-            response.put("success", false);
-            response.put("message", "Courier not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
-        response.put("success", true);
-        response.put("data", updated);
-        response.put("message", "تم تحديث المندوب بنجاح");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> updateCourier(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        userRepository.findById(id)
+                .filter(u -> "COURIER".equals(u.getRole().getName()))
+                .orElseThrow(() -> new ResourceNotFoundException("Courier", "id", id));
+        User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(updated), "تم تحديث المندوب بنجاح"));
     }
 
+    @Operation(summary = "حذف مندوب")
     @DeleteMapping("/couriers/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> deleteCourier(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
-        if (courier == null || !"COURIER".equals(courier.getRole().getName())) {
-            response.put("success", false);
-            response.put("message", "Courier not found");
-            return ResponseEntity.status(404).body(response);
-        }
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<Void>> deleteCourier(@PathVariable Long id) {
+        userRepository.findById(id)
+                .filter(u -> "COURIER".equals(u.getRole().getName()))
+                .orElseThrow(() -> new ResourceNotFoundException("Courier", "id", id));
         userService.deleteUser(id);
-        response.put("success", true);
-        response.put("message", "تم حذف المندوب بنجاح");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok("تم حذف المندوب بنجاح"));
     }
 
+    @Operation(summary = "الحصول على موقع المندوب")
     @GetMapping("/couriers/{id}/location")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN', 'COURIER')")
-    public ResponseEntity<Map<String, Object>> getCourierLocation(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<Object>> getCourierLocation(@PathVariable Long id) {
         var locations = courierLocationHistoryRepository.findByCourierIdOrderByTimestampDesc(id);
         if (locations.isEmpty()) {
-            response.put("success", true);
-            response.put("data", null);
-            response.put("message", "No location data available");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(null, "No location data available"));
         }
-        response.put("success", true);
-        response.put("data", locations.get(0));
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(locations.get(0)));
     }
 
+    @Operation(summary = "تحديث موقع المندوب")
     @PutMapping("/couriers/{id}/location")
     @PreAuthorize("hasAnyRole('COURIER')")
-    public ResponseEntity<Map<String, Object>> updateCourierLocation(
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<Object>> updateCourierLocation(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User courier = userRepository.findById(id).orElse(null);
-        if (courier == null) {
-            response.put("success", false);
-            response.put("message", "Courier not found");
-            return ResponseEntity.status(404).body(response);
-        }
+        User courier = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Courier", "id", id));
         java.math.BigDecimal latitude = new java.math.BigDecimal(request.get("latitude").toString());
         java.math.BigDecimal longitude = new java.math.BigDecimal(request.get("longitude").toString());
         var location = new com.twsela.domain.CourierLocationHistory(courier, latitude, longitude);
         courierLocationHistoryRepository.save(location);
-        response.put("success", true);
-        response.put("data", location);
-        response.put("message", "تم تحديث الموقع بنجاح");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(location, "تم تحديث الموقع بنجاح"));
     }
 
+    @Operation(summary = "الحصول على تاجر بالمعرف")
     @GetMapping("/merchants/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getMerchant(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User merchant = userRepository.findById(id).orElse(null);
-        if (merchant == null || !"MERCHANT".equals(merchant.getRole().getName())) {
-            response.put("success", false);
-            response.put("message", "Merchant not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        response.put("success", true);
-        response.put("data", merchant);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> getMerchant(@PathVariable Long id) {
+        User merchant = userRepository.findById(id)
+                .filter(u -> "MERCHANT".equals(u.getRole().getName()))
+                .orElseThrow(() -> new ResourceNotFoundException("Merchant", "id", id));
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(merchant)));
     }
 
+    @Operation(summary = "إنشاء تاجر جديد")
     @PostMapping("/merchants")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createMerchant(@Valid @RequestBody CreateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.Role role = userService.getRoleByName("MERCHANT").orElseThrow();
-        com.twsela.domain.User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
-        response.put("success", true);
-        response.put("data", user);
-        response.put("message", "تم إنشاء التاجر بنجاح");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> createMerchant(@Valid @RequestBody CreateUserRequest request) {
+        Role role = userService.getRoleByName("MERCHANT").orElseThrow();
+        User user = userService.createUser(request.getName(), request.getPhone(), request.getPassword(), role);
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(user), "تم إنشاء التاجر بنجاح"));
     }
 
+    @Operation(summary = "تحديث بيانات تاجر")
     @PutMapping("/merchants/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateMerchant(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User merchant = userRepository.findById(id).orElse(null);
-        if (merchant == null || !"MERCHANT".equals(merchant.getRole().getName())) {
-            response.put("success", false);
-            response.put("message", "Merchant not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
-        response.put("success", true);
-        response.put("data", updated);
-        response.put("message", "تم تحديث التاجر بنجاح");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> updateMerchant(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        userRepository.findById(id)
+                .filter(u -> "MERCHANT".equals(u.getRole().getName()))
+                .orElseThrow(() -> new ResourceNotFoundException("Merchant", "id", id));
+        User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(updated), "تم تحديث التاجر بنجاح"));
     }
 
+    @Operation(summary = "الحصول على موظف بالمعرف")
     @GetMapping("/employees/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getEmployee(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User employee = userRepository.findById(id).orElse(null);
-        if (employee == null) {
-            response.put("success", false);
-            response.put("message", "Employee not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        response.put("success", true);
-        response.put("data", employee);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> getEmployee(@PathVariable Long id) {
+        User employee = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(employee)));
     }
 
+    @Operation(summary = "تحديث بيانات موظف")
     @PutMapping("/employees/{id}")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateEmployee(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        com.twsela.domain.User employee = userRepository.findById(id).orElse(null);
-        if (employee == null) {
-            response.put("success", false);
-            response.put("message", "Employee not found");
-            return ResponseEntity.status(404).body(response);
-        }
-        com.twsela.domain.User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
-        response.put("success", true);
-        response.put("data", updated);
-        response.put("message", "تم تحديث الموظف بنجاح");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> updateEmployee(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+        User updated = userService.updateUser(id, request.getName(), request.getPhone(), request.getActive(), request.getPassword());
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(updated), "تم تحديث الموظف بنجاح"));
     }
 
-    // DTOs for request/response
-    public static class CreateUserRequest {
-        @NotBlank(message = "الاسم مطلوب")
-        private String name;
-        @NotBlank(message = "رقم الهاتف مطلوب")
-        private String phone;
-        @NotBlank(message = "كلمة المرور مطلوبة")
-        private String password;
-        @NotBlank(message = "الدور مطلوب")
-        private String role;
-        private Boolean active;
-
-        // Getters and setters
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-        public String getRole() { return role; }
-        public void setRole(String role) { this.role = role; }
-        public Boolean getActive() { return active; }
-        public void setActive(Boolean active) { this.active = active; }
-    }
-
-    public static class UpdateUserRequest {
-        private String name;
-        private String phone;
-        private Boolean active;
-        private String password;
-
-        // Getters and setters
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public Boolean getActive() { return active; }
-        public void setActive(Boolean active) { this.active = active; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-    }
-
+    @Operation(summary = "الحصول على قائمة المناديب")
     @GetMapping("/couriers")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getCouriers(
+    public ResponseEntity<ApiPageResponse<UserResponseDTO>> getCouriers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit) {
-        Map<String, Object> response = new HashMap<>();
-            Page<User> courierPage = userRepository.findByRoleName("COURIER", PageRequest.of(page, limit));
-            
-            response.put("success", true);
-            response.put("data", courierPage.getContent());
-            response.put("message", "Couriers retrieved successfully");
-            response.put("count", courierPage.getTotalElements());
-            response.put("page", page);
-            response.put("limit", limit);
-            response.put("totalPages", courierPage.getTotalPages());
-            
-            return ResponseEntity.ok(response);
+        Page<User> courierPage = userRepository.findByRoleName("COURIER", PageRequest.of(page, limit));
+        Page<UserResponseDTO> dtoPage = courierPage.map(DtoMapper::toUserDTO);
+        return ResponseEntity.ok(ApiPageResponse.of(dtoPage, "Couriers retrieved successfully"));
     }
 
+    @Operation(summary = "الحصول على قائمة التجار")
     @GetMapping("/merchants")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getMerchants(
+    public ResponseEntity<ApiPageResponse<UserResponseDTO>> getMerchants(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit) {
-        Map<String, Object> response = new HashMap<>();
-            Page<User> merchantPage = userRepository.findByRoleName("MERCHANT", PageRequest.of(page, limit));
-            
-            response.put("success", true);
-            response.put("data", merchantPage.getContent());
-            response.put("message", "Merchants retrieved successfully");
-            response.put("count", merchantPage.getTotalElements());
-            response.put("page", page);
-            response.put("limit", limit);
-            response.put("totalPages", merchantPage.getTotalPages());
-            
-            return ResponseEntity.ok(response);
+        Page<User> merchantPage = userRepository.findByRoleName("MERCHANT", PageRequest.of(page, limit));
+        Page<UserResponseDTO> dtoPage = merchantPage.map(DtoMapper::toUserDTO);
+        return ResponseEntity.ok(ApiPageResponse.of(dtoPage, "Merchants retrieved successfully"));
     }
 
+    @Operation(summary = "الحصول على قائمة الموظفين")
     @GetMapping("/employees")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getEmployees(
+    public ResponseEntity<ApiPageResponse<UserResponseDTO>> getEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Map<String, Object> response = new HashMap<>();
-            Page<User> employeePage = userRepository.findAllNonDeleted(PageRequest.of(page, size));
-            
-            response.put("success", true);
-            response.put("data", employeePage.getContent());
-            response.put("message", "Employees retrieved successfully");
-            response.put("count", employeePage.getTotalElements());
-            response.put("page", page);
-            response.put("size", size);
-            response.put("totalPages", employeePage.getTotalPages());
-            
-            return ResponseEntity.ok(response);
+        Page<User> employeePage = userRepository.findAllNonDeleted(PageRequest.of(page, size));
+        Page<UserResponseDTO> dtoPage = employeePage.map(DtoMapper::toUserDTO);
+        return ResponseEntity.ok(ApiPageResponse.of(dtoPage, "Employees retrieved successfully"));
     }
 
+    @Operation(summary = "إنشاء موظف جديد")
     @PostMapping("/employees")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> createEmployee(@Valid @RequestBody CreateUserRequest request) {
-        Map<String, Object> response = new HashMap<>();
-            // Validate required fields
-            if (request.getName() == null || request.getName().trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "الاسم مطلوب");
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (request.getPhone() == null || request.getPhone().trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "رقم الهاتف مطلوب");
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "كلمة المرور مطلوبة");
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (request.getRole() == null || request.getRole().trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "الدور مطلوب");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // Get role
-            Role role = userService.getRoleByName(request.getRole()).orElse(null);
-            if (role == null) {
-                response.put("success", false);
-                response.put("message", "الدور غير صحيح");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // Create user
-            User user = userService.createUser(
-                request.getName().trim(),
-                request.getPhone().trim(),
-                request.getPassword(),
-                role
-            );
-
-            // Set active status if provided
-            if (request.getActive() != null) {
-                user = userService.updateUser(user.getId(), null, null, request.getActive(), null);
-            }
-
-            response.put("success", true);
-            response.put("message", "تم إنشاء الموظف بنجاح");
-            response.put("data", user);
-            
-            return ResponseEntity.ok(response);
+    public ResponseEntity<com.twsela.web.dto.ApiResponse<UserResponseDTO>> createEmployee(@Valid @RequestBody CreateUserRequest request) {
+        Role role = userService.getRoleByName(request.getRole())
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "name", request.getRole()));
+        User user = userService.createUser(
+            request.getName().trim(),
+            request.getPhone().trim(),
+            request.getPassword(),
+            role
+        );
+        if (request.getActive() != null) {
+            user = userService.updateUser(user.getId(), null, null, request.getActive(), null);
+        }
+        return ResponseEntity.ok(com.twsela.web.dto.ApiResponse.ok(DtoMapper.toUserDTO(user), "تم إنشاء الموظف بنجاح"));
     }
 }

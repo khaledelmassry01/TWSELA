@@ -1,0 +1,99 @@
+package com.twsela.web;
+
+import com.twsela.domain.Role;
+import com.twsela.domain.User;
+import com.twsela.domain.UserStatus;
+import com.twsela.repository.CourierLocationHistoryRepository;
+import com.twsela.repository.UserRepository;
+import com.twsela.security.JwtService;
+import com.twsela.service.UserService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(controllers = UserController.class, properties = {
+        "app.security.jwt.secret=dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tbXVzdC1iZS1sb25n",
+        "app.security.jwt.expiration-ms=3600000"
+})
+@Import(UserControllerTest.TestMethodSecurityConfig.class)
+class UserControllerTest {
+
+    @TestConfiguration
+    @EnableMethodSecurity
+    static class TestMethodSecurityConfig {}
+
+    @Autowired private MockMvc mockMvc;
+
+    @MockBean private UserService userService;
+    @MockBean private UserRepository userRepository;
+    @MockBean private CourierLocationHistoryRepository courierLocationHistoryRepository;
+    @MockBean private JwtService jwtService;
+    @MockBean private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean private com.twsela.security.AuthenticationHelper authHelper;
+    @MockBean private UserDetailsService userDetailsService;
+
+    private Authentication createAuth(String roleName) {
+        Role role = new Role(roleName);
+        role.setId(1L);
+        UserStatus activeStatus = new UserStatus("ACTIVE");
+        activeStatus.setId(1L);
+        User user = new User();
+        user.setId(1L);
+        user.setName("Test User");
+        user.setPhone("0501234567");
+        user.setRole(role);
+        user.setStatus(activeStatus);
+        user.setIsDeleted(false);
+        return new UsernamePasswordAuthenticationToken(
+                user, null, List.of(new SimpleGrantedAuthority("ROLE_" + roleName)));
+    }
+
+    @Test
+    @DisplayName("GET /api/users — يجب إرجاع قائمة المستخدمين للمالك")
+    void getAllUsers_success_owner() throws Exception {
+        when(userService.listAll()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/users").with(authentication(createAuth("OWNER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("GET /api/users — يجب رفض الوصول للتاجر")
+    void getAllUsers_forbidden_forMerchant() throws Exception {
+        mockMvc.perform(get("/api/users").with(authentication(createAuth("MERCHANT"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /api/couriers — يجب إرجاع قائمة المندوبين بنجاح")
+    void getCouriers_success() throws Exception {
+        when(userRepository.findByRoleName(eq("COURIER"), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/api/couriers").with(authentication(createAuth("OWNER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+}

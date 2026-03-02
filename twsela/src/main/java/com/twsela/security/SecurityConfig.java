@@ -57,6 +57,8 @@ public class SecurityConfig {
                 // Swagger/OpenAPI documentation endpoints
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
+                // WebSocket endpoint (auth handled by STOMP interceptor)
+                .requestMatchers("/ws/**").permitAll()
                 // Static files - no authentication required
                 .requestMatchers("/", "/index.html", "/login.html", "/contact.html", "/profile.html", "/settings.html", "/404.html").permitAll()
                 .requestMatchers("/frontend/**", "/static/**", "/*.html", "/*/*.html", "/*.css", "/*.js", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.ico", "/*.svg", "/src/**").permitAll()
@@ -68,7 +70,21 @@ public class SecurityConfig {
                 // All other auth endpoints are open for registration, password reset, etc.
                 .requestMatchers("/api/auth/**", "/api/v1/auth/**").permitAll()
                 // Unified endpoints with role-based access control
-                .requestMatchers("/api/shipments/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER")
+                // Courier location tracking
+                .requestMatchers("/api/couriers/location").hasRole("COURIER")
+                .requestMatchers("/api/couriers/*/location/**", "/api/couriers/*/location").hasAnyRole("OWNER", "ADMIN", "COURIER")
+                // Returns management
+                .requestMatchers("/api/returns/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER")
+                // Wallet management
+                .requestMatchers("/api/wallet/admin/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/wallet/**").authenticated()
+                // Webhooks
+                .requestMatchers("/api/webhooks/retry").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/webhooks/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT")
+                // Analytics
+                .requestMatchers("/api/analytics/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/shipments/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
+                .requestMatchers("/api/ratings/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT")
                 .requestMatchers("/api/master/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/dashboard/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/manifests/**").hasAnyRole("OWNER", "ADMIN", "COURIER")
@@ -77,6 +93,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/warehouse/**").hasAnyRole("OWNER", "ADMIN", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/settings/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/contact/**").permitAll()
+                .requestMatchers("/api/notifications/**").authenticated()
                 .requestMatchers("/api/statistics/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/audit/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/sms/**").hasAnyRole("OWNER", "ADMIN")

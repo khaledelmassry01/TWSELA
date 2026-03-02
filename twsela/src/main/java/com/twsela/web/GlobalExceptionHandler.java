@@ -1,5 +1,10 @@
 package com.twsela.web;
 
+import com.twsela.web.dto.ApiResponse;
+import com.twsela.web.exception.BusinessRuleException;
+import com.twsela.web.exception.DuplicateResourceException;
+import com.twsela.web.exception.InvalidOperationException;
+import com.twsela.web.exception.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,148 +25,182 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import com.twsela.util.AppUtils;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // ── Custom application exceptions ────────────────────────────
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessRule(BusinessRuleException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateResource(DuplicateResourceException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidOperation(InvalidOperationException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    // ── Validation ───────────────────────────────────────────────
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(
             MethodArgumentNotValidException ex, WebRequest request) {
-        
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        
-        return AppUtils.validationError(errors);
+
+        List<String> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(e -> {
+                    String field = (e instanceof FieldError fe) ? fe.getField() + ": " : "";
+                    return field + e.getDefaultMessage();
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Validation failed", errors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
+    public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
             ConstraintViolationException ex, WebRequest request) {
-        
-        return AppUtils.error("Invalid input data");
+
+        List<String> errors = ex.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Invalid input data", errors));
     }
 
+    // ── Security ─────────────────────────────────────────────────
+
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthenticationException(
+    public ResponseEntity<ApiResponse<Void>> handleAuthentication(
             AuthenticationException ex, WebRequest request) {
-        
-        return AppUtils.unauthorized("Authentication failed");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Authentication failed"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentialsException(
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
             BadCredentialsException ex, WebRequest request) {
-        
-        return AppUtils.unauthorized("Invalid credentials");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Invalid credentials"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
             AccessDeniedException ex, WebRequest request) {
-        
-        return AppUtils.forbidden("Access denied");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("Access denied"));
     }
 
+    // ── Standard Spring exceptions ───────────────────────────────
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(
             IllegalArgumentException ex, WebRequest request) {
-        
-        return AppUtils.error(ex.getMessage());
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(ex.getMessage()));
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, Object>> handleNoSuchElementException(
+    public ResponseEntity<ApiResponse<Void>> handleNoSuchElement(
             NoSuchElementException ex, WebRequest request) {
-        
         log.warn("NoSuchElementException: {}", ex.getMessage());
-        return AppUtils.error(HttpStatus.NOT_FOUND, "البيانات المطلوبة غير موجودة في النظام");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("البيانات المطلوبة غير موجودة في النظام"));
     }
 
-    // ===== New exception handlers added in Sprint 3 =====
-
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(
             HttpRequestMethodNotSupportedException ex, WebRequest request) {
-        
         log.warn("Method not supported: {} for {}", ex.getMethod(), request.getDescription(false));
-        return AppUtils.error(HttpStatus.METHOD_NOT_ALLOWED, "HTTP method غير مدعوم: " + ex.getMethod());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiResponse.error("HTTP method غير مدعوم: " + ex.getMethod()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleMissingParameter(
+    public ResponseEntity<ApiResponse<Void>> handleMissingParameter(
             MissingServletRequestParameterException ex, WebRequest request) {
-        
-        return AppUtils.error(HttpStatus.BAD_REQUEST, "معامل مطلوب مفقود: " + ex.getParameterName());
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error("معامل مطلوب مفقود: " + ex.getParameterName()));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<Map<String, Object>> handleMediaTypeNotSupported(
+    public ResponseEntity<ApiResponse<Void>> handleMediaTypeNotSupported(
             HttpMediaTypeNotSupportedException ex, WebRequest request) {
-        
-        return AppUtils.error(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "نوع المحتوى غير مدعوم: " + ex.getContentType());
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(ApiResponse.error("نوع المحتوى غير مدعوم: " + ex.getContentType()));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
             DataIntegrityViolationException ex, WebRequest request) {
-        
         log.error("Data integrity violation: {}", ex.getMostSpecificCause().getMessage());
-        return AppUtils.error(HttpStatus.CONFLICT, "تعارض في البيانات — قد تكون القيمة مكررة أو مرتبطة بسجلات أخرى");
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("تعارض في البيانات — قد تكون القيمة مكررة أو مرتبطة بسجلات أخرى"));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Map<String, Object>> handleMaxUploadSize(
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(
             MaxUploadSizeExceededException ex, WebRequest request) {
-        
-        return AppUtils.error(HttpStatus.PAYLOAD_TOO_LARGE, "حجم الملف يتجاوز الحد المسموح");
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.error("حجم الملف يتجاوز الحد المسموح"));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, Object>> handleMessageNotReadable(
+    public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(
             HttpMessageNotReadableException ex, WebRequest request) {
-        
-        return AppUtils.error(HttpStatus.BAD_REQUEST, "صيغة الطلب غير صالحة — تحقق من JSON المرسل");
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error("صيغة الطلب غير صالحة — تحقق من JSON المرسل"));
     }
 
+    // ── Catch-all handlers ───────────────────────────────────────
+
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(
+    public ResponseEntity<ApiResponse<Void>> handleRuntimeException(
             RuntimeException ex, WebRequest request) {
-        
         log.warn("RuntimeException: {}", ex.getMessage());
-        
-        // Check if it's a data initialization error
+
         if (ex.getMessage() != null && ex.getMessage().contains("غير موجودة")) {
-            return AppUtils.error(HttpStatus.NOT_FOUND, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(ex.getMessage()));
         }
-        
-        // Don't leak internal error details to client
-        return AppUtils.error(HttpStatus.BAD_REQUEST, "حدث خطأ أثناء معالجة الطلب");
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error("حدث خطأ أثناء معالجة الطلب"));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(
+    public ResponseEntity<ApiResponse<Void>> handleGenericException(
             Exception ex, WebRequest request) {
-        
-        // Log the actual exception for debugging
         log.error("Unexpected error", ex);
-        
-        // CRITICAL FIX: Check if this is an authentication-related error
+
         String requestPath = request.getDescription(false);
         if (requestPath.contains("/api/auth/login")) {
-            // For login endpoint, always return 401 instead of 500
-            return AppUtils.unauthorized("Authentication failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication failed"));
         }
-        
-        return AppUtils.error(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error has occurred");
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("An internal error has occurred"));
     }
 }

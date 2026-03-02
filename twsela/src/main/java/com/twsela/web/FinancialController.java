@@ -2,7 +2,9 @@ package com.twsela.web;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import com.twsela.security.AuthenticationHelper;
 import com.twsela.service.FinancialService;
+import com.twsela.web.dto.CreatePayoutRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,13 +30,16 @@ public class FinancialController {
     private final FinancialService financialService;
     private final PayoutRepository payoutRepository;
     private final UserRepository userRepository;
+    private final AuthenticationHelper authHelper;
 
     public FinancialController(FinancialService financialService,
                                PayoutRepository payoutRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               AuthenticationHelper authHelper) {
         this.financialService = financialService;
         this.payoutRepository = payoutRepository;
         this.userRepository = userRepository;
+        this.authHelper = authHelper;
     }
 
     @Operation(summary = "جميع المدفوعات", description = "عرض قائمة المدفوعات")
@@ -76,24 +81,24 @@ public class FinancialController {
         }
         
         // Verify user exists
-        User user = userRepository.findById(request.userId).orElse(null);
+        User user = userRepository.findById(request.getUserId()).orElse(null);
         if (user == null) {
             return ResponseEntity.badRequest().build();
         }
         
         // Create payout based on type
         Payout payout;
-        if (request.payoutType.equals("COURIER")) {
+        if (request.getPayoutType().equals("COURIER")) {
             payout = financialService.createCourierPayout(
-                request.userId, 
-                request.startDate, 
-                request.endDate
+                request.getUserId(), 
+                request.getStartDate(), 
+                request.getEndDate()
             );
-        } else if (request.payoutType.equals("MERCHANT")) {
+        } else if (request.getPayoutType().equals("MERCHANT")) {
             payout = financialService.createMerchantPayout(
-                request.userId, 
-                request.startDate, 
-                request.endDate
+                request.getUserId(), 
+                request.getStartDate(), 
+                request.getEndDate()
             );
         } else {
             return ResponseEntity.badRequest().build();
@@ -203,22 +208,6 @@ public class FinancialController {
     }
 
     private User getCurrentUser(Authentication authentication) {
-        return (User) authentication.getPrincipal();
-    }
-
-    public static class CreatePayoutRequest {
-        public Long userId;
-        public String payoutType; // "COURIER" or "MERCHANT"
-        public LocalDate startDate;
-        public LocalDate endDate;
-        
-        public CreatePayoutRequest() {}
-        
-        public CreatePayoutRequest(Long userId, String payoutType, LocalDate startDate, LocalDate endDate) {
-            this.userId = userId;
-            this.payoutType = payoutType;
-            this.startDate = startDate;
-            this.endDate = endDate;
-        }
+        return authHelper.getCurrentUser(authentication);
     }
 }

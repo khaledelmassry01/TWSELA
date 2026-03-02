@@ -242,7 +242,8 @@ class TwselaApp {
             
             
             if (response.ok) {
-                const user = await response.json();
+                const body = await response.json();
+                const user = body.data || body;
                 if (user) {
                     this.currentUser = user;
                     return true;
@@ -272,8 +273,9 @@ class TwselaApp {
             
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.data && data.data.user) {
-                    this.currentUser = data.data.user;
+                const user = data.data || data;
+                if (user) {
+                    this.currentUser = user;
                     this.updateUserInterface();
                 }
             }

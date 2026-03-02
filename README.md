@@ -35,6 +35,7 @@
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
 - [Business Model](#-business-model)
+- [Sprint History](#-sprint-history)
 - [Roadmap](#-roadmap)
 - [License](#-license)
 
@@ -1493,7 +1494,36 @@ Twsela operates on a SaaS-based business model with multiple revenue streams:
 
 ---
 
-## 🗺️ Roadmap
+## � Sprint History
+
+Twsela has been developed and hardened through 10 structured sprints. Each sprint targeted specific quality, security, and feature goals.
+
+| Sprint | Focus | Key Outcome | Tests |
+|--------|-------|-------------|-------|
+| **Sprint 1** | Critical security fixes & broken functions | Closed 12+ security vulnerabilities, fixed 5 broken endpoints | 0 |
+| **Sprint 2** | Data sync & performance | Shipment status sync (8→17 states), EAGER→LAZY, dashboard optimization | 0 |
+| **Sprint 3** | JWT + Rate Limiting + Cache + Tests | Bucket4j rate limiting, Redis cache, constructor injection, 14 tests | 14 |
+| **Sprint 4** | Expanded tests + code quality | 75 new tests, Logger.js, 219 console.* replacements, DB indexes | 89 |
+| **Sprint 5** | Infrastructure + API docs + final cleanup | Docker credentials secured, SLF4J in 9 services, @Tag on 14 controllers | 89 |
+| **Sprint 6** | Security hardening + data model fixes | Enhanced input validation, entity relationship corrections | 89 |
+| **Sprint 7** | Performance + new endpoints | 15+ new endpoints (auth, courier, merchant, notifications, telemetry) | 100 |
+| **Sprint 8** | API documentation + code quality | 32 @Operation annotations, 6 DTOs, SystemSettings persistence, ShipmentService | 100 |
+| **Sprint 9** | Frontend overhaul | UIUtils + ErrorHandler, 10 page scripts updated, ARIA accessibility, RTL audit | 100 |
+| **Sprint 10** | Tests + dependency upgrades + infrastructure | 22 new tests, jjwt 0.12.6, springdoc 2.7.0, Redis OTP, Dockerfile optimization | 123 |
+
+### Cumulative Metrics
+- **Total Tests:** 123 (0 failures)
+- **Build Status:** ✅ BUILD SUCCESS
+- **Security Vulnerabilities:** 0 known (from 12+)
+- **Test Coverage:** 14 controllers, 9 services
+- **Swagger Documentation:** 14/14 controllers with @Tag, 32 @Operation annotations
+- **Deferred Items Completed:** jjwt upgrade, springdoc upgrade (Sprint 10)
+
+> Full sprint details: see [SPRINTS_HISTORY_REPORT.md](SPRINTS_HISTORY_REPORT.md)
+
+---
+
+## �🗺️ Roadmap
 
 ### Phase 1: MVP ✅ (Completed)
 - [x] Core shipment management

@@ -314,8 +314,20 @@ function deleteZone(zoneId) {
             window.ownerZonesHandler.deleteZone(zoneId);
         } else {
             // Fallback implementation with confirmation
-            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©ØŸ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡.')) {
-                performDeleteZone(zoneId);
+            {
+                const result = await Swal.fire({
+                    title: 'تأكيد الحذف',
+                    text: 'هل أنت متأكد من حذف هذه المنطقة؟ لا يمكن التراجع عن هذا الإجراء.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'نعم، احذف',
+                    cancelButtonText: 'إلغاء'
+                });
+                if (result.isConfirmed) {
+                    performDeleteZone(zoneId);
+                }
             }
         }
     } catch (error) {
@@ -591,7 +603,7 @@ function showNotification(message, type = 'info') {
         } else {
             // Ø§Ø³ØªØ®Ø¯Ø§Ù… alert ÙƒØ¨Ø¯ÙŠÙ„
             log.debug(`ðŸ“¢ ${type.toUpperCase()}: ${message}`);
-            alert(message);
+            // Fallback: log message when no notification service available
         }
     } catch (error) {
         log.error('âŒ Error showing notification:', error);

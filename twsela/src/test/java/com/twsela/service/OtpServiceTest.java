@@ -12,8 +12,8 @@ class OtpServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 5-minute validity, max 5 attempts
-        otpService = new OtpService(5, 5);
+        // 5-minute validity, max 5 attempts, no Redis (in-memory fallback)
+        otpService = new OtpService(5, 5, null);
     }
 
     // ======== generateOtp ========

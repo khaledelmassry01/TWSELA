@@ -231,7 +231,7 @@ class MerchantShipmentDetailsHandler {
         const notes = document.getElementById('statusNotes')?.value?.trim() || '';
 
         if (!newStatus) {
-            alert('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©');
+            NotificationService.warning('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©');
             return;
         }
 
@@ -280,10 +280,28 @@ class MerchantShipmentDetailsHandler {
             navigator.clipboard.writeText(trackUrl).then(() => {
                 this.showNotification('ØªÙ… Ù†Ø³Ø® Ø±Ø§Ø¨Ø· Ø§Ù„ØªØªØ¨Ø¹', 'success');
             }).catch(() => {
-                prompt('Ø§Ù†Ø³Ø® Ø±Ø§Ø¨Ø· Ø§Ù„ØªØªØ¨Ø¹:', trackUrl);
+                {
+                    // Fallback: create temporary input for copy
+                    const tempInput = document.createElement('input');
+                    tempInput.value = trackUrl;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    this.showNotification('تم نسخ رابط التتبع', 'success');
+                }
             });
         } else {
-            prompt('Ø§Ù†Ø³Ø® Ø±Ø§Ø¨Ø· Ø§Ù„ØªØªØ¨Ø¹:', trackUrl);
+            {
+                    // Fallback: create temporary input for copy
+                    const tempInput = document.createElement('input');
+                    tempInput.value = trackUrl;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    this.showNotification('تم نسخ رابط التتبع', 'success');
+                }
         }
     }
 

@@ -89,10 +89,10 @@ class OwnerEmployeesHandler extends BasePageHandler {
                 <td>${escapeHtml(employee.role?.name || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯')}</td>
                 <td>${this.formatDate(employee.createdAt)}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick="ownerEmployeesHandler.editEmployee(${employee.id})">
+                    <button class="btn btn-sm btn-outline-primary action-btn edit-employee" data-employee-id="${employee.id}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="ownerEmployeesHandler.deleteEmployee(${employee.id})">
+                    <button class="btn btn-sm btn-outline-danger action-btn delete-employee" data-employee-id="${employee.id}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -156,7 +156,17 @@ class OwnerEmployeesHandler extends BasePageHandler {
      */
     async deleteEmployee(employeeId) {
         try {
-            if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف هذا الموظف؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء'
+            });
+            if (result.isConfirmed) {
                 UIUtils.showLoading();
                 const response = await this.services.api.deleteEmployee(employeeId);
                 
@@ -217,6 +227,24 @@ class OwnerEmployeesHandler extends BasePageHandler {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 this.handleLogout();
+            });
+        }
+
+        // Event delegation for employee table action buttons
+        const employeesTable = document.querySelector('#employeesTable');
+        if (employeesTable) {
+            employeesTable.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-employee');
+                if (editBtn) {
+                    const id = parseInt(editBtn.dataset.employeeId);
+                    this.editEmployee(id);
+                    return;
+                }
+                const deleteBtn = e.target.closest('.delete-employee');
+                if (deleteBtn) {
+                    const id = parseInt(deleteBtn.dataset.employeeId);
+                    this.deleteEmployee(id);
+                }
             });
         }
     }

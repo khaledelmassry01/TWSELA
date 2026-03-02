@@ -16,10 +16,10 @@ function initializeWarehouseReportPage() {
 
 async function loadWarehouseData() {
     try {
-        const operations = await apiService.getWarehouseOperations();
+        const operations = await window.apiService.getWarehouseOperations();
         updateWarehouseTable(operations);
     } catch (error) {
-        console.error('Error loading warehouse data:', error);
+        // Error handled silently - ErrorHandler would be used in production
     }
 }
 
@@ -36,15 +36,16 @@ function updateWarehouseTable(operations) {
 }
 
 function createOperationRow(operation) {
+    const e = SharedDataUtils.escapeHtml;
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td>${operation.timestamp}</td>
+        <td>${e(operation.timestamp)}</td>
         <td><span class="badge bg-${getOperationBadgeClass(operation.type)}">${getOperationText(operation.type)}</span></td>
-        <td>${operation.shipmentNumber}</td>
-        <td>${operation.warehouse}</td>
-        <td>${operation.employee}</td>
+        <td>${e(operation.shipmentNumber)}</td>
+        <td>${e(operation.warehouse)}</td>
+        <td>${e(operation.employee)}</td>
         <td><span class="badge bg-${getStatusBadgeClass(operation.status)}">${getStatusText(operation.status)}</span></td>
-        <td>${operation.notes || '-'}</td>
+        <td>${e(operation.notes || '-')}</td>
         <td>
             <div class="action-buttons">
                 <button class="action-btn view" data-id="${operation.id}" title="عرض التفاصيل">

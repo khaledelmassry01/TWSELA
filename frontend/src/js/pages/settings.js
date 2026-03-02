@@ -18,11 +18,34 @@ class SettingsPageHandler {
      */
     async init() {
         try {
+            this.setupDashboardLink();
             this.setupEventListeners();
             this.setupTabs();
             await this.loadSettings();
         } catch (error) {
             log.error('Settings initialization failed:', error);
+        }
+    }
+
+    /**
+     * Set dashboard link based on user role
+     */
+    setupDashboardLink() {
+        const link = document.getElementById('dashboardLink');
+        if (!link) return;
+        const rolePaths = {
+            OWNER: '/owner/dashboard.html',
+            ADMIN: '/admin/dashboard.html',
+            MERCHANT: '/merchant/dashboard.html',
+            COURIER: '/courier/dashboard.html',
+            WAREHOUSE: '/warehouse/dashboard.html'
+        };
+        try {
+            const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+            const role = userData.role || 'OWNER';
+            link.href = rolePaths[role] || '/owner/dashboard.html';
+        } catch {
+            link.href = '/owner/dashboard.html';
         }
     }
 
@@ -212,7 +235,17 @@ class SettingsPageHandler {
      * Reset settings to defaults
      */
     async resetSettings() {
-        if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§ØªØŸ')) return;
+        const result = await Swal.fire({
+            title: 'تأكيد إعادة التعيين',
+            text: 'هل أنت متأكد من إعادة تعيين جميع الإعدادات؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'نعم، إعادة تعيين',
+            cancelButtonText: 'إلغاء'
+        });
+        if (!result.isConfirmed) return;
 
         try {
             const apiBaseUrl = this.getApiBaseUrl();
@@ -331,8 +364,18 @@ class SettingsPageHandler {
     /**
      * Clear application cache
      */
-    clearCache() {
-        if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ù…Ø³Ø­ Ø§Ù„Ø°Ø§ÙƒØ±Ø© Ø§Ù„Ù…Ø¤Ù‚ØªØ©ØŸ')) return;
+    async clearCache() {
+        const result = await Swal.fire({
+            title: 'تأكيد مسح الذاكرة',
+            text: 'هل أنت متأكد من مسح الذاكرة المؤقتة؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'نعم، مسح',
+            cancelButtonText: 'إلغاء'
+        });
+        if (!result.isConfirmed) return;
         sessionStorage.clear();
         this.showNotification('ØªÙ… Ù…Ø³Ø­ Ø§Ù„Ø°Ø§ÙƒØ±Ø© Ø§Ù„Ù…Ø¤Ù‚ØªØ©', 'success');
     }

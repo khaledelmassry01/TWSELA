@@ -36,6 +36,14 @@ class SettingsControllerTest {
     @MockBean SystemSettingRepository settingRepository;
     @MockBean UserDetailsService userDetailsService;
     @MockBean JwtService jwtService;
+    @MockBean com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean com.twsela.security.AuthenticationHelper authHelper;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        org.mockito.Mockito.when(authHelper.getCurrentUser(org.mockito.ArgumentMatchers.any(org.springframework.security.core.Authentication.class)))
+                .thenAnswer(inv -> (User) ((org.springframework.security.core.Authentication) inv.getArgument(0)).getPrincipal());
+    }
 
     private Authentication createAuth(String role) {
         User user = new User();

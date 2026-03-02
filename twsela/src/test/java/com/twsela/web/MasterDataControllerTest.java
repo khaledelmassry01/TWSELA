@@ -41,6 +41,8 @@ class MasterDataControllerTest {
     @MockBean private TelemetrySettingsRepository telemetrySettingsRepository;
     @MockBean private PasswordEncoder passwordEncoder;
     @MockBean private JwtService jwtService;
+    @MockBean private com.twsela.security.TokenBlacklistService tokenBlacklistService;
+    @MockBean private com.twsela.security.AuthenticationHelper authHelper;
     @MockBean private UserDetailsService userDetailsService;
 
     private User ownerUser;
@@ -65,6 +67,9 @@ class MasterDataControllerTest {
         // MasterDataController.getCurrentUser does: (User) authentication.getPrincipal()
         ownerAuth = new UsernamePasswordAuthenticationToken(
                 ownerUser, null, List.of(new SimpleGrantedAuthority("ROLE_OWNER")));
+
+        when(authHelper.getCurrentUser(any(Authentication.class)))
+                .thenAnswer(inv -> (User) ((Authentication) inv.getArgument(0)).getPrincipal());
     }
 
     // ======== GET /api/master/users ========

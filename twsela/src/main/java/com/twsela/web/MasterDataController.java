@@ -2,6 +2,7 @@ package com.twsela.web;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import com.twsela.security.AuthenticationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -38,17 +39,20 @@ public class MasterDataController {
     private final DeliveryPricingRepository deliveryPricingRepository;
     private final TelemetrySettingsRepository telemetrySettingsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationHelper authHelper;
 
     public MasterDataController(UserRepository userRepository,
                                 ZoneRepository zoneRepository,
                                 DeliveryPricingRepository deliveryPricingRepository,
                                 TelemetrySettingsRepository telemetrySettingsRepository,
-                                PasswordEncoder passwordEncoder) {
+                                PasswordEncoder passwordEncoder,
+                                AuthenticationHelper authHelper) {
         this.userRepository = userRepository;
         this.zoneRepository = zoneRepository;
         this.deliveryPricingRepository = deliveryPricingRepository;
         this.telemetrySettingsRepository = telemetrySettingsRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authHelper = authHelper;
     }
 
     // ========== USER MANAGEMENT ==========
@@ -391,6 +395,6 @@ public class MasterDataController {
     }
 
     private User getCurrentUser(Authentication authentication) {
-        return (User) authentication.getPrincipal();
+        return authHelper.getCurrentUser(authentication);
     }
 }

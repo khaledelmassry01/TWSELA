@@ -241,7 +241,7 @@ class MerchantShipmentsHandler {
      */
     exportShipments() {
         if (!this.shipments || this.shipments.length === 0) {
-            alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±');
+            NotificationService.warning('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±');
             return;
         }
 

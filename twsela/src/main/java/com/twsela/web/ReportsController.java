@@ -2,6 +2,7 @@ package com.twsela.web;
 
 import com.twsela.domain.*;
 import com.twsela.repository.*;
+import com.twsela.security.AuthenticationHelper;
 import com.twsela.service.FinancialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,16 @@ public class ReportsController {
     private final ShipmentRepository shipmentRepository;
     private final UserRepository userRepository;
     private final FinancialService financialService;
+    private final AuthenticationHelper authHelper;
 
     public ReportsController(ShipmentRepository shipmentRepository,
                              UserRepository userRepository,
-                             FinancialService financialService) {
+                             FinancialService financialService,
+                             AuthenticationHelper authHelper) {
         this.shipmentRepository = shipmentRepository;
         this.userRepository = userRepository;
         this.financialService = financialService;
+        this.authHelper = authHelper;
     }
 
     // ── /api/reports/shipments ───────────────────────────────────────────
@@ -282,7 +286,7 @@ public class ReportsController {
     }
 
     private User getCurrentUser(Authentication authentication) {
-        return (User) authentication.getPrincipal();
+        return authHelper.getCurrentUser(authentication);
     }
 
     private Instant convertToInstant(LocalDate date) {
