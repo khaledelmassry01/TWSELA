@@ -154,4 +154,9 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 
     @Query("SELECT COALESCE(SUM(s.deliveryFee), 0) FROM Shipment s WHERE s.status.name = :statusName AND s.createdAt BETWEEN :start AND :end")
     BigDecimal sumDeliveryFeeByStatusNameAndCreatedAtBetween(@Param("statusName") String statusName, @Param("start") Instant start, @Param("end") Instant end);
+
+    // ── Zone-based queries ─────────────────────────────────────────────
+
+    @Query("SELECT COUNT(s) FROM Shipment s WHERE s.zone.id = :zoneId AND s.createdAt BETWEEN :start AND :end")
+    long countByZoneIdAndCreatedAtBetween(@Param("zoneId") Long zoneId, @Param("start") Instant start, @Param("end") Instant end);
 }

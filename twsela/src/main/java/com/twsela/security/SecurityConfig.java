@@ -92,6 +92,31 @@ public class SecurityConfig {
                 .requestMatchers("/api/reports/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/warehouse/**").hasAnyRole("OWNER", "ADMIN", "WAREHOUSE_MANAGER")
                 .requestMatchers("/api/settings/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
+                // Subscriptions & Billing
+                .requestMatchers(HttpMethod.GET, "/api/subscriptions/plans").permitAll()
+                .requestMatchers("/api/subscriptions/**").hasRole("MERCHANT")
+                .requestMatchers("/api/invoices/admin/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/invoices/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT")
+                .requestMatchers("/api/payment/webhook/**").permitAll()
+                // Fleet Management
+                .requestMatchers("/api/fleet/**").hasAnyRole("OWNER", "ADMIN", "COURIER")
+                // Support & Knowledge Base
+                .requestMatchers(HttpMethod.GET, "/api/support/articles/**").permitAll()
+                .requestMatchers("/api/support/tickets/admin/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/support/tickets/**").authenticated()
+                .requestMatchers("/api/support/articles/**").hasAnyRole("OWNER", "ADMIN")
+                // Smart Assignment & Routes & Demand
+                .requestMatchers("/api/assignment/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/routes/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/demand/**").hasAnyRole("OWNER", "ADMIN")
+                // Multi-Country & Internationalization
+                .requestMatchers(HttpMethod.GET, "/api/countries/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/currencies/**").permitAll()
+                .requestMatchers("/api/admin/countries/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/admin/currencies/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/tax/calculate").authenticated()
+                .requestMatchers("/api/admin/tax/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/admin/einvoice/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/contact/**").permitAll()
                 .requestMatchers("/api/notifications/**").authenticated()
                 .requestMatchers("/api/statistics/**").hasAnyRole("OWNER", "ADMIN", "MERCHANT", "COURIER", "WAREHOUSE_MANAGER")
