@@ -168,6 +168,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/tenants/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/invitations/*/accept").authenticated()
                 .requestMatchers("/api/public/branding/**").permitAll()
+                // Workflow Engine & Business Process Automation (Sprint 36)
+                .requestMatchers("/api/workflows/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/workflow-executions/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/automation-rules/**").hasAnyRole("OWNER", "ADMIN")
+                .requestMatchers("/api/scheduled-tasks/**").hasAnyRole("OWNER", "ADMIN")
                 // User management endpoints
                 .requestMatchers("/api/users/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers("/api/merchants/**").hasAnyRole("OWNER", "ADMIN")
