@@ -1287,6 +1287,134 @@ class ApiService {
     }
 
     // ==========================================================================
+    // WALLET ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Get my wallet info
+     */
+    async getMyWallet() {
+        return this.request('/api/wallet', { method: 'GET' });
+    }
+
+    /**
+     * Get wallet balance
+     */
+    async getWalletBalance() {
+        return this.request('/api/wallet/balance', { method: 'GET' });
+    }
+
+    /**
+     * Get wallet transactions (paginated)
+     */
+    async getWalletTransactions(page = 0, size = 20) {
+        return this.request(`/api/wallet/transactions?page=${page}&size=${size}`, { method: 'GET' });
+    }
+
+    /**
+     * Request a withdrawal
+     */
+    async requestWithdrawal(amount) {
+        return this.request('/api/wallet/withdraw', {
+            method: 'POST',
+            body: JSON.stringify({ amount })
+        });
+    }
+
+    /**
+     * Admin: Get all wallets
+     */
+    async getAdminWallets() {
+        return this.request('/api/wallet/admin/all', { method: 'GET' });
+    }
+
+    // ==========================================================================
+    // RETURNS ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Create a return request
+     */
+    async createReturn(returnData) {
+        return this.request('/api/returns', {
+            method: 'POST',
+            body: JSON.stringify(returnData)
+        });
+    }
+
+    /**
+     * Get returns list (role-based)
+     */
+    async getReturns() {
+        return this.request('/api/returns', { method: 'GET' });
+    }
+
+    /**
+     * Get return by ID
+     */
+    async getReturn(id) {
+        return this.request(`/api/returns/${id}`, { method: 'GET' });
+    }
+
+    /**
+     * Update return status
+     */
+    async updateReturnStatus(id, status) {
+        return this.request(`/api/returns/${id}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    /**
+     * Assign courier to return
+     */
+    async assignReturnCourier(id, courierId) {
+        return this.request(`/api/returns/${id}/assign`, {
+            method: 'PUT',
+            body: JSON.stringify({ courierId })
+        });
+    }
+
+    // ==========================================================================
+    // NOTIFICATION PREFERENCES ENDPOINTS
+    // ==========================================================================
+
+    /**
+     * Get notification preferences
+     */
+    async getNotificationPreferences() {
+        return this.request('/api/notifications/preferences', { method: 'GET' });
+    }
+
+    /**
+     * Update notification preferences
+     */
+    async updateNotificationPreferences(preferencesData) {
+        return this.request('/api/notifications/preferences', {
+            method: 'PUT',
+            body: JSON.stringify(preferencesData)
+        });
+    }
+
+    /**
+     * Pause notifications
+     */
+    async pauseNotifications(pauseData) {
+        return this.request('/api/notifications/preferences/pause', {
+            method: 'PUT',
+            body: JSON.stringify(pauseData)
+        });
+    }
+
+    /**
+     * Get unread notifications count and list
+     */
+    async getUnreadNotifications() {
+        return this.request('/api/notifications/unread', { method: 'GET' });
+    }
+
+    // ==========================================================================
     // SETTINGS ENDPOINTS
     // ==========================================================================
 

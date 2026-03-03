@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>الإشعارات - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav" id="sidebarNav">
+                <!-- Populated dynamically -->
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="header-title">الإشعارات</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary btn-sm" id="markAllReadBtn">
+                        <i class="fas fa-check-double"></i>
+                        تحديد الكل كمقروء
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="preferencesBtn" data-bs-toggle="modal" data-bs-target="#preferencesModal">
+                        <i class="fas fa-cog"></i>
+                        تفضيلات الإشعارات
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-label">إجمالي الإشعارات</div>
+                        <div class="stat-value" id="totalNotifications">0</div>
+                        <div class="stat-icon blue"><i class="fas fa-bell"></i></div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-label">غير مقروءة</div>
+                        <div class="stat-value" id="unreadCount">0</div>
+                        <div class="stat-icon orange"><i class="fas fa-envelope"></i></div>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="card mb-3">
+                    <div class="card-body p-2">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-filter="all">الكل</button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="unread">غير مقروءة</button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="SHIPMENT">الشحنات</button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="WALLET">المحفظة</button>
+                            <button type="button" class="btn btn-outline-primary" data-filter="SYSTEM">النظام</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications List -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="notificationsList" class="list-group list-group-flush">
+                            <!-- Populated dynamically -->
+                        </div>
+                        <!-- Load More -->
+                        <div class="text-center p-3">
+                            <button class="btn btn-outline-primary btn-sm" id="loadMoreBtn" style="display: none;">
+                                <i class="fas fa-arrow-down"></i>
+                                تحميل المزيد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Preferences Modal -->
+    <div class="modal fade" id="preferencesModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تفضيلات الإشعارات</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="preferencesForm">
+                        <h6 class="mb-3">قنوات الإشعارات</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="channelPush" checked>
+                            <label class="form-check-label" for="channelPush">إشعارات الموقع</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="channelSms">
+                            <label class="form-check-label" for="channelSms">رسائل SMS</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="channelEmail">
+                            <label class="form-check-label" for="channelEmail">البريد الإلكتروني</label>
+                        </div>
+
+                        <h6 class="mb-3">ساعات الهدوء</h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label">من</label>
+                                <input type="time" class="form-control" id="quietStart" value="23:00">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">إلى</label>
+                                <input type="time" class="form-control" id="quietEnd" value="07:00">
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3">وضع الملخص</h6>
+                        <select class="form-select" id="digestMode">
+                            <option value="NONE">بدون ملخص (إرسال فوري)</option>
+                            <option value="DAILY">ملخص يومي</option>
+                            <option value="WEEKLY">ملخص أسبوعي</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="savePreferencesBtn">حفظ التفضيلات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/shared/config.js"></script>
+    <script src="src/js/shared/SharedDataUtils.js?v=20250112-4"></script>
+    <script src="src/js/shared/GlobalUIHandler.js?v=20250112-4"></script>
+    <script src="src/js/shared/NotificationService.js?v=20250112-4"></script>
+    <script src="src/js/shared/BasePageHandler.js?v=20250112-4"></script>
+    <script src="src/js/services/auth_service.js?v=20250112-4"></script>
+    <script src="src/js/services/api_service.js?v=20250112-4"></script>
+    <script src="src/js/app.js?v=20250112-4"></script>
+    <script src="src/js/pages/notifications-page.js?v=20250112-4"></script>
+</body>
+</html>

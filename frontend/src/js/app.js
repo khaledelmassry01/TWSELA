@@ -156,7 +156,12 @@ class TwselaApp {
             'owner-dashboard',
             'merchant-dashboard',
             'courier-dashboard',
-            'warehouse-dashboard'
+            'warehouse-dashboard',
+            'wallet',
+            'notifications',
+            'owner-wallets',
+            'owner-returns',
+            'merchant-returns'
         ];
         
         return pagesWithOwnAuth.includes(pageName);
@@ -462,13 +467,24 @@ class TwselaApp {
             return 'contact';
         }
         
+        // Detect role prefix from path
+        const pathParts = path.split('/');
+        const rolePrefix = pathParts.length >= 3 ? pathParts[pathParts.length - 2] : '';
+        
         const pageMap = {
             'create-shipment': 'merchant-create-shipment',
             'zones': 'owner-zones',
             'payouts': 'owner-payouts',
             'manifest': 'courier-manifest',
+            'wallet': 'wallet',
+            'notifications': 'notifications',
             'dashboard': 'dashboard'
         };
+
+        // Handle role-prefixed returns/wallets pages
+        if (filename === 'returns' && rolePrefix === 'owner') return 'owner-returns';
+        if (filename === 'returns' && rolePrefix === 'merchant') return 'merchant-returns';
+        if (filename === 'wallets' && rolePrefix === 'owner') return 'owner-wallets';
         
         return pageMap[filename] || 'dashboard';
     }

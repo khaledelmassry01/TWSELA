@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>المرتجعات - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/merchant/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/merchant/create-shipment.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء شحنة</span>
+                </a>
+                <a href="/merchant/shipments.html" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/merchant/returns.html" class="nav-link active">
+                    <i class="fas fa-undo"></i>
+                    <span>المرتجعات</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إدارة المرتجعات</h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReturnModal">
+                        <i class="fas fa-plus me-1"></i> طلب إرجاع
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Stats Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="content-card stat-card">
+                            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                                <i class="fas fa-undo"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" id="totalReturns">0</div>
+                                <div class="stat-label">إجمالي المرتجعات</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card stat-card">
+                            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" id="pendingReturns">0</div>
+                                <div class="stat-label">قيد الانتظار</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card stat-card">
+                            <div class="stat-icon bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" id="completedReturns">0</div>
+                                <div class="stat-label">مكتملة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card stat-card">
+                            <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" id="rejectedReturns">0</div>
+                                <div class="stat-label">مرفوضة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="content-card mb-4">
+                    <div class="card-content">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="returnSearch" placeholder="بحث بالرقم أو السبب...">
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="REQUESTED">مطلوب</option>
+                                    <option value="APPROVED">موافق عليه</option>
+                                    <option value="PICKED_UP">تم الاستلام</option>
+                                    <option value="RETURNED_TO_HUB">في المخزن</option>
+                                    <option value="RETURNED_TO_MERCHANT">تم الإرجاع</option>
+                                    <option value="REJECTED">مرفوض</option>
+                                    <option value="CANCELLED">ملغي</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Returns Table -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>قائمة المرتجعات</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="returnsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>رقم الشحنة</th>
+                                        <th>سبب الإرجاع</th>
+                                        <th>ملاحظات</th>
+                                        <th>الحالة</th>
+                                        <th>المندوب</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Returns data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Return Modal -->
+    <div class="modal fade" id="createReturnModal" tabindex="-1" aria-labelledby="createReturnModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createReturnModalLabel">طلب إرجاع جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createReturnForm">
+                        <div class="mb-3">
+                            <label for="shipmentId" class="form-label">رقم الشحنة</label>
+                            <input type="number" class="form-control" id="shipmentId" required placeholder="أدخل رقم الشحنة">
+                        </div>
+                        <div class="mb-3">
+                            <label for="returnReason" class="form-label">سبب الإرجاع</label>
+                            <select class="form-select" id="returnReason" required>
+                                <option value="">اختر السبب</option>
+                                <option value="DAMAGED">منتج تالف</option>
+                                <option value="WRONG_ITEM">منتج خاطئ</option>
+                                <option value="NOT_AS_DESCRIBED">لا يطابق الوصف</option>
+                                <option value="CUSTOMER_CHANGED_MIND">تغيير رأي العميل</option>
+                                <option value="DELIVERY_REFUSED">رفض الاستلام</option>
+                                <option value="OTHER">سبب آخر</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="returnNotes" class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="returnNotes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="submitReturnBtn">
+                        <i class="fas fa-paper-plane me-1"></i> إرسال الطلب
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../src/js/shared/config.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+    <script src="../../src/js/shared/BasePageHandler.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/services/websocket_service.js"></script>
+    <script src="../../src/js/shared/NotificationBell.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/merchant-returns-page.js"></script>
+</body>
+</html>

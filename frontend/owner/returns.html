@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>إدارة المرتجعات - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/owner/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/owner/employees.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+                <a href="/owner/shipments.html" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/owner/merchants.html" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>التجار</span>
+                </a>
+                <a href="/owner/zones.html" class="nav-link">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/owner/pricing.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>التسعير</span>
+                </a>
+                <a href="/owner/wallets.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحافظ</span>
+                </a>
+                <a href="/owner/returns.html" class="nav-link active">
+                    <i class="fas fa-undo"></i>
+                    <span>المرتجعات</span>
+                </a>
+                <a href="/owner/payouts.html" class="nav-link">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>المدفوعات</span>
+                </a>
+                <a href="/owner/reports.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="#" class="nav-link logout-link" data-action="logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="header-title">إدارة المرتجعات</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="returnSearch" placeholder="البحث في المرتجعات...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <select class="form-select form-select-sm" id="statusFilter" style="width: auto;">
+                        <option value="all">كل الحالات</option>
+                        <option value="REQUESTED">مطلوب</option>
+                        <option value="APPROVED">موافق عليه</option>
+                        <option value="PICKED_UP">تم الاستلام</option>
+                        <option value="RETURNED_TO_HUB">في المخزن</option>
+                        <option value="RETURNED_TO_MERCHANT">تم الإرجاع للتاجر</option>
+                        <option value="REJECTED">مرفوض</option>
+                        <option value="CANCELLED">ملغي</option>
+                    </select>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-label">إجمالي المرتجعات</div>
+                        <div class="stat-value" id="totalReturns">0</div>
+                        <div class="stat-icon blue"><i class="fas fa-undo"></i></div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-label">طلبات جديدة</div>
+                        <div class="stat-value" id="pendingReturns">0</div>
+                        <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">تم الإرجاع</div>
+                        <div class="stat-value" id="completedReturns">0</div>
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-label">مرفوض</div>
+                        <div class="stat-value" id="rejectedReturns">0</div>
+                        <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+                    </div>
+                </div>
+
+                <!-- Returns Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">قائمة المرتجعات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table data-table" id="returnsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>رقم الشحنة</th>
+                                        <th>التاجر</th>
+                                        <th>السبب</th>
+                                        <th>الحالة</th>
+                                        <th>المندوب</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Assign Courier Modal -->
+    <div class="modal fade" id="assignCourierModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعيين مندوب</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignCourierForm">
+                        <input type="hidden" id="assignReturnId">
+                        <div class="form-group mb-3">
+                            <label for="courierId" class="form-label">المندوب</label>
+                            <select class="form-select" id="courierId" required>
+                                <option value="">اختر المندوب</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="confirmAssignBtn">تعيين</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../src/js/shared/config.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js?v=20250112-4"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js?v=20250112-4"></script>
+    <script src="../src/js/shared/NotificationService.js?v=20250112-4"></script>
+    <script src="../src/js/shared/BasePageHandler.js?v=20250112-4"></script>
+    <script src="../src/js/services/auth_service.js?v=20250112-4"></script>
+    <script src="../src/js/services/api_service.js?v=20250112-4"></script>
+    <script src="../src/js/app.js?v=20250112-4"></script>
+    <script src="../src/js/pages/owner-returns-page.js?v=20250112-4"></script>
+</body>
+</html>
