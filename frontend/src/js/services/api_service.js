@@ -1719,6 +1719,327 @@ class ApiService {
         });
     }
 
+    // =====================================================
+    // Sprint 47: Bulk Upload Methods
+    // =====================================================
+
+    /**
+     * Bulk upload shipments via Excel file
+     */
+    async bulkUploadShipments(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.request('/api/shipments/bulk', {
+            method: 'POST',
+            body: formData,
+            isFormData: true
+        });
+    }
+
+    /**
+     * Download bulk upload Excel template
+     */
+    async downloadBulkTemplate() {
+        return this.request('/api/shipments/bulk/template', {
+            method: 'GET',
+            responseType: 'blob'
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Pickup Schedule Methods
+    // =====================================================
+
+    /**
+     * Schedule a pickup
+     */
+    async schedulePickup(data) {
+        return this.request('/api/pickups', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * Get merchant's pickups (paginated)
+     */
+    async getMyPickups(page = 0, size = 20) {
+        return this.request(`/api/pickups/my?page=${page}&size=${size}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get courier's today pickups
+     */
+    async getTodayPickups() {
+        return this.request('/api/pickups/today', {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Assign courier to pickup (OWNER/ADMIN)
+     */
+    async assignPickupCourier(pickupId, courierId) {
+        return this.request(`/api/pickups/${pickupId}/assign/${courierId}`, {
+            method: 'PUT'
+        });
+    }
+
+    /**
+     * Start pickup (COURIER)
+     */
+    async startPickup(pickupId) {
+        return this.request(`/api/pickups/${pickupId}/start`, {
+            method: 'PUT'
+        });
+    }
+
+    /**
+     * Complete pickup (COURIER)
+     */
+    async completePickup(pickupId) {
+        return this.request(`/api/pickups/${pickupId}/complete`, {
+            method: 'PUT'
+        });
+    }
+
+    /**
+     * Cancel pickup
+     */
+    async cancelPickup(pickupId) {
+        return this.request(`/api/pickups/${pickupId}/cancel`, {
+            method: 'PUT'
+        });
+    }
+
+    /**
+     * Get all pickups with status filter (OWNER/ADMIN)
+     */
+    async getAdminPickups(status = '', page = 0, size = 20) {
+        const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+        if (status) params.append('status', status);
+        return this.request(`/api/pickups/admin?${params.toString()}`, {
+            method: 'GET'
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Invoice Methods
+    // =====================================================
+
+    /**
+     * Get merchant's invoices (paginated)
+     */
+    async getInvoices(page = 0, size = 20) {
+        return this.request(`/api/invoices?page=${page}&size=${size}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get single invoice by ID
+     */
+    async getInvoice(invoiceId) {
+        return this.request(`/api/invoices/${invoiceId}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Pay an invoice
+     */
+    async payInvoice(invoiceId, paymentData) {
+        return this.request(`/api/invoices/${invoiceId}/pay`, {
+            method: 'POST',
+            body: JSON.stringify(paymentData)
+        });
+    }
+
+    /**
+     * Get all invoices by status (OWNER/ADMIN)
+     */
+    async getAdminInvoices(status = '', page = 0, size = 20) {
+        const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+        if (status) params.append('status', status);
+        return this.request(`/api/invoices/admin?${params.toString()}`, {
+            method: 'GET'
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Recipient Methods
+    // =====================================================
+
+    /**
+     * Get recipient profile
+     */
+    async getRecipient(recipientId) {
+        return this.request(`/api/recipients/${recipientId}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Get recipient by phone
+     */
+    async getRecipientByPhone(phone) {
+        return this.request(`/api/recipients/phone/${encodeURIComponent(phone)}`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Create recipient profile
+     */
+    async createRecipient(data) {
+        return this.request('/api/recipients', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * Update recipient profile
+     */
+    async updateRecipient(recipientId, data) {
+        return this.request(`/api/recipients/${recipientId}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * Get recipient addresses
+     */
+    async getRecipientAddresses(profileId) {
+        return this.request(`/api/recipients/${profileId}/addresses`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Create recipient address
+     */
+    async createRecipientAddress(data) {
+        return this.request('/api/recipients/addresses', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Route Methods
+    // =====================================================
+
+    /**
+     * Optimize courier route
+     */
+    async optimizeRoute(courierId, shipmentIds) {
+        return this.request(`/api/routes/optimize/${courierId}`, {
+            method: 'POST',
+            body: JSON.stringify({ shipmentIds })
+        });
+    }
+
+    /**
+     * Get courier's current route
+     */
+    async getCourierRoute(courierId) {
+        return this.request(`/api/routes/${courierId}`, {
+            method: 'GET'
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Delivery Proof & Attempts Methods
+    // =====================================================
+
+    /**
+     * Submit delivery proof (photo/signature)
+     */
+    async submitDeliveryProof(shipmentId, formData) {
+        return this.request(`/api/delivery/${shipmentId}/proof`, {
+            method: 'POST',
+            body: formData,
+            isFormData: true
+        });
+    }
+
+    /**
+     * Get delivery proof
+     */
+    async getDeliveryProof(shipmentId) {
+        return this.request(`/api/delivery/${shipmentId}/proof`, {
+            method: 'GET'
+        });
+    }
+
+    /**
+     * Record delivery attempt
+     */
+    async recordDeliveryAttempt(shipmentId, data) {
+        return this.request(`/api/delivery/${shipmentId}/attempt`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    /**
+     * Get delivery attempts for a shipment
+     */
+    async getDeliveryAttempts(shipmentId) {
+        return this.request(`/api/delivery/${shipmentId}/attempts`, {
+            method: 'GET'
+        });
+    }
+
+    // =====================================================
+    // Sprint 47: Label/AWB Methods
+    // =====================================================
+
+    /**
+     * Download shipment label (PDF)
+     */
+    async downloadShipmentLabel(shipmentId) {
+        return this.request(`/api/shipments/${shipmentId}/label`, {
+            method: 'GET',
+            responseType: 'blob'
+        });
+    }
+
+    /**
+     * Download bulk labels (PDF)
+     */
+    async downloadBulkLabels(shipmentIds) {
+        return this.request('/api/shipments/labels/bulk', {
+            method: 'POST',
+            body: JSON.stringify(shipmentIds),
+            responseType: 'blob'
+        });
+    }
+
+    /**
+     * Get shipment barcode (PNG)
+     */
+    async getShipmentBarcode(shipmentId) {
+        return this.request(`/api/shipments/${shipmentId}/barcode`, {
+            method: 'GET',
+            responseType: 'blob'
+        });
+    }
+
+    /**
+     * Get shipment QR code (PNG)
+     */
+    async getShipmentQRCode(shipmentId) {
+        return this.request(`/api/shipments/${shipmentId}/qrcode`, {
+            method: 'GET',
+            responseType: 'blob'
+        });
+    }
+
     /**
      * Search data
      */

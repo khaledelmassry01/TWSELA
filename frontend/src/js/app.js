@@ -161,7 +161,15 @@ class TwselaApp {
             'notifications',
             'owner-wallets',
             'owner-returns',
-            'merchant-returns'
+            'merchant-returns',
+            'merchant-bulk-upload',
+            'merchant-pickups',
+            'merchant-invoices',
+            'merchant-recipients',
+            'merchant-labels',
+            'courier-route',
+            'courier-delivery',
+            'courier-pickups'
         ];
         
         return pagesWithOwnAuth.includes(pageName);
@@ -478,13 +486,23 @@ class TwselaApp {
             'manifest': 'courier-manifest',
             'wallet': 'wallet',
             'notifications': 'notifications',
-            'dashboard': 'dashboard'
+            'dashboard': 'dashboard',
+            'bulk-upload': 'merchant-bulk-upload',
+            'invoices': 'merchant-invoices',
+            'recipients': 'merchant-recipients',
+            'labels': 'merchant-labels'
         };
 
         // Handle role-prefixed returns/wallets pages
         if (filename === 'returns' && rolePrefix === 'owner') return 'owner-returns';
         if (filename === 'returns' && rolePrefix === 'merchant') return 'merchant-returns';
         if (filename === 'wallets' && rolePrefix === 'owner') return 'owner-wallets';
+
+        // Handle pages shared across roles (pickups exists for merchant and courier)
+        if (filename === 'pickups' && rolePrefix === 'merchant') return 'merchant-pickups';
+        if (filename === 'pickups' && rolePrefix === 'courier') return 'courier-pickups';
+        if (filename === 'route' && rolePrefix === 'courier') return 'courier-route';
+        if (filename === 'delivery' && rolePrefix === 'courier') return 'courier-delivery';
         
         return pageMap[filename] || 'dashboard';
     }

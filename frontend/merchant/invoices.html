@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>المرتجعات - Twsela</title>
+    <title>الفواتير - Twsela</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../../src/css/styles.css" rel="stylesheet">
@@ -46,7 +46,7 @@
                     <i class="fas fa-truck-loading"></i>
                     <span>جدولة الاستلام</span>
                 </a>
-                <a href="/merchant/invoices.html" class="nav-link">
+                <a href="/merchant/invoices.html" class="nav-link active">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>الفواتير</span>
                 </a>
@@ -54,7 +54,7 @@
                     <i class="fas fa-address-book"></i>
                     <span>دفتر العناوين</span>
                 </a>
-                <a href="/merchant/returns.html" class="nav-link active">
+                <a href="/merchant/returns.html" class="nav-link">
                     <i class="fas fa-undo"></i>
                     <span>المرتجعات</span>
                 </a>
@@ -84,18 +84,12 @@
 
         <!-- Main Content -->
         <main class="main-content" role="main">
-            <!-- Header -->
             <header class="header">
                 <div class="header-left">
                     <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="page-title">إدارة المرتجعات</h1>
-                </div>
-                <div class="header-right">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReturnModal">
-                        <i class="fas fa-plus me-1"></i> طلب إرجاع
-                    </button>
+                    <h1 class="page-title">إدارة الفواتير</h1>
                 </div>
             </header>
 
@@ -105,11 +99,11 @@
                     <div class="col-md-3">
                         <div class="content-card stat-card">
                             <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                                <i class="fas fa-undo"></i>
+                                <i class="fas fa-file-invoice"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="totalReturns">0</div>
-                                <div class="stat-label">إجمالي المرتجعات</div>
+                                <div class="stat-value" id="totalInvoices">0</div>
+                                <div class="stat-label">إجمالي الفواتير</div>
                             </div>
                         </div>
                     </div>
@@ -119,8 +113,8 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="pendingReturns">0</div>
-                                <div class="stat-label">قيد الانتظار</div>
+                                <div class="stat-value" id="pendingInvoices">0</div>
+                                <div class="stat-label">في انتظار الدفع</div>
                             </div>
                         </div>
                     </div>
@@ -130,19 +124,19 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="completedReturns">0</div>
-                                <div class="stat-label">مكتملة</div>
+                                <div class="stat-value" id="paidInvoices">0</div>
+                                <div class="stat-label">مدفوعة</div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="content-card stat-card">
                             <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                                <i class="fas fa-times-circle"></i>
+                                <i class="fas fa-exclamation-circle"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="rejectedReturns">0</div>
-                                <div class="stat-label">مرفوضة</div>
+                                <div class="stat-value" id="overdueInvoices">0</div>
+                                <div class="stat-label">متأخرة</div>
                             </div>
                         </div>
                     </div>
@@ -153,47 +147,43 @@
                     <div class="card-content">
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="returnSearch" placeholder="بحث بالرقم أو السبب...">
+                                <input type="text" class="form-control" id="invoiceSearch" placeholder="بحث برقم الفاتورة...">
                             </div>
                             <div class="col-md-4">
-                                <select class="form-select" id="statusFilter">
+                                <select class="form-select" id="invoiceStatusFilter">
                                     <option value="all">جميع الحالات</option>
-                                    <option value="REQUESTED">مطلوب</option>
-                                    <option value="APPROVED">موافق عليه</option>
-                                    <option value="PICKED_UP">تم الاستلام</option>
-                                    <option value="RETURNED_TO_HUB">في المخزن</option>
-                                    <option value="RETURNED_TO_MERCHANT">تم الإرجاع</option>
-                                    <option value="REJECTED">مرفوض</option>
-                                    <option value="CANCELLED">ملغي</option>
+                                    <option value="PENDING">في انتظار الدفع</option>
+                                    <option value="PAID">مدفوعة</option>
+                                    <option value="OVERDUE">متأخرة</option>
+                                    <option value="CANCELLED">ملغاة</option>
+                                    <option value="REFUNDED">مستردة</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Returns Table -->
+                <!-- Invoices Table -->
                 <div class="content-card">
                     <div class="card-header">
-                        <h3>قائمة المرتجعات</h3>
+                        <h3>قائمة الفواتير</h3>
                     </div>
                     <div class="card-content">
                         <div class="table-responsive">
-                            <table class="table table-hover" id="returnsTable">
+                            <table class="table table-hover" id="invoicesTable">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>رقم الشحنة</th>
-                                        <th>سبب الإرجاع</th>
-                                        <th>ملاحظات</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>المبلغ</th>
+                                        <th>الضريبة</th>
+                                        <th>الإجمالي</th>
                                         <th>الحالة</th>
-                                        <th>المندوب</th>
-                                        <th>التاريخ</th>
+                                        <th>تاريخ الاستحقاق</th>
                                         <th>الإجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- Returns data will be loaded here -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -202,43 +192,52 @@
         </main>
     </div>
 
-    <!-- Create Return Modal -->
-    <div class="modal fade" id="createReturnModal" tabindex="-1" aria-labelledby="createReturnModalLabel" aria-hidden="true">
+    <!-- Pay Invoice Modal -->
+    <div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-labelledby="payInvoiceModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createReturnModalLabel">طلب إرجاع جديد</h5>
+                    <h5 class="modal-title" id="payInvoiceModalLabel">دفع الفاتورة</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="createReturnForm">
+                    <div class="mb-3">
+                        <p>رقم الفاتورة: <strong id="payInvoiceNumber">-</strong></p>
+                        <p>المبلغ الإجمالي: <strong id="payInvoiceAmount">-</strong> ج.م</p>
+                    </div>
+                    <form id="payInvoiceForm">
                         <div class="mb-3">
-                            <label for="shipmentId" class="form-label">رقم الشحنة</label>
-                            <input type="number" class="form-control" id="shipmentId" required placeholder="أدخل رقم الشحنة">
-                        </div>
-                        <div class="mb-3">
-                            <label for="returnReason" class="form-label">سبب الإرجاع</label>
-                            <select class="form-select" id="returnReason" required>
-                                <option value="">اختر السبب</option>
-                                <option value="DAMAGED">منتج تالف</option>
-                                <option value="WRONG_ITEM">منتج خاطئ</option>
-                                <option value="NOT_AS_DESCRIBED">لا يطابق الوصف</option>
-                                <option value="CUSTOMER_CHANGED_MIND">تغيير رأي العميل</option>
-                                <option value="DELIVERY_REFUSED">رفض الاستلام</option>
-                                <option value="OTHER">سبب آخر</option>
+                            <label for="paymentGateway" class="form-label">طريقة الدفع</label>
+                            <select class="form-select" id="paymentGateway" required>
+                                <option value="">اختر طريقة الدفع</option>
+                                <option value="CASH">نقدي</option>
+                                <option value="BANK_TRANSFER">تحويل بنكي</option>
+                                <option value="CREDIT_CARD">بطاقة ائتمان</option>
+                                <option value="MOBILE_WALLET">محفظة إلكترونية</option>
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="returnNotes" class="form-label">ملاحظات</label>
-                            <textarea class="form-control" id="returnNotes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" id="submitReturnBtn">
-                        <i class="fas fa-paper-plane me-1"></i> إرسال الطلب
+                    <button type="button" class="btn btn-success" id="confirmPayBtn">
+                        <i class="fas fa-credit-card me-1"></i> تأكيد الدفع
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Details Modal -->
+    <div class="modal fade" id="invoiceDetailsModal" tabindex="-1" aria-labelledby="invoiceDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invoiceDetailsModalLabel">تفاصيل الفاتورة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body" id="invoiceDetailsBody">
+                    <!-- Details loaded dynamically -->
                 </div>
             </div>
         </div>
@@ -257,6 +256,6 @@
     <script src="../../src/js/services/websocket_service.js"></script>
     <script src="../../src/js/shared/NotificationBell.js"></script>
     <script src="../../src/js/app.js"></script>
-    <script src="../../src/js/pages/merchant-returns-page.js"></script>
+    <script src="../../src/js/pages/merchant-invoices-page.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>المرتجعات - Twsela</title>
+    <title>جدولة الاستلام - Twsela</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../../src/css/styles.css" rel="stylesheet">
@@ -42,7 +42,7 @@
                     <i class="fas fa-barcode"></i>
                     <span>الملصقات</span>
                 </a>
-                <a href="/merchant/pickups.html" class="nav-link">
+                <a href="/merchant/pickups.html" class="nav-link active">
                     <i class="fas fa-truck-loading"></i>
                     <span>جدولة الاستلام</span>
                 </a>
@@ -54,7 +54,7 @@
                     <i class="fas fa-address-book"></i>
                     <span>دفتر العناوين</span>
                 </a>
-                <a href="/merchant/returns.html" class="nav-link active">
+                <a href="/merchant/returns.html" class="nav-link">
                     <i class="fas fa-undo"></i>
                     <span>المرتجعات</span>
                 </a>
@@ -84,17 +84,16 @@
 
         <!-- Main Content -->
         <main class="main-content" role="main">
-            <!-- Header -->
             <header class="header">
                 <div class="header-left">
                     <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="page-title">إدارة المرتجعات</h1>
+                    <h1 class="page-title">جدولة الاستلام</h1>
                 </div>
                 <div class="header-right">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReturnModal">
-                        <i class="fas fa-plus me-1"></i> طلب إرجاع
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#schedulePickupModal">
+                        <i class="fas fa-plus me-1"></i> جدولة استلام
                     </button>
                 </div>
             </header>
@@ -105,11 +104,11 @@
                     <div class="col-md-3">
                         <div class="content-card stat-card">
                             <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                                <i class="fas fa-undo"></i>
+                                <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="totalReturns">0</div>
-                                <div class="stat-label">إجمالي المرتجعات</div>
+                                <div class="stat-value" id="totalPickups">0</div>
+                                <div class="stat-label">إجمالي الطلبات</div>
                             </div>
                         </div>
                     </div>
@@ -119,8 +118,19 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="pendingReturns">0</div>
-                                <div class="stat-label">قيد الانتظار</div>
+                                <div class="stat-value" id="scheduledPickups">0</div>
+                                <div class="stat-label">مجدولة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card stat-card">
+                            <div class="stat-icon bg-info bg-opacity-10 text-info">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" id="inProgressPickups">0</div>
+                                <div class="stat-label">قيد التنفيذ</div>
                             </div>
                         </div>
                     </div>
@@ -130,19 +140,8 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value" id="completedReturns">0</div>
+                                <div class="stat-value" id="completedPickups">0</div>
                                 <div class="stat-label">مكتملة</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="content-card stat-card">
-                            <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                                <i class="fas fa-times-circle"></i>
-                            </div>
-                            <div class="stat-details">
-                                <div class="stat-value" id="rejectedReturns">0</div>
-                                <div class="stat-label">مرفوضة</div>
                             </div>
                         </div>
                     </div>
@@ -153,47 +152,43 @@
                     <div class="card-content">
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="returnSearch" placeholder="بحث بالرقم أو السبب...">
+                                <input type="text" class="form-control" id="pickupSearch" placeholder="بحث بالعنوان أو الملاحظات...">
                             </div>
                             <div class="col-md-4">
-                                <select class="form-select" id="statusFilter">
+                                <select class="form-select" id="pickupStatusFilter">
                                     <option value="all">جميع الحالات</option>
-                                    <option value="REQUESTED">مطلوب</option>
-                                    <option value="APPROVED">موافق عليه</option>
-                                    <option value="PICKED_UP">تم الاستلام</option>
-                                    <option value="RETURNED_TO_HUB">في المخزن</option>
-                                    <option value="RETURNED_TO_MERCHANT">تم الإرجاع</option>
-                                    <option value="REJECTED">مرفوض</option>
-                                    <option value="CANCELLED">ملغي</option>
+                                    <option value="SCHEDULED">مجدولة</option>
+                                    <option value="ASSIGNED">معيّنة</option>
+                                    <option value="IN_PROGRESS">قيد التنفيذ</option>
+                                    <option value="COMPLETED">مكتملة</option>
+                                    <option value="CANCELLED">ملغاة</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Returns Table -->
+                <!-- Pickups Table -->
                 <div class="content-card">
                     <div class="card-header">
-                        <h3>قائمة المرتجعات</h3>
+                        <h3>قائمة طلبات الاستلام</h3>
                     </div>
                     <div class="card-content">
                         <div class="table-responsive">
-                            <table class="table table-hover" id="returnsTable">
+                            <table class="table table-hover" id="pickupsTable">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>رقم الشحنة</th>
-                                        <th>سبب الإرجاع</th>
-                                        <th>ملاحظات</th>
+                                        <th>التاريخ</th>
+                                        <th>الفترة</th>
+                                        <th>العنوان</th>
+                                        <th>عدد الشحنات</th>
                                         <th>الحالة</th>
                                         <th>المندوب</th>
-                                        <th>التاريخ</th>
                                         <th>الإجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- Returns data will be loaded here -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -202,42 +197,48 @@
         </main>
     </div>
 
-    <!-- Create Return Modal -->
-    <div class="modal fade" id="createReturnModal" tabindex="-1" aria-labelledby="createReturnModalLabel" aria-hidden="true">
+    <!-- Schedule Pickup Modal -->
+    <div class="modal fade" id="schedulePickupModal" tabindex="-1" aria-labelledby="schedulePickupModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createReturnModalLabel">طلب إرجاع جديد</h5>
+                    <h5 class="modal-title" id="schedulePickupModalLabel">جدولة طلب استلام</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="createReturnForm">
+                    <form id="schedulePickupForm">
                         <div class="mb-3">
-                            <label for="shipmentId" class="form-label">رقم الشحنة</label>
-                            <input type="number" class="form-control" id="shipmentId" required placeholder="أدخل رقم الشحنة">
+                            <label for="pickupDate" class="form-label">تاريخ الاستلام</label>
+                            <input type="date" class="form-control" id="pickupDate" required>
                         </div>
                         <div class="mb-3">
-                            <label for="returnReason" class="form-label">سبب الإرجاع</label>
-                            <select class="form-select" id="returnReason" required>
-                                <option value="">اختر السبب</option>
-                                <option value="DAMAGED">منتج تالف</option>
-                                <option value="WRONG_ITEM">منتج خاطئ</option>
-                                <option value="NOT_AS_DESCRIBED">لا يطابق الوصف</option>
-                                <option value="CUSTOMER_CHANGED_MIND">تغيير رأي العميل</option>
-                                <option value="DELIVERY_REFUSED">رفض الاستلام</option>
-                                <option value="OTHER">سبب آخر</option>
+                            <label for="timeSlot" class="form-label">الفترة الزمنية</label>
+                            <select class="form-select" id="timeSlot" required>
+                                <option value="">اختر الفترة</option>
+                                <option value="MORNING">صباحاً (9:00 - 12:00)</option>
+                                <option value="AFTERNOON">ظهراً (12:00 - 3:00)</option>
+                                <option value="EVENING">مساءً (3:00 - 6:00)</option>
+                                <option value="LATE_EVENING">ليلاً (6:00 - 9:00)</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="returnNotes" class="form-label">ملاحظات</label>
-                            <textarea class="form-control" id="returnNotes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                            <label for="pickupAddress" class="form-label">عنوان الاستلام</label>
+                            <input type="text" class="form-control" id="pickupAddress" required placeholder="العنوان بالتفصيل">
+                        </div>
+                        <div class="mb-3">
+                            <label for="estimatedShipments" class="form-label">عدد الشحنات المتوقع</label>
+                            <input type="number" class="form-control" id="estimatedShipments" min="1" value="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pickupNotes" class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="pickupNotes" rows="2" placeholder="ملاحظات إضافية..."></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" id="submitReturnBtn">
-                        <i class="fas fa-paper-plane me-1"></i> إرسال الطلب
+                    <button type="button" class="btn btn-primary" id="submitPickupBtn">
+                        <i class="fas fa-calendar-check me-1"></i> جدولة
                     </button>
                 </div>
             </div>
@@ -257,6 +258,6 @@
     <script src="../../src/js/services/websocket_service.js"></script>
     <script src="../../src/js/shared/NotificationBell.js"></script>
     <script src="../../src/js/app.js"></script>
-    <script src="../../src/js/pages/merchant-returns-page.js"></script>
+    <script src="../../src/js/pages/merchant-pickups-page.js"></script>
 </body>
 </html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ملصقات الشحنات - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/merchant/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/merchant/create-shipment.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء شحنة</span>
+                </a>
+                <a href="/merchant/bulk-upload.html" class="nav-link">
+                    <i class="fas fa-file-upload"></i>
+                    <span>رفع بالجملة</span>
+                </a>
+                <a href="/merchant/shipments.html" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/merchant/labels.html" class="nav-link active">
+                    <i class="fas fa-barcode"></i>
+                    <span>الملصقات</span>
+                </a>
+                <a href="/merchant/pickups.html" class="nav-link">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>جدولة الاستلام</span>
+                </a>
+                <a href="/merchant/invoices.html" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>الفواتير</span>
+                </a>
+                <a href="/merchant/recipients.html" class="nav-link">
+                    <i class="fas fa-address-book"></i>
+                    <span>دفتر العناوين</span>
+                </a>
+                <a href="/merchant/returns.html" class="nav-link">
+                    <i class="fas fa-undo"></i>
+                    <span>المرتجعات</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1><i class="fas fa-barcode"></i> ملصقات الشحنات</h1>
+                <p class="text-muted">طباعة ملصقات وباركود وQR للشحنات</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Single Shipment Label -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tag me-2"></i>ملصق شحنة واحدة</h5>
+                    </div>
+                    <div class="card-content">
+                        <div class="row align-items-end">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">رقم الشحنة</label>
+                                <input type="text" id="singleShipmentId" class="form-control" placeholder="أدخل رقم الشحنة">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button class="btn btn-primary" id="downloadLabelBtn">
+                                        <i class="fas fa-file-pdf me-1"></i> تحميل الملصق
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="downloadBarcodeBtn">
+                                        <i class="fas fa-barcode me-1"></i> باركود
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="downloadQRBtn">
+                                        <i class="fas fa-qrcode me-1"></i> QR كود
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Area -->
+                        <div id="previewArea" class="d-none mt-3">
+                            <hr>
+                            <h6 class="mb-3"><i class="fas fa-eye me-1"></i>معاينة</h6>
+                            <div class="text-center p-3 bg-light rounded" id="previewContent">
+                                <!-- Preview content rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Labels -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>ملصقات بالجملة</h5>
+                    </div>
+                    <div class="card-content">
+                        <div class="mb-3">
+                            <label class="form-label">أرقام الشحنات (رقم واحد في كل سطر)</label>
+                            <textarea id="bulkShipmentIds" class="form-control" rows="5" placeholder="أدخل أرقام الشحنات&#10;مثال:&#10;1001&#10;1002&#10;1003"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted" id="bulkCount">عدد الشحنات: 0</small>
+                            <button class="btn btn-primary" id="downloadBulkLabelsBtn">
+                                <i class="fas fa-download me-1"></i> تحميل ملصقات الجملة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Downloads -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>آخر التنزيلات</h5>
+                    </div>
+                    <div class="card-content">
+                        <div id="recentDownloads">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-download fa-2x mb-2 d-block"></i>
+                                <p>لا توجد تنزيلات حديثة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../src/js/shared/config.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+    <script src="../../src/js/shared/BasePageHandler.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/services/websocket_service.js"></script>
+    <script src="../../src/js/shared/NotificationBell.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/merchant-labels-page.js"></script>
+</body>
+</html>

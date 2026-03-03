@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>إثبات التسليم - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/courier/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/courier/manifest.html" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>قائمة التسليم</span>
+                </a>
+                <a href="/courier/route.html" class="nav-link">
+                    <i class="fas fa-route"></i>
+                    <span>خريطة المسار</span>
+                </a>
+                <a href="/courier/delivery.html" class="nav-link active">
+                    <i class="fas fa-camera"></i>
+                    <span>إثبات التسليم</span>
+                </a>
+                <a href="/courier/pickups.html" class="nav-link">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>مهام الاستلام</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إثبات التسليم</h1>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Shipment Lookup -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h3><i class="fas fa-search me-2"></i>البحث عن شحنة</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="row g-3">
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" id="shipmentIdInput" placeholder="أدخل رقم الشحنة...">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="lookupShipmentBtn">
+                                    <i class="fas fa-search me-1"></i> بحث
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Proof Form -->
+                <div class="content-card mb-4 d-none" id="proofSection">
+                    <div class="card-header">
+                        <h3><i class="fas fa-camera me-2"></i>تقديم إثبات التسليم</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="proofForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">صورة التسليم</label>
+                                    <div class="border border-2 border-dashed rounded p-4 text-center" id="photoDropZone">
+                                        <i class="fas fa-camera fa-2x text-muted mb-2"></i>
+                                        <p class="small text-muted">انقر لاختيار صورة أو التقط صورة</p>
+                                        <input type="file" id="proofPhoto" class="d-none" accept="image/*" capture="environment">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="selectPhotoBtn">
+                                            <i class="fas fa-image me-1"></i> اختيار صورة
+                                        </button>
+                                    </div>
+                                    <div class="d-none mt-2" id="photoPreview">
+                                        <img src="" alt="preview" class="img-fluid rounded" id="previewImg" style="max-height:200px;">
+                                        <button type="button" class="btn btn-sm btn-outline-danger mt-1" id="removePhotoBtn">
+                                            <i class="fas fa-times"></i> إزالة
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recipientNameInput" class="form-label">اسم المستلم</label>
+                                        <input type="text" class="form-control" id="recipientNameInput" required placeholder="اسم من استلم الشحنة">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="proofNotes" class="form-label">ملاحظات</label>
+                                        <textarea class="form-control" id="proofNotes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-end">
+                                <button type="button" class="btn btn-success" id="submitProofBtn">
+                                    <i class="fas fa-check-circle me-1"></i> تأكيد التسليم
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Record Failed Attempt -->
+                <div class="content-card mb-4 d-none" id="attemptSection">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle me-2"></i>تسجيل محاولة فاشلة</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="attemptForm">
+                            <div class="mb-3">
+                                <label for="failureReason" class="form-label">سبب الفشل</label>
+                                <select class="form-select" id="failureReason" required>
+                                    <option value="">اختر السبب</option>
+                                    <option value="NOT_HOME">المستلم غير متواجد</option>
+                                    <option value="WRONG_ADDRESS">عنوان خاطئ</option>
+                                    <option value="REFUSED">رفض الاستلام</option>
+                                    <option value="DAMAGED">الشحنة تالفة</option>
+                                    <option value="RESCHEDULED">تم إعادة الجدولة</option>
+                                    <option value="INACCESSIBLE">المنطقة غير قابلة للوصول</option>
+                                    <option value="INCOMPLETE_ADDRESS">عنوان غير مكتمل</option>
+                                    <option value="PHONE_UNREACHABLE">الهاتف مغلق</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="attemptNotes" class="form-label">ملاحظات</label>
+                                <textarea class="form-control" id="attemptNotes" rows="2" placeholder="تفاصيل إضافية..."></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-warning" id="submitAttemptBtn">
+                                    <i class="fas fa-exclamation-circle me-1"></i> تسجيل المحاولة
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Previous Attempts -->
+                <div class="content-card d-none" id="attemptsHistorySection">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history me-2"></i>المحاولات السابقة</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="attemptsList">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../src/js/shared/config.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+    <script src="../../src/js/shared/BasePageHandler.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/services/websocket_service.js"></script>
+    <script src="../../src/js/shared/NotificationBell.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/courier-delivery-page.js"></script>
+</body>
+</html>

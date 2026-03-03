@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>رفع الشحنات بالجملة - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/merchant/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/merchant/create-shipment.html" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إنشاء شحنة</span>
+                </a>
+                <a href="/merchant/bulk-upload.html" class="nav-link active">
+                    <i class="fas fa-file-upload"></i>
+                    <span>رفع بالجملة</span>
+                </a>
+                <a href="/merchant/shipments.html" class="nav-link">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات</span>
+                </a>
+                <a href="/merchant/labels.html" class="nav-link">
+                    <i class="fas fa-barcode"></i>
+                    <span>الملصقات</span>
+                </a>
+                <a href="/merchant/pickups.html" class="nav-link">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>جدولة الاستلام</span>
+                </a>
+                <a href="/merchant/invoices.html" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>الفواتير</span>
+                </a>
+                <a href="/merchant/recipients.html" class="nav-link">
+                    <i class="fas fa-address-book"></i>
+                    <span>دفتر العناوين</span>
+                </a>
+                <a href="/merchant/returns.html" class="nav-link">
+                    <i class="fas fa-undo"></i>
+                    <span>المرتجعات</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">رفع الشحنات بالجملة</h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-outline-primary" id="downloadTemplateBtn">
+                        <i class="fas fa-download me-1"></i> تحميل القالب
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Instructions -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle me-2"></i>تعليمات الرفع</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <div class="mb-2"><i class="fas fa-download fa-2x text-primary"></i></div>
+                                    <h6>1. تحميل القالب</h6>
+                                    <p class="text-muted small">حمّل ملف Excel واملأ بيانات الشحنات</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <div class="mb-2"><i class="fas fa-file-excel fa-2x text-success"></i></div>
+                                    <h6>2. ملء البيانات</h6>
+                                    <p class="text-muted small">أضف بيانات المستلم والعنوان والوزن</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <div class="mb-2"><i class="fas fa-cloud-upload-alt fa-2x text-info"></i></div>
+                                    <h6>3. رفع الملف</h6>
+                                    <p class="text-muted small">ارفع الملف وسيتم إنشاء الشحنات تلقائياً</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <h3>رفع ملف الشحنات</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="upload-zone text-center p-5 border border-2 border-dashed rounded" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5>اسحب الملف هنا أو انقر للاختيار</h5>
+                            <p class="text-muted">يدعم ملفات Excel (.xlsx, .xls) بحد أقصى 10MB</p>
+                            <input type="file" id="fileInput" class="d-none" accept=".xlsx,.xls">
+                            <button class="btn btn-primary mt-2" id="selectFileBtn">
+                                <i class="fas fa-folder-open me-1"></i> اختيار ملف
+                            </button>
+                        </div>
+                        <!-- Selected File Info -->
+                        <div class="d-none mt-3" id="fileInfo">
+                            <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                                <div>
+                                    <i class="fas fa-file-excel text-success me-2"></i>
+                                    <span id="fileName">-</span>
+                                    <small class="text-muted ms-2" id="fileSize">-</small>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-danger me-2" id="removeFileBtn">
+                                        <i class="fas fa-times"></i> إزالة
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" id="uploadBtn">
+                                        <i class="fas fa-upload me-1"></i> رفع ومعالجة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Progress -->
+                        <div class="d-none mt-3" id="uploadProgress">
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="progressBar">0%</div>
+                            </div>
+                            <p class="text-center text-muted mt-2" id="progressText">جاري المعالجة...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="content-card d-none" id="resultsCard">
+                    <div class="card-header">
+                        <h3>نتائج الرفع</h3>
+                    </div>
+                    <div class="card-content">
+                        <!-- Summary -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center p-3 rounded bg-light">
+                                    <div class="h4 text-primary" id="totalProcessed">0</div>
+                                    <small>إجمالي</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 rounded bg-light">
+                                    <div class="h4 text-success" id="successCount">0</div>
+                                    <small>ناجحة</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 rounded bg-light">
+                                    <div class="h4 text-danger" id="failedCount">0</div>
+                                    <small>فاشلة</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 rounded bg-light">
+                                    <div class="h4 text-warning" id="skippedCount">0</div>
+                                    <small>تم تخطيها</small>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Error Details -->
+                        <div class="d-none" id="errorDetails">
+                            <h6 class="text-danger mb-2"><i class="fas fa-exclamation-triangle me-1"></i> تفاصيل الأخطاء</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm" id="errorsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>السطر</th>
+                                            <th>الخطأ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../src/js/shared/config.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+    <script src="../../src/js/shared/BasePageHandler.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/services/websocket_service.js"></script>
+    <script src="../../src/js/shared/NotificationBell.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/merchant-bulk-upload-page.js"></script>
+</body>
+</html>
