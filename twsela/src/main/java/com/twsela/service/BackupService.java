@@ -130,10 +130,10 @@ public class BackupService {
             command.add("-h" + host);
             command.add("-P" + port);
             command.add("-u" + dbUsername);
-            command.add("-p" + dbPassword);
 
-            // Execute restore command
+            // Execute restore command — pass password via environment variable to avoid exposure in process listing
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.environment().put("MYSQL_PWD", dbPassword);
             processBuilder.redirectInput(new File(backupFilePath));
             processBuilder.redirectErrorStream(true);
 

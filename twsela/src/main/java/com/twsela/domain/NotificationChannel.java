@@ -6,5 +6,8 @@ package com.twsela.domain;
 public enum NotificationChannel {
     IN_APP,
     EMAIL,
-    SMS
+    SMS,
+    // Sprint 27 — additional channels
+    PUSH,
+    WHATSAPP
 }

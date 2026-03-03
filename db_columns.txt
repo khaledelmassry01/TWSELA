@@ -1,0 +1,645 @@
+﻿TABLE_NAME	COLUMN_NAME	DATA_TYPE	IS_NULLABLE	COLUMN_DEFAULT	COLUMN_KEY	EXTRA
+api_key_usage_log	id	bigint	NO	NULL	PRI	auto_increment
+api_key_usage_log	api_key_id	bigint	NO	NULL	MUL	
+api_key_usage_log	endpoint	varchar	NO	NULL		
+api_key_usage_log	method	varchar	NO	NULL		
+api_key_usage_log	response_status	int	NO	NULL		
+api_key_usage_log	ip_address	varchar	YES	NULL		
+api_key_usage_log	user_agent	varchar	YES	NULL		
+api_key_usage_log	requested_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+api_keys	id	bigint	NO	NULL	PRI	auto_increment
+api_keys	merchant_id	bigint	NO	NULL	MUL	
+api_keys	key_value	varchar	NO	NULL	UNI	
+api_keys	secret_hash	varchar	NO	NULL		
+api_keys	name	varchar	NO	NULL		
+api_keys	scopes	varchar	YES	NULL		
+api_keys	rate_limit	int	NO	100		
+api_keys	is_active	tinyint	NO	1	MUL	
+api_keys	last_used_at	timestamp	YES	NULL		
+api_keys	request_count	bigint	NO	0		
+api_keys	expires_at	timestamp	YES	NULL		
+api_keys	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+assignment_rules	id	bigint	NO	NULL	PRI	auto_increment
+assignment_rules	rule_key	varchar	NO	NULL	UNI	
+assignment_rules	rule_value	varchar	NO	NULL		
+assignment_rules	description	varchar	YES	NULL		
+assignment_rules	is_active	tinyint	NO	1	MUL	
+assignment_rules	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+assignment_rules	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+assignment_scores	id	bigint	NO	NULL	PRI	auto_increment
+assignment_scores	shipment_id	bigint	NO	NULL	MUL	
+assignment_scores	courier_id	bigint	NO	NULL	MUL	
+assignment_scores	total_score	double	NO	NULL		
+assignment_scores	distance_score	double	YES	0		
+assignment_scores	load_score	double	YES	0		
+assignment_scores	rating_score	double	YES	0		
+assignment_scores	zone_score	double	YES	0		
+assignment_scores	vehicle_score	double	YES	0		
+assignment_scores	history_score	double	YES	0		
+assignment_scores	calculated_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+cash_movement_ledger	amount	decimal	NO	NULL		
+cash_movement_ledger	immutable	bit	NO	NULL		
+cash_movement_ledger	created_at	datetime	NO	NULL		
+cash_movement_ledger	id	bigint	NO	NULL	PRI	auto_increment
+cash_movement_ledger	reconciled_at	datetime	YES	NULL		
+cash_movement_ledger	shipment_id	bigint	YES	NULL		
+cash_movement_ledger	user_id	bigint	NO	NULL	MUL	
+cash_movement_ledger	description	varchar	YES	NULL		
+cash_movement_ledger	status	enum	NO	NULL		
+cash_movement_ledger	transaction_type	enum	NO	NULL		
+contract_sla_terms	id	bigint	NO	NULL	PRI	auto_increment
+contract_sla_terms	contract_id	bigint	NO	NULL	UNI	
+contract_sla_terms	target_delivery_rate	double	NO	95		
+contract_sla_terms	max_delivery_hours	int	NO	48		
+contract_sla_terms	late_penalty_per_shipment	decimal	NO	0.00		
+contract_sla_terms	lost_penalty_fixed	decimal	NO	0.00		
+contract_sla_terms	sla_review_period	varchar	NO	MONTHLY		
+contract_sla_terms	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+contract_sla_terms	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+contracts	id	bigint	NO	NULL	PRI	auto_increment
+contracts	contract_number	varchar	NO	NULL	UNI	
+contracts	contract_type	varchar	NO	NULL		
+contracts	party_id	bigint	NO	NULL	MUL	
+contracts	start_date	date	NO	NULL		
+contracts	end_date	date	NO	NULL	MUL	
+contracts	status	varchar	NO	DRAFT	MUL	
+contracts	auto_renew	tinyint	NO	0		
+contracts	renewal_notice_days	int	NO	30		
+contracts	signed_at	timestamp	YES	NULL		
+contracts	signature_otp	varchar	YES	NULL		
+contracts	terms_document	text	YES	NULL		
+contracts	notes	text	YES	NULL		
+contracts	created_by	bigint	NO	NULL	MUL	
+contracts	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+contracts	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+countries	id	bigint	NO	NULL	PRI	auto_increment
+countries	code	varchar	NO	NULL	UNI	
+countries	name_en	varchar	NO	NULL		
+countries	name_ar	varchar	NO	NULL		
+countries	currency_code	varchar	NO	NULL		
+countries	phone_prefix	varchar	NO	NULL		
+countries	address_format	varchar	YES	NULL		
+countries	time_zone	varchar	NO	NULL		
+countries	is_active	tinyint	NO	1	MUL	
+countries	default_payment_gateway	varchar	YES	NULL		
+countries	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+countries	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+courier_details	onboarding_date	date	YES	NULL		
+courier_details	user_id	bigint	NO	NULL	PRI	
+courier_details	license_plate_number	varchar	YES	NULL		
+courier_details	vehicle_type	enum	YES	NULL		
+courier_location_history	latitude	decimal	NO	NULL		
+courier_location_history	longitude	decimal	NO	NULL		
+courier_location_history	courier_id	bigint	NO	NULL	MUL	
+courier_location_history	id	bigint	NO	NULL	PRI	auto_increment
+courier_location_history	timestamp	datetime	NO	NULL		
+courier_ratings	id	bigint	NO	NULL	PRI	auto_increment
+courier_ratings	courier_id	bigint	NO	NULL	MUL	
+courier_ratings	shipment_id	bigint	NO	NULL	MUL	
+courier_ratings	rating	int	NO	NULL		
+courier_ratings	comment	varchar	YES	NULL		
+courier_ratings	rated_by_phone	varchar	YES	NULL		
+courier_ratings	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+courier_zones	courier_id	bigint	NO	NULL	PRI	
+courier_zones	zone_id	bigint	NO	NULL	PRI	
+currencies	id	bigint	NO	NULL	PRI	auto_increment
+currencies	code	varchar	NO	NULL	UNI	
+currencies	name_en	varchar	NO	NULL		
+currencies	name_ar	varchar	NO	NULL		
+currencies	symbol	varchar	NO	NULL		
+currencies	decimal_places	int	NO	2		
+currencies	is_active	tinyint	NO	1	MUL	
+currencies	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+currencies	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+custom_pricing_rules	id	bigint	NO	NULL	PRI	auto_increment
+custom_pricing_rules	contract_id	bigint	NO	NULL	MUL	
+custom_pricing_rules	zone_from_id	bigint	YES	NULL	MUL	
+custom_pricing_rules	zone_to_id	bigint	YES	NULL	MUL	
+custom_pricing_rules	shipment_type	varchar	YES	NULL		
+custom_pricing_rules	base_price	decimal	NO	0.00		
+custom_pricing_rules	per_kg_price	decimal	NO	0.00		
+custom_pricing_rules	cod_fee_percent	decimal	NO	0.00		
+custom_pricing_rules	minimum_charge	decimal	NO	0.00		
+custom_pricing_rules	discount_percent	decimal	NO	0.00		
+custom_pricing_rules	min_monthly_shipments	int	NO	0		
+custom_pricing_rules	is_active	tinyint	NO	1		
+custom_pricing_rules	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+custom_pricing_rules	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+delivery_attempts	id	bigint	NO	NULL	PRI	auto_increment
+delivery_attempts	shipment_id	bigint	NO	NULL	MUL	
+delivery_attempts	attempt_number	int	NO	NULL		
+delivery_attempts	status	varchar	NO	NULL		
+delivery_attempts	failure_reason	varchar	YES	NULL		
+delivery_attempts	photo_url	varchar	YES	NULL		
+delivery_attempts	latitude	double	YES	NULL		
+delivery_attempts	longitude	double	YES	NULL		
+delivery_attempts	notes	text	YES	NULL		
+delivery_attempts	attempted_at	timestamp	NO	NULL	MUL	
+delivery_attempts	next_attempt_date	date	YES	NULL		
+delivery_attempts	courier_id	bigint	NO	NULL	MUL	
+delivery_attempts	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+delivery_pricing	delivery_fee	decimal	NO	NULL		
+delivery_pricing	is_active	bit	NO	NULL		
+delivery_pricing	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+delivery_pricing	id	bigint	NO	NULL	PRI	auto_increment
+delivery_pricing	merchant_id	bigint	NO	NULL	MUL	
+delivery_pricing	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+delivery_pricing	zone_id	bigint	NO	NULL	MUL	
+delivery_proofs	id	bigint	NO	NULL	PRI	auto_increment
+delivery_proofs	shipment_id	bigint	NO	NULL	UNI	
+delivery_proofs	photo_url	varchar	YES	NULL		
+delivery_proofs	signature_url	varchar	YES	NULL		
+delivery_proofs	latitude	double	YES	NULL		
+delivery_proofs	longitude	double	YES	NULL		
+delivery_proofs	recipient_name	varchar	YES	NULL		
+delivery_proofs	notes	text	YES	NULL		
+delivery_proofs	delivered_at	timestamp	NO	NULL		
+delivery_proofs	captured_by_user_id	bigint	NO	NULL	MUL	
+delivery_proofs	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+device_tokens	id	bigint	NO	NULL	PRI	auto_increment
+device_tokens	user_id	bigint	NO	NULL	MUL	
+device_tokens	token	varchar	NO	NULL	UNI	
+device_tokens	platform	varchar	NO	NULL		
+device_tokens	is_active	tinyint	NO	1	MUL	
+device_tokens	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+device_tokens	last_used_at	timestamp	YES	NULL		
+e_invoices	id	bigint	NO	NULL	PRI	auto_increment
+e_invoices	invoice_id	bigint	NO	NULL	UNI	
+e_invoices	country_code	varchar	NO	NULL	MUL	
+e_invoices	format	varchar	NO	NULL		
+e_invoices	serial_number	varchar	YES	NULL	UNI	
+e_invoices	signed_payload	text	YES	NULL		
+e_invoices	qr_code	text	YES	NULL		
+e_invoices	submission_id	varchar	YES	NULL		
+e_invoices	status	varchar	NO	DRAFT	MUL	
+e_invoices	submitted_at	timestamp	YES	NULL		
+e_invoices	response_data	text	YES	NULL		
+e_invoices	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+e_invoices	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+ecommerce_connections	id	bigint	NO	NULL	PRI	auto_increment
+ecommerce_connections	merchant_id	bigint	NO	NULL	MUL	
+ecommerce_connections	platform	varchar	NO	NULL	MUL	
+ecommerce_connections	store_name	varchar	NO	NULL		
+ecommerce_connections	store_url	varchar	NO	NULL		
+ecommerce_connections	access_token	varchar	YES	NULL		
+ecommerce_connections	webhook_secret	varchar	YES	NULL		
+ecommerce_connections	is_active	tinyint	NO	1	MUL	
+ecommerce_connections	auto_create_shipments	tinyint	NO	1		
+ecommerce_connections	default_zone_id	bigint	YES	NULL	MUL	
+ecommerce_connections	last_sync_at	timestamp	YES	NULL		
+ecommerce_connections	sync_errors	int	NO	0		
+ecommerce_connections	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+ecommerce_orders	id	bigint	NO	NULL	PRI	auto_increment
+ecommerce_orders	connection_id	bigint	NO	NULL	MUL	
+ecommerce_orders	external_order_id	varchar	NO	NULL	MUL	
+ecommerce_orders	external_order_number	varchar	YES	NULL		
+ecommerce_orders	shipment_id	bigint	YES	NULL	MUL	
+ecommerce_orders	platform	varchar	NO	NULL		
+ecommerce_orders	status	varchar	NO	RECEIVED	MUL	
+ecommerce_orders	raw_payload	text	YES	NULL		
+ecommerce_orders	error_message	text	YES	NULL		
+ecommerce_orders	received_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+ecommerce_orders	processed_at	timestamp	YES	NULL		
+exchange_rates	id	bigint	NO	NULL	PRI	auto_increment
+exchange_rates	base_currency	varchar	NO	NULL	MUL	
+exchange_rates	target_currency	varchar	NO	NULL		
+exchange_rates	rate	decimal	NO	NULL		
+exchange_rates	effective_date	date	NO	NULL	MUL	
+exchange_rates	source	varchar	NO	NULL		
+exchange_rates	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+fraud_blacklist	is_active	bit	NO	NULL		
+fraud_blacklist	created_at	datetime	NO	NULL		
+fraud_blacklist	id	bigint	NO	NULL	PRI	auto_increment
+fraud_blacklist	entity_type	varchar	NO	NULL		
+fraud_blacklist	created_by	varchar	YES	NULL		
+fraud_blacklist	reason	varchar	YES	NULL		
+fraud_blacklist	entity_value	varchar	NO	NULL		
+fuel_logs	id	bigint	NO	NULL	PRI	auto_increment
+fuel_logs	vehicle_id	bigint	NO	NULL	MUL	
+fuel_logs	courier_id	bigint	YES	NULL	MUL	
+fuel_logs	fuel_date	date	NO	NULL	MUL	
+fuel_logs	liters	decimal	NO	NULL		
+fuel_logs	cost_per_liter	decimal	NO	NULL		
+fuel_logs	total_cost	decimal	NO	NULL		
+fuel_logs	mileage_at_fill	int	YES	NULL		
+fuel_logs	fuel_station	varchar	YES	NULL		
+fuel_logs	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+invoice_items	id	bigint	NO	NULL	PRI	auto_increment
+invoice_items	invoice_id	bigint	NO	NULL	MUL	
+invoice_items	description	varchar	NO	NULL		
+invoice_items	quantity	int	NO	1		
+invoice_items	unit_price	decimal	NO	0.00		
+invoice_items	total_price	decimal	NO	0.00		
+invoices	id	bigint	NO	NULL	PRI	auto_increment
+invoices	invoice_number	varchar	NO	NULL	UNI	
+invoices	subscription_id	bigint	NO	NULL	MUL	
+invoices	amount	decimal	NO	0.00		
+invoices	tax	decimal	NO	0.00		
+invoices	total_amount	decimal	NO	0.00		
+invoices	status	varchar	NO	DRAFT	MUL	
+invoices	due_date	timestamp	YES	NULL	MUL	
+invoices	paid_at	timestamp	YES	NULL		
+invoices	payment_gateway	varchar	YES	NULL		
+invoices	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+invoices	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+knowledge_articles	id	bigint	NO	NULL	PRI	auto_increment
+knowledge_articles	title	varchar	NO	NULL		
+knowledge_articles	content	text	NO	NULL		
+knowledge_articles	category	varchar	NO	NULL	MUL	
+knowledge_articles	published	tinyint	NO	0	MUL	
+knowledge_articles	view_count	int	NO	0		
+knowledge_articles	author_id	bigint	NO	NULL	MUL	
+knowledge_articles	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+knowledge_articles	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+kpi_snapshots	id	bigint	NO	NULL	PRI	auto_increment
+kpi_snapshots	snapshot_date	date	NO	NULL	UNI	
+kpi_snapshots	total_revenue	decimal	YES	0.00		
+kpi_snapshots	total_shipments	int	YES	0		
+kpi_snapshots	delivered_shipments	int	YES	0		
+kpi_snapshots	returned_shipments	int	YES	0		
+kpi_snapshots	first_attempt_rate	double	YES	0		
+kpi_snapshots	avg_delivery_hours	double	YES	0		
+kpi_snapshots	active_couriers	int	YES	0		
+kpi_snapshots	active_merchants	int	YES	0		
+kpi_snapshots	new_merchants	int	YES	0		
+kpi_snapshots	sla_compliance_rate	double	YES	0		
+kpi_snapshots	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+merchant_details	user_id	bigint	NO	NULL	PRI	
+merchant_details	bank_account_details	text	YES	NULL		
+merchant_details	business_name	varchar	NO	NULL		
+merchant_details	pickup_address	text	NO	NULL		
+merchant_service_feedback	rating	int	NO	NULL		
+merchant_service_feedback	courier_id	bigint	YES	NULL	MUL	
+merchant_service_feedback	created_at	datetime	NO	NULL		
+merchant_service_feedback	id	bigint	NO	NULL	PRI	auto_increment
+merchant_service_feedback	merchant_id	bigint	NO	NULL	MUL	
+merchant_service_feedback	related_shipment_id	bigint	YES	NULL	MUL	
+merchant_service_feedback	comment	text	YES	NULL		
+merchant_subscriptions	id	bigint	NO	NULL	PRI	auto_increment
+merchant_subscriptions	merchant_id	bigint	NO	NULL	MUL	
+merchant_subscriptions	plan_id	bigint	NO	NULL	MUL	
+merchant_subscriptions	status	varchar	NO	TRIAL	MUL	
+merchant_subscriptions	billing_cycle	varchar	NO	MONTHLY		
+merchant_subscriptions	current_period_start	timestamp	YES	NULL		
+merchant_subscriptions	current_period_end	timestamp	YES	NULL	MUL	
+merchant_subscriptions	trial_ends_at	timestamp	YES	NULL		
+merchant_subscriptions	cancelled_at	timestamp	YES	NULL		
+merchant_subscriptions	auto_renew	tinyint	NO	1		
+merchant_subscriptions	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+merchant_subscriptions	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+merchant_zone_pricing	id	bigint	NO	NULL	PRI	auto_increment
+merchant_zone_pricing	created_at	datetime	YES	NULL		
+merchant_zone_pricing	delivery_fee	decimal	NO	NULL		
+merchant_zone_pricing	is_active	bit	YES	NULL		
+merchant_zone_pricing	updated_at	datetime	YES	NULL		
+merchant_zone_pricing	merchant_id	bigint	NO	NULL	MUL	
+merchant_zone_pricing	zone_id	bigint	NO	NULL	MUL	
+notification_delivery_log	id	bigint	NO	NULL	PRI	auto_increment
+notification_delivery_log	notification_id	bigint	YES	NULL	MUL	
+notification_delivery_log	channel	varchar	NO	NULL	MUL	
+notification_delivery_log	recipient	varchar	NO	NULL		
+notification_delivery_log	status	varchar	NO	PENDING	MUL	
+notification_delivery_log	external_id	varchar	YES	NULL		
+notification_delivery_log	error_message	varchar	YES	NULL		
+notification_delivery_log	sent_at	timestamp	YES	NULL	MUL	
+notification_delivery_log	delivered_at	timestamp	YES	NULL		
+notification_delivery_log	retry_count	int	NO	0		
+notification_delivery_log	next_retry_at	timestamp	YES	NULL		
+notification_delivery_log	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+notification_log	id	bigint	NO	NULL	PRI	auto_increment
+notification_log	sent_at	datetime	NO	NULL		
+notification_log	recipient_phone	varchar	NO	NULL		
+notification_log	status	varchar	YES	NULL		
+notification_log	message_type	varchar	NO	NULL		
+notification_log	error_message	varchar	YES	NULL		
+notification_log	message_content	text	NO	NULL		
+notification_preferences	id	bigint	NO	NULL	PRI	auto_increment
+notification_preferences	user_id	bigint	NO	NULL	UNI	
+notification_preferences	enabled_channels	text	YES	NULL		
+notification_preferences	quiet_hours_start	time	YES	NULL		
+notification_preferences	quiet_hours_end	time	YES	NULL		
+notification_preferences	digest_mode	varchar	NO	NONE		
+notification_preferences	paused_until	timestamp	YES	NULL		
+notification_preferences	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+notification_preferences	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+notification_templates	id	bigint	NO	NULL	PRI	auto_increment
+notification_templates	event_type	varchar	NO	NULL	MUL	
+notification_templates	channel	varchar	NO	NULL		
+notification_templates	subject_template	varchar	YES	NULL		
+notification_templates	body_template_ar	text	NO	NULL		
+notification_templates	body_template_en	text	YES	NULL		
+notification_templates	is_active	tinyint	NO	1	MUL	
+notification_templates	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+notification_templates	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+notifications	id	bigint	NO	NULL	PRI	auto_increment
+notifications	user_id	bigint	NO	NULL	MUL	
+notifications	type	varchar	NO	NULL	MUL	
+notifications	channel	varchar	NO	IN_APP		
+notifications	title	varchar	NO	NULL		
+notifications	message	text	NO	NULL		
+notifications	action_url	varchar	YES	NULL		
+notifications	is_read	tinyint	NO	0		
+notifications	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+notifications	read_at	timestamp	YES	NULL		
+optimized_routes	id	bigint	NO	NULL	PRI	auto_increment
+optimized_routes	courier_id	bigint	NO	NULL	MUL	
+optimized_routes	manifest_id	bigint	YES	NULL	MUL	
+optimized_routes	waypoints	text	YES	NULL		
+optimized_routes	total_distance_km	double	YES	0		
+optimized_routes	estimated_duration_minutes	int	YES	0		
+optimized_routes	optimized_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+payment_transactions	id	bigint	NO	NULL	PRI	auto_increment
+payment_transactions	gateway_type	varchar	NO	NULL		
+payment_transactions	payment_type	varchar	NO	CHARGE		
+payment_transactions	status	varchar	NO	PENDING	MUL	
+payment_transactions	external_id	varchar	YES	NULL	MUL	
+payment_transactions	amount	decimal	NO	NULL		
+payment_transactions	currency	varchar	NO	EGP		
+payment_transactions	merchant_id	bigint	YES	NULL	MUL	
+payment_transactions	invoice_id	bigint	YES	NULL	MUL	
+payment_transactions	metadata	text	YES	NULL		
+payment_transactions	error_message	varchar	YES	NULL		
+payment_transactions	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+payment_transactions	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+payout_items	amount	decimal	NO	NULL		
+payout_items	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+payout_items	id	bigint	NO	NULL	PRI	auto_increment
+payout_items	payout_id	bigint	NO	NULL	MUL	
+payout_items	source_id	bigint	NO	NULL		
+payout_items	description	varchar	NO	NULL		
+payout_items	source_type	enum	NO	NULL	MUL	
+payout_statuses	id	bigint	NO	NULL	PRI	auto_increment
+payout_statuses	name	varchar	NO	NULL	UNI	
+payout_statuses	description	varchar	YES	NULL		
+payouts	id	bigint	NO	NULL	PRI	auto_increment
+payouts	user_id	bigint	NO	NULL	MUL	
+payouts	payout_type	enum	NO	NULL		
+payouts	status_id	bigint	NO	NULL	MUL	
+payouts	payout_period_start	date	NO	NULL		
+payouts	payout_period_end	date	NO	NULL		
+payouts	net_amount	decimal	NO	NULL		
+payouts	paid_at	datetime	YES	NULL		
+payouts	description	text	YES	NULL		
+payouts	notes	text	YES	NULL		
+payouts	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+pickup_schedules	id	bigint	NO	NULL	PRI	auto_increment
+pickup_schedules	merchant_id	bigint	NO	NULL	MUL	
+pickup_schedules	pickup_date	date	NO	NULL		
+pickup_schedules	time_slot	varchar	NO	NULL		
+pickup_schedules	address	text	NO	NULL		
+pickup_schedules	latitude	double	YES	NULL		
+pickup_schedules	longitude	double	YES	NULL		
+pickup_schedules	estimated_shipments	int	NO	1		
+pickup_schedules	notes	text	YES	NULL		
+pickup_schedules	assigned_courier_id	bigint	YES	NULL	MUL	
+pickup_schedules	status	varchar	NO	SCHEDULED	MUL	
+pickup_schedules	completed_at	timestamp	YES	NULL		
+pickup_schedules	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+pickup_schedules	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+recipient_details	id	bigint	NO	NULL	PRI	auto_increment
+recipient_details	phone	varchar	NO	NULL	UNI	
+recipient_details	alternate_phone	varchar	YES	NULL	MUL	
+recipient_details	name	varchar	NO	NULL		
+recipient_details	address	text	NO	NULL		
+return_shipments	created_at	datetime	NO	NULL		
+return_shipments	id	bigint	NO	NULL	PRI	auto_increment
+return_shipments	original_shipment_id	bigint	NO	NULL	MUL	
+return_shipments	return_shipment_id	bigint	YES	NULL	MUL	
+return_shipments	created_by	varchar	YES	NULL		
+return_shipments	reason	varchar	NO	NULL		
+return_shipments	status	varchar	NO	RETURN_REQUESTED	MUL	
+return_shipments	assigned_courier_id	bigint	YES	NULL	MUL	
+return_shipments	return_fee	decimal	YES	NULL		
+return_shipments	notes	text	YES	NULL		
+return_shipments	approved_at	timestamp	YES	NULL		
+return_shipments	picked_up_at	timestamp	YES	NULL		
+return_shipments	delivered_at	timestamp	YES	NULL		
+roles	id	bigint	NO	NULL	PRI	auto_increment
+roles	name	varchar	NO	NULL	UNI	
+roles	description	varchar	YES	NULL		
+service_feedback	rating	smallint	NO	NULL		
+service_feedback	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+service_feedback	id	bigint	NO	NULL	PRI	auto_increment
+service_feedback	shipment_id	bigint	NO	NULL	UNI	
+service_feedback	comment	text	YES	NULL		
+shipment_manifests	id	bigint	NO	NULL	PRI	auto_increment
+shipment_manifests	courier_id	bigint	NO	NULL	MUL	
+shipment_manifests	manifest_number	varchar	NO	NULL	UNI	
+shipment_manifests	status	enum	NO	NULL		
+shipment_manifests	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+shipment_manifests	assigned_at	datetime	YES	NULL		
+shipment_package_details	height_cm	decimal	YES	NULL		
+shipment_package_details	length_cm	decimal	YES	NULL		
+shipment_package_details	weight_kg	decimal	YES	NULL		
+shipment_package_details	width_cm	decimal	YES	NULL		
+shipment_package_details	shipment_id	bigint	NO	NULL	PRI	
+shipment_package_details	package_type	varchar	YES	NULL		
+shipment_status_history	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+shipment_status_history	id	bigint	NO	NULL	PRI	auto_increment
+shipment_status_history	shipment_id	bigint	NO	NULL	MUL	
+shipment_status_history	status_id	bigint	NO	NULL	MUL	
+shipment_status_history	notes	text	YES	NULL		
+shipment_statuses	id	bigint	NO	NULL	PRI	auto_increment
+shipment_statuses	name	varchar	NO	NULL	UNI	
+shipment_statuses	description	varchar	YES	NULL		
+shipments	id	bigint	NO	NULL	PRI	auto_increment
+shipments	tracking_number	varchar	NO	NULL	UNI	
+shipments	merchant_id	bigint	NO	NULL	MUL	
+shipments	manifest_id	bigint	YES	NULL	MUL	
+shipments	zone_id	bigint	NO	NULL	MUL	
+shipments	status_id	bigint	NO	NULL	MUL	
+shipments	recipient_detail_id	bigint	NO	NULL	MUL	
+shipments	delivery_latitude	decimal	YES	NULL		
+shipments	delivery_longitude	decimal	YES	NULL		
+shipments	item_value	decimal	NO	NULL		
+shipments	shipping_fee_paid_by	enum	NO	NULL		
+shipments	cod_amount	decimal	NO	NULL		
+shipments	delivery_fee	decimal	NO	NULL		
+shipments	source_type	enum	NO	NULL		
+shipments	external_tracking_number	varchar	YES	NULL		
+shipments	cash_reconciled	bit	NO	NULL		
+shipments	payout_id	bigint	YES	NULL	MUL	
+shipments	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+shipments	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+shipments	delivered_at	datetime	YES	NULL		
+shipments	pod_type	enum	YES	NULL		
+shipments	pod_data	varchar	YES	NULL		
+shipments	recipient_notes	text	YES	NULL		
+sla_policies	id	bigint	NO	NULL	PRI	auto_increment
+sla_policies	name	varchar	NO	NULL		
+sla_policies	priority	varchar	NO	NULL	MUL	
+sla_policies	first_response_hours	int	NO	NULL		
+sla_policies	resolution_hours	int	NO	NULL		
+sla_policies	active	tinyint	NO	1		
+sla_policies	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+sla_policies	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+subscription_plans	id	bigint	NO	NULL	PRI	auto_increment
+subscription_plans	name	varchar	NO	NULL	UNI	
+subscription_plans	monthly_price	decimal	NO	0.00		
+subscription_plans	annual_price	decimal	NO	0.00		
+subscription_plans	max_shipments_per_month	int	NO	50		
+subscription_plans	max_webhooks	int	NO	3		
+subscription_plans	features	text	YES	NULL		
+subscription_plans	api_rate_limit	int	NO	100		
+subscription_plans	sort_order	int	NO	0		
+subscription_plans	is_active	tinyint	NO	1	MUL	
+subscription_plans	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+subscription_plans	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+support_tickets	id	bigint	NO	NULL	PRI	auto_increment
+support_tickets	ticket_number	varchar	NO	NULL	UNI	
+support_tickets	subject	varchar	NO	NULL		
+support_tickets	description	text	NO	NULL		
+support_tickets	priority	varchar	NO	MEDIUM	MUL	
+support_tickets	status	varchar	NO	OPEN	MUL	
+support_tickets	category	varchar	NO	NULL		
+support_tickets	reporter_id	bigint	NO	NULL	MUL	
+support_tickets	assignee_id	bigint	YES	NULL	MUL	
+support_tickets	shipment_id	bigint	YES	NULL	MUL	
+support_tickets	first_response_at	timestamp	YES	NULL		
+support_tickets	resolved_at	timestamp	YES	NULL		
+support_tickets	closed_at	timestamp	YES	NULL		
+support_tickets	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+support_tickets	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+system_audit_log	created_at	datetime	NO	NULL		
+system_audit_log	entity_id	bigint	YES	NULL		
+system_audit_log	id	bigint	NO	NULL	PRI	auto_increment
+system_audit_log	user_id	bigint	YES	NULL		
+system_audit_log	ip_address	varchar	YES	NULL		
+system_audit_log	action_type	varchar	NO	NULL		
+system_audit_log	entity_type	varchar	YES	NULL		
+system_audit_log	user_agent	varchar	YES	NULL		
+system_audit_log	new_values	text	YES	NULL		
+system_audit_log	old_values	text	YES	NULL		
+tax_rules	id	bigint	NO	NULL	PRI	auto_increment
+tax_rules	country_code	varchar	NO	NULL	MUL	
+tax_rules	tax_type	varchar	NO	NULL		
+tax_rules	rate	decimal	NO	NULL		
+tax_rules	exempt_categories	json	YES	NULL		
+tax_rules	valid_from	date	NO	NULL	MUL	
+tax_rules	valid_to	date	YES	NULL		
+tax_rules	is_active	tinyint	NO	1	MUL	
+tax_rules	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+tax_rules	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+telemetry_settings	created_at	datetime	NO	NULL		
+telemetry_settings	id	bigint	NO	NULL	PRI	auto_increment
+telemetry_settings	updated_at	datetime	YES	NULL		
+telemetry_settings	setting_key	varchar	NO	NULL	UNI	
+telemetry_settings	setting_value	varchar	NO	NULL		
+telemetry_settings	description	varchar	YES	NULL		
+ticket_messages	id	bigint	NO	NULL	PRI	auto_increment
+ticket_messages	ticket_id	bigint	NO	NULL	MUL	
+ticket_messages	sender_id	bigint	NO	NULL	MUL	
+ticket_messages	content	text	NO	NULL		
+ticket_messages	internal	tinyint	NO	0		
+ticket_messages	created_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+ticket_messages	updated_at	timestamp	YES	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+usage_tracking	id	bigint	NO	NULL	PRI	auto_increment
+usage_tracking	merchant_id	bigint	NO	NULL	MUL	
+usage_tracking	period	varchar	NO	NULL	MUL	
+usage_tracking	shipments_created	int	NO	0		
+usage_tracking	api_calls	int	NO	0		
+usage_tracking	webhook_events	int	NO	0		
+usage_tracking	last_updated	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+user_statuses	id	bigint	NO	NULL	PRI	auto_increment
+user_statuses	name	varchar	NO	NULL	UNI	
+users	id	bigint	NO	NULL	PRI	auto_increment
+users	role_id	bigint	NO	NULL	MUL	
+users	status_id	bigint	NO	NULL	MUL	
+users	phone	varchar	NO	NULL	UNI	
+users	name	varchar	NO	NULL		
+users	password	varchar	NO	NULL		
+users	is_deleted	bit	NO	NULL		
+users	deleted_at	timestamp	YES	NULL		
+users	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+users	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+users	failed_login_attempts	int	NO	0		
+users	locked_until	timestamp	YES	NULL	MUL	
+vehicle_assignments	id	bigint	NO	NULL	PRI	auto_increment
+vehicle_assignments	vehicle_id	bigint	NO	NULL	MUL	
+vehicle_assignments	courier_id	bigint	NO	NULL	MUL	
+vehicle_assignments	status	varchar	NO	ACTIVE	MUL	
+vehicle_assignments	assigned_date	date	NO	NULL		
+vehicle_assignments	returned_date	date	YES	NULL		
+vehicle_assignments	start_mileage	int	YES	NULL		
+vehicle_assignments	end_mileage	int	YES	NULL		
+vehicle_assignments	notes	varchar	YES	NULL		
+vehicle_assignments	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+vehicle_maintenance	id	bigint	NO	NULL	PRI	auto_increment
+vehicle_maintenance	vehicle_id	bigint	NO	NULL	MUL	
+vehicle_maintenance	maintenance_type	varchar	NO	NULL		
+vehicle_maintenance	status	varchar	NO	SCHEDULED	MUL	
+vehicle_maintenance	description	varchar	YES	NULL		
+vehicle_maintenance	scheduled_date	date	NO	NULL	MUL	
+vehicle_maintenance	completed_date	date	YES	NULL		
+vehicle_maintenance	cost	decimal	YES	0.00		
+vehicle_maintenance	service_provider	varchar	YES	NULL		
+vehicle_maintenance	mileage_at_service	int	YES	NULL		
+vehicle_maintenance	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+vehicle_maintenance	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+vehicles	id	bigint	NO	NULL	PRI	auto_increment
+vehicles	plate_number	varchar	NO	NULL	UNI	
+vehicles	vehicle_type	varchar	NO	NULL	MUL	
+vehicles	make	varchar	YES	NULL		
+vehicles	model	varchar	YES	NULL		
+vehicles	model_year	int	YES	NULL		
+vehicles	color	varchar	YES	NULL		
+vehicles	status	varchar	NO	AVAILABLE	MUL	
+vehicles	current_mileage	int	YES	0		
+vehicles	insurance_expiry	date	YES	NULL		
+vehicles	license_expiry	date	YES	NULL		
+vehicles	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+vehicles	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+wallet_transactions	id	bigint	NO	NULL	PRI	auto_increment
+wallet_transactions	wallet_id	bigint	NO	NULL	MUL	
+wallet_transactions	type	varchar	NO	NULL		
+wallet_transactions	amount	decimal	NO	NULL		
+wallet_transactions	reason	varchar	NO	NULL		
+wallet_transactions	reference_id	bigint	YES	NULL		
+wallet_transactions	balance_before	decimal	NO	NULL		
+wallet_transactions	balance_after	decimal	NO	NULL		
+wallet_transactions	description	varchar	YES	NULL		
+wallet_transactions	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+wallets	id	bigint	NO	NULL	PRI	auto_increment
+wallets	user_id	bigint	NO	NULL	UNI	
+wallets	wallet_type	varchar	NO	MERCHANT	MUL	
+wallets	balance	decimal	NO	0.00		
+wallets	currency	varchar	NO	EGP		
+wallets	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+wallets	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+warehouse_inventory	dispatched_at	datetime	YES	NULL		
+warehouse_inventory	received_at	datetime	NO	NULL		
+warehouse_inventory	received_by_user_id	bigint	NO	NULL	MUL	
+warehouse_inventory	shipment_id	bigint	NO	NULL	PRI	
+warehouse_inventory	warehouse_id	bigint	NO	NULL	MUL	
+warehouse_inventory	status	enum	NO	NULL		
+warehouses	latitude	decimal	YES	NULL		
+warehouses	longitude	decimal	YES	NULL		
+warehouses	id	bigint	NO	NULL	PRI	auto_increment
+warehouses	name	varchar	NO	NULL		
+warehouses	address	text	NO	NULL		
+webhook_events	id	bigint	NO	NULL	PRI	auto_increment
+webhook_events	subscription_id	bigint	NO	NULL	MUL	
+webhook_events	event_type	varchar	NO	NULL		
+webhook_events	payload	text	NO	NULL		
+webhook_events	status	varchar	NO	PENDING	MUL	
+webhook_events	attempts	int	NO	0		
+webhook_events	last_attempt_at	timestamp	YES	NULL		
+webhook_events	response_code	int	YES	NULL		
+webhook_events	response_body	varchar	YES	NULL		
+webhook_events	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED
+webhook_subscriptions	id	bigint	NO	NULL	PRI	auto_increment
+webhook_subscriptions	merchant_id	bigint	NO	NULL	MUL	
+webhook_subscriptions	url	varchar	NO	NULL		
+webhook_subscriptions	secret	varchar	NO	NULL		
+webhook_subscriptions	events	varchar	NO	NULL		
+webhook_subscriptions	active	tinyint	NO	1	MUL	
+webhook_subscriptions	created_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED
+webhook_subscriptions	updated_at	timestamp	NO	CURRENT_TIMESTAMP		DEFAULT_GENERATED on update CURRENT_TIMESTAMP
+zones	id	bigint	NO	NULL	PRI	auto_increment
+zones	name	varchar	NO	NULL	MUL	
+zones	description	varchar	YES	NULL		
+zones	status	enum	NO	NULL	MUL	
+zones	center_latitude	decimal	YES	NULL		
+zones	center_longitude	decimal	YES	NULL		
+zones	default_fee	decimal	YES	50.00	MUL	
+zones	created_at	timestamp	NO	CURRENT_TIMESTAMP	MUL	DEFAULT_GENERATED

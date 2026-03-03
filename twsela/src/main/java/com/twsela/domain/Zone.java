@@ -34,6 +34,9 @@ public class Zone {
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "tenant_id")
+    private Long tenantId;
     
     // Constructors
     public Zone() {}
@@ -112,6 +115,9 @@ public class Zone {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
     
     @PrePersist
     protected void onCreate() {

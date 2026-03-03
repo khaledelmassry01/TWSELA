@@ -43,6 +43,9 @@ public class Wallet {
     @Column(name = "updated_at")
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     // Constructors
     public Wallet() {}
 
@@ -75,6 +78,8 @@ public class Wallet {
 
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 
     @Override
     public boolean equals(Object o) {

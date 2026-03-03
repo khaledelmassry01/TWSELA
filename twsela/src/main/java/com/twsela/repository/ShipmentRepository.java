@@ -159,4 +159,9 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 
     @Query("SELECT COUNT(s) FROM Shipment s WHERE s.zone.id = :zoneId AND s.createdAt BETWEEN :start AND :end")
     long countByZoneIdAndCreatedAtBetween(@Param("zoneId") Long zoneId, @Param("start") Instant start, @Param("end") Instant end);
+
+    // ── Merchant shipment queries for contracts ─────────────────────────
+
+    @Query("SELECT s FROM Shipment s WHERE s.merchant.id = :merchantId AND s.createdAt BETWEEN :start AND :end")
+    List<Shipment> findByMerchantIdAndCreatedAtBetween(@Param("merchantId") Long merchantId, @Param("start") Instant start, @Param("end") Instant end);
 }

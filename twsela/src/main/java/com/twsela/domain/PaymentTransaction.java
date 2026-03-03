@@ -17,7 +17,7 @@ import java.time.Instant;
 public class PaymentTransaction {
 
     public enum PaymentGatewayType {
-        PAYMOB, STRIPE, FAWRY, MANUAL
+        PAYMOB, TAP, STRIPE, FAWRY, MANUAL
     }
 
     public enum PaymentType {

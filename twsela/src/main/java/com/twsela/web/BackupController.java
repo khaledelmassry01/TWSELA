@@ -47,6 +47,20 @@ public class BackupController {
     @ApiResponse(responseCode = "200", description = "تم الاستعادة")
     @PostMapping("/restore")
     public ResponseEntity<Map<String, Object>> restoreBackup(@RequestParam String backupFilePath) {
+        // SECURITY FIX: Validate path to prevent directory traversal attacks
+        if (backupFilePath.contains("..") || backupFilePath.contains("~")) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Invalid backup file path");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        java.nio.file.Path resolvedPath = java.nio.file.Paths.get(backupFilePath).normalize();
+        if (resolvedPath.isAbsolute()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Absolute paths are not allowed");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
         boolean success = backupService.restoreBackup(backupFilePath);
         
         Map<String, Object> response = new HashMap<>();

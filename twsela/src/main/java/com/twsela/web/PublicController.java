@@ -40,12 +40,6 @@ public class PublicController {
 
     private static final Logger log = LoggerFactory.getLogger(PublicController.class);
 
-    @Value("${app.password.generation.length:12}")
-    private int passwordGenerationLength;
-
-    @Value("${app.password.generation.chars:ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%}")
-    private String passwordGenerationChars;
-
     @Value("${app.contact.inquiry-prefix:INQ-}")
     private String inquiryPrefix;
 
@@ -178,15 +172,6 @@ public class PublicController {
                 "success", true,
                 "message", ErrorMessages.OTP_SENT_WITH_RESET_INSTRUCTIONS
             ));
-    }
-
-    private String generateRandomPassword() {
-        java.security.SecureRandom random = new java.security.SecureRandom();
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordGenerationLength; i++) {
-            password.append(passwordGenerationChars.charAt(random.nextInt(passwordGenerationChars.length())));
-        }
-        return password.toString();
     }
 
     @PostMapping("/send-otp")

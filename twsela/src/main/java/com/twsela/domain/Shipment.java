@@ -128,6 +128,9 @@ public class Shipment {
     @JsonIgnore
     private ShipmentPackageDetails packageDetails;
 
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     public enum PodType {
         OTP, PHOTO, SIGNATURE
     }
@@ -216,6 +219,8 @@ public class Shipment {
     public void setStatusHistory(Set<ShipmentStatusHistory> statusHistory) { this.statusHistory = statusHistory; }
     public ShipmentPackageDetails getPackageDetails() { return packageDetails; }
     public void setPackageDetails(ShipmentPackageDetails packageDetails) { this.packageDetails = packageDetails; }
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 
     // Helper methods
     public User getCourier() {

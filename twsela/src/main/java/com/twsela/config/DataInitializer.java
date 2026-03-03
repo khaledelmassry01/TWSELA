@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -152,6 +154,18 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+    @Value("${app.init.owner.phone:01000000000}")
+    private String ownerDefaultPhone;
+
+    @Value("${app.init.owner.password:ChangeMe@2024!}")
+    private String ownerDefaultPassword;
+
+    @Value("${app.init.admin.phone:01000000001}")
+    private String adminDefaultPhone;
+
+    @Value("${app.init.admin.password:ChangeMe@2024!}")
+    private String adminDefaultPassword;
+
     private void initializeUsers() {
         if (userRepository.count() == 0) {
             try {
@@ -163,11 +177,11 @@ public class DataInitializer implements CommandLineRunner {
                 UserStatus activeStatus = userStatusRepository.findByName("ACTIVE")
                     .orElseThrow(() -> new RuntimeException("UserStatus 'ACTIVE' not found during initialization"));
 
-            // Create Owner
+            // Create Owner — credentials from environment/config, not hardcoded
             User owner = new User();
             owner.setName("System Owner");
-            owner.setPhone("01023782584");
-            owner.setPassword(passwordEncoder.encode("150620KkZz@#$"));
+            owner.setPhone(ownerDefaultPhone);
+            owner.setPassword(passwordEncoder.encode(ownerDefaultPassword));
             owner.setRole(ownerRole);
             owner.setStatus(activeStatus);
             owner.setIsDeleted(false);
@@ -175,11 +189,11 @@ public class DataInitializer implements CommandLineRunner {
             owner.setUpdatedAt(Instant.now());
             userRepository.save(owner);
 
-            // Create Admin
+            // Create Admin — credentials from environment/config, not hardcoded
             User admin = new User();
             admin.setName("System Administrator");
-            admin.setPhone("01023782585");
-            admin.setPassword(passwordEncoder.encode("150620KkZz@#$"));
+            admin.setPhone(adminDefaultPhone);
+            admin.setPassword(passwordEncoder.encode(adminDefaultPassword));
             admin.setRole(adminRole);
             admin.setStatus(activeStatus);
             admin.setIsDeleted(false);

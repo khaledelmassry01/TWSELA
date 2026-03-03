@@ -90,6 +90,9 @@ public class User {
     @JsonIgnore
     private Set<Payout> payouts = new HashSet<>();
 
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     public User() {}
 
     public Long getId() { return id; }
@@ -127,6 +130,8 @@ public class User {
     public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
     public Instant getLockedUntil() { return lockedUntil; }
     public void setLockedUntil(Instant lockedUntil) { this.lockedUntil = lockedUntil; }
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
     
     // Convenience methods
     public void setActive(boolean active) {
