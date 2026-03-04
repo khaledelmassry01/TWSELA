@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>التجهيز - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/warehouse/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/warehouse/zones.html" class="nav-link">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>المناطق</span>
+                </a>
+                <a href="/warehouse/receiving.html" class="nav-link">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>الاستلام</span>
+                </a>
+                <a href="/warehouse/fulfillment.html" class="nav-link active">
+                    <i class="fas fa-box-open"></i>
+                    <span>التجهيز</span>
+                </a>
+                <a href="/warehouse/pick-waves.html" class="nav-link">
+                    <i class="fas fa-tasks"></i>
+                    <span>موجات الالتقاط</span>
+                </a>
+                <a href="/warehouse/inventory.html" class="nav-link">
+                    <i class="fas fa-boxes"></i>
+                    <span>المخزون</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/support.html" class="nav-link">
+                    <i class="fas fa-headset"></i>
+                    <span>الدعم الفني</span>
+                </a>
+                <a href="/help.html" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>مركز المساعدة</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إدارة التجهيز</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">مدير المستودع</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item"><i class="fas fa-user"></i><span>الملف الشخصي</span></a>
+                            <a href="/settings.html" class="dropdown-item"><i class="fas fa-cog"></i><span>الإعدادات</span></a>
+                            <a href="#" class="dropdown-item logout-link"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Action Bar -->
+                <div class="content-card mb-4">
+                    <div class="card-content d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">أوامر التجهيز</h2>
+                            <p class="text-muted mb-0">تجهيز الشحنات وتعيين المجهزين</p>
+                        </div>
+                        <button class="btn btn-primary" id="createFulfillmentBtn">
+                            <i class="fas fa-plus me-2"></i>أمر تجهيز جديد
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-clipboard-list fa-2x text-warning mb-2"></i>
+                                <h3 class="mb-0" id="pendingFulfillment">0</h3>
+                                <small class="text-muted">في الانتظار</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-cogs fa-2x text-info mb-2"></i>
+                                <h3 class="mb-0" id="processingFulfillment">0</h3>
+                                <small class="text-muted">قيد التجهيز</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-box-open fa-2x text-success mb-2"></i>
+                                <h3 class="mb-0" id="completedFulfillment">0</h3>
+                                <small class="text-muted">مكتمل</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-user-check fa-2x text-primary mb-2"></i>
+                                <h3 class="mb-0" id="assignedPickers">0</h3>
+                                <small class="text-muted">مجهزين معينين</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="content-card mb-4">
+                    <div class="card-content">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="fulfillmentStatusFilter">
+                                    <option value="">كل الحالات</option>
+                                    <option value="PENDING">في الانتظار</option>
+                                    <option value="ASSIGNED">معين</option>
+                                    <option value="PICKING">جاري الالتقاط</option>
+                                    <option value="PACKING">جاري التعبئة</option>
+                                    <option value="COMPLETED">مكتمل</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="priorityFilter">
+                                    <option value="">كل الأولويات</option>
+                                    <option value="HIGH">عالية</option>
+                                    <option value="MEDIUM">متوسطة</option>
+                                    <option value="LOW">منخفضة</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="fulfillmentSearch" placeholder="بحث برقم الأمر...">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary w-100" id="applyFulfillmentFilters">
+                                    <i class="fas fa-filter me-1"></i>تصفية
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fulfillment Orders Table -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>قائمة أوامر التجهيز</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الأمر</th>
+                                        <th>رقم الشحنة</th>
+                                        <th>الأولوية</th>
+                                        <th>المجهز</th>
+                                        <th>الحالة</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fulfillmentTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>جاري التحميل...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Fulfillment Modal -->
+    <div class="modal fade" id="createFulfillmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">أمر تجهيز جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createFulfillmentForm">
+                        <div class="mb-3">
+                            <label for="shipmentId" class="form-label">رقم الشحنة</label>
+                            <input type="text" class="form-control" id="shipmentId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fulfillmentPriority" class="form-label">الأولوية</label>
+                            <select class="form-select" id="fulfillmentPriority" required>
+                                <option value="LOW">منخفضة</option>
+                                <option value="MEDIUM" selected>متوسطة</option>
+                                <option value="HIGH">عالية</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fulfillmentNotes" class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="fulfillmentNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" form="createFulfillmentForm" class="btn btn-primary">إنشاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Picker Modal -->
+    <div class="modal fade" id="assignPickerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعيين مجهز</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignPickerForm">
+                        <input type="hidden" id="assignOrderId">
+                        <div class="mb-3">
+                            <label for="pickerId" class="form-label">اختر المجهز</label>
+                            <select class="form-select" id="pickerId" required>
+                                <option value="">اختر المجهز</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" form="assignPickerForm" class="btn btn-primary">تعيين</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../src/js/shared/config.js"></script>
+    <script src="../../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../../src/js/shared/NotificationService.js"></script>
+    <script src="../../src/js/services/auth_service.js"></script>
+    <script src="../../src/js/services/api_service.js"></script>
+    <script src="../../src/js/services/websocket_service.js"></script>
+    <script src="../../src/js/shared/NotificationBell.js"></script>
+    <script src="../../src/js/app.js"></script>
+    <script src="../../src/js/pages/warehouse-fulfillment-page.js"></script>
+</body>
+</html>

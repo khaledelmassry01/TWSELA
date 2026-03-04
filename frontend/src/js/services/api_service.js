@@ -2040,6 +2040,300 @@ class ApiService {
         });
     }
 
+    // =====================================================
+    // Sprint 48: Warehouse Operations
+    // =====================================================
+
+    /**
+     * Get warehouse zones
+     */
+    async getWarehouseZones(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/zones${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create warehouse zone
+     */
+    async createWarehouseZone(zoneData) {
+        return this.request('/api/warehouse/zones', {
+            method: 'POST',
+            body: JSON.stringify(zoneData)
+        });
+    }
+
+    /**
+     * Update warehouse zone
+     */
+    async updateWarehouseZone(zoneId, zoneData) {
+        return this.request(`/api/warehouse/zones/${zoneId}`, {
+            method: 'PUT',
+            body: JSON.stringify(zoneData)
+        });
+    }
+
+    /**
+     * Delete warehouse zone
+     */
+    async deleteWarehouseZone(zoneId) {
+        return this.request(`/api/warehouse/zones/${zoneId}`, { method: 'DELETE' });
+    }
+
+    /**
+     * Get bins for a zone
+     */
+    async getZoneBins(zoneId, params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/zones/${zoneId}/bins${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create bin in a zone
+     */
+    async createBin(zoneId, binData) {
+        return this.request(`/api/warehouse/zones/${zoneId}/bins`, {
+            method: 'POST',
+            body: JSON.stringify(binData)
+        });
+    }
+
+    /**
+     * Get receiving orders
+     */
+    async getReceivingOrders(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/receiving${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create receiving order
+     */
+    async createReceivingOrder(orderData) {
+        return this.request('/api/warehouse/receiving', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+    }
+
+    /**
+     * Update receiving order status
+     */
+    async updateReceivingStatus(orderId, status) {
+        return this.request(`/api/warehouse/receiving/${orderId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    /**
+     * Get fulfillment orders
+     */
+    async getFulfillmentOrders(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/fulfillment${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create fulfillment order
+     */
+    async createFulfillmentOrder(orderData) {
+        return this.request('/api/warehouse/fulfillment', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+    }
+
+    /**
+     * Update fulfillment order status
+     */
+    async updateFulfillmentStatus(orderId, status) {
+        return this.request(`/api/warehouse/fulfillment/${orderId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    /**
+     * Assign picker to fulfillment order
+     */
+    async assignPicker(orderId, pickerId) {
+        return this.request(`/api/warehouse/fulfillment/${orderId}/assign`, {
+            method: 'PUT',
+            body: JSON.stringify({ pickerId })
+        });
+    }
+
+    /**
+     * Get pick waves
+     */
+    async getPickWaves(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/pick-waves${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create pick wave
+     */
+    async createPickWave(waveData) {
+        return this.request('/api/warehouse/pick-waves', {
+            method: 'POST',
+            body: JSON.stringify(waveData)
+        });
+    }
+
+    /**
+     * Start pick wave
+     */
+    async startPickWave(waveId) {
+        return this.request(`/api/warehouse/pick-waves/${waveId}/start`, { method: 'PUT' });
+    }
+
+    /**
+     * Complete pick wave
+     */
+    async completePickWave(waveId) {
+        return this.request(`/api/warehouse/pick-waves/${waveId}/complete`, { method: 'PUT' });
+    }
+
+    /**
+     * Get inventory movements
+     */
+    async getInventoryMovements(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/warehouse/inventory${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Create inventory movement
+     */
+    async createInventoryMovement(movementData) {
+        return this.request('/api/warehouse/inventory', {
+            method: 'POST',
+            body: JSON.stringify(movementData)
+        });
+    }
+
+    /**
+     * Get inventory summary for a zone
+     */
+    async getInventorySummary(zoneId) {
+        return this.request(`/api/warehouse/inventory/summary${zoneId ? '?zoneId=' + zoneId : ''}`, { method: 'GET' });
+    }
+
+    // =====================================================
+    // Sprint 48: Support System
+    // =====================================================
+
+    /**
+     * Create support ticket
+     */
+    async createSupportTicket(ticketData) {
+        return this.request('/api/support/tickets', {
+            method: 'POST',
+            body: JSON.stringify(ticketData)
+        });
+    }
+
+    /**
+     * Get my support tickets
+     */
+    async getMyTickets(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/support/tickets/my${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Get support ticket by ID
+     */
+    async getTicket(ticketId) {
+        return this.request(`/api/support/tickets/${ticketId}`, { method: 'GET' });
+    }
+
+    /**
+     * Send message on support ticket
+     */
+    async sendTicketMessage(ticketId, message) {
+        return this.request(`/api/support/tickets/${ticketId}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({ message })
+        });
+    }
+
+    /**
+     * Close support ticket
+     */
+    async closeSupportTicket(ticketId) {
+        return this.request(`/api/support/tickets/${ticketId}/close`, { method: 'PUT' });
+    }
+
+    /**
+     * Get all support tickets (admin)
+     */
+    async getAdminTickets(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/admin/support/tickets${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Assign support ticket to agent (admin)
+     */
+    async assignTicket(ticketId, agentId) {
+        return this.request(`/api/admin/support/tickets/${ticketId}/assign`, {
+            method: 'PUT',
+            body: JSON.stringify({ agentId })
+        });
+    }
+
+    /**
+     * Resolve support ticket (admin)
+     */
+    async resolveTicket(ticketId, resolution) {
+        return this.request(`/api/admin/support/tickets/${ticketId}/resolve`, {
+            method: 'PUT',
+            body: JSON.stringify({ resolution })
+        });
+    }
+
+    /**
+     * Get support ticket stats (admin)
+     */
+    async getSupportStats() {
+        return this.request('/api/admin/support/stats', { method: 'GET' });
+    }
+
+    // =====================================================
+    // Sprint 48: Help Center
+    // =====================================================
+
+    /**
+     * Get help articles
+     */
+    async getHelpArticles(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/help/articles${query ? '?' + query : ''}`, { method: 'GET' });
+    }
+
+    /**
+     * Search help articles
+     */
+    async searchHelpArticles(query) {
+        return this.request(`/api/help/articles/search?q=${encodeURIComponent(query)}`, { method: 'GET' });
+    }
+
+    /**
+     * Get help article by slug
+     */
+    async getHelpArticle(slug) {
+        return this.request(`/api/help/articles/${slug}`, { method: 'GET' });
+    }
+
+    /**
+     * Get help categories
+     */
+    async getHelpCategories() {
+        return this.request('/api/help/categories', { method: 'GET' });
+    }
+
     /**
      * Search data
      */

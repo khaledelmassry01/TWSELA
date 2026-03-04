@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>الدعم الفني - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Minimal Sidebar (generic, role-independent) -->
+        <nav class="sidebar" role="navigation" aria-label="القائمة الرئيسية">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="#" class="nav-link" id="backToDashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="/support.html" class="nav-link active">
+                    <i class="fas fa-headset"></i>
+                    <span>الدعم الفني</span>
+                </a>
+                <a href="/help.html" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>مركز المساعدة</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" aria-label="تبديل القائمة الجانبية">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">الدعم الفني</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">المستخدم</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item"><i class="fas fa-user"></i><span>الملف الشخصي</span></a>
+                            <a href="/settings.html" class="dropdown-item"><i class="fas fa-cog"></i><span>الإعدادات</span></a>
+                            <a href="#" class="dropdown-item logout-link"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Action Bar -->
+                <div class="content-card mb-4">
+                    <div class="card-content d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">تذاكر الدعم</h2>
+                            <p class="text-muted mb-0">إرسال استفسارات ومتابعة طلبات الدعم</p>
+                        </div>
+                        <button class="btn btn-primary" id="createTicketBtn">
+                            <i class="fas fa-plus me-2"></i>تذكرة جديدة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-envelope-open fa-2x text-warning mb-2"></i>
+                                <h3 class="mb-0" id="openTickets">0</h3>
+                                <small class="text-muted">مفتوحة</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-spinner fa-2x text-info mb-2"></i>
+                                <h3 class="mb-0" id="inProgressTickets">0</h3>
+                                <small class="text-muted">قيد المعالجة</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="content-card">
+                            <div class="card-content text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h3 class="mb-0" id="resolvedTickets">0</h3>
+                                <small class="text-muted">تم الحل</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets List -->
+                <div class="content-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>تذاكري</h3>
+                        <select class="form-select form-select-sm" id="ticketStatusFilter" style="width: auto;">
+                            <option value="">كل الحالات</option>
+                            <option value="OPEN">مفتوحة</option>
+                            <option value="IN_PROGRESS">قيد المعالجة</option>
+                            <option value="WAITING_CUSTOMER">بانتظار ردك</option>
+                            <option value="RESOLVED">تم الحل</option>
+                            <option value="CLOSED">مغلقة</option>
+                        </select>
+                    </div>
+                    <div class="card-content">
+                        <div id="ticketsList">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-spinner fa-spin me-2"></i>جاري التحميل...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Detail Section (hidden by default) -->
+                <div class="content-card mt-4 d-none" id="ticketDetailSection">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>تفاصيل التذكرة: <span id="ticketSubject"></span></h3>
+                        <button class="btn btn-sm btn-outline-secondary" id="backToListBtn">
+                            <i class="fas fa-arrow-right me-1"></i>العودة
+                        </button>
+                    </div>
+                    <div class="card-content">
+                        <div class="mb-3">
+                            <span class="badge" id="ticketStatusBadge"></span>
+                            <span class="badge bg-info ms-2" id="ticketCategoryBadge"></span>
+                        </div>
+                        <!-- Messages -->
+                        <div id="ticketMessages" class="mb-4" style="max-height: 400px; overflow-y: auto;">
+                        </div>
+                        <!-- Reply Form -->
+                        <div id="replySection">
+                            <form id="replyForm">
+                                <div class="mb-3">
+                                    <label for="replyMessage" class="form-label">ردك</label>
+                                    <textarea class="form-control" id="replyMessage" rows="3" required placeholder="اكتب ردك هنا..."></textarea>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i>إرسال
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" id="closeTicketBtn">
+                                        <i class="fas fa-times me-1"></i>إغلاق التذكرة
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Ticket Modal -->
+    <div class="modal fade" id="createTicketModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تذكرة دعم جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createTicketForm">
+                        <div class="mb-3">
+                            <label for="ticketCategory" class="form-label">التصنيف</label>
+                            <select class="form-select" id="ticketCategory" required>
+                                <option value="">اختر التصنيف</option>
+                                <option value="SHIPMENT_ISSUE">مشكلة في الشحنة</option>
+                                <option value="PAYMENT_ISSUE">مشكلة في الدفع</option>
+                                <option value="ACCOUNT_ISSUE">مشكلة في الحساب</option>
+                                <option value="TECHNICAL_ISSUE">مشكلة تقنية</option>
+                                <option value="PICKUP_ISSUE">مشكلة في الاستلام</option>
+                                <option value="DELIVERY_ISSUE">مشكلة في التوصيل</option>
+                                <option value="BILLING_ISSUE">مشكلة في الفواتير</option>
+                                <option value="OTHER">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketPriority" class="form-label">الأولوية</label>
+                            <select class="form-select" id="ticketPriority" required>
+                                <option value="LOW">منخفضة</option>
+                                <option value="MEDIUM" selected>متوسطة</option>
+                                <option value="HIGH">عالية</option>
+                                <option value="URGENT">عاجلة</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketSubjectInput" class="form-label">الموضوع</label>
+                            <input type="text" class="form-control" id="ticketSubjectInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketDescription" class="form-label">الوصف</label>
+                            <textarea class="form-control" id="ticketDescription" rows="4" required placeholder="اوصف مشكلتك بالتفصيل..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" form="createTicketForm" class="btn btn-primary">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/shared/config.js"></script>
+    <script src="src/js/shared/SharedDataUtils.js"></script>
+    <script src="src/js/shared/GlobalUIHandler.js"></script>
+    <script src="src/js/shared/NotificationService.js"></script>
+    <script src="src/js/services/auth_service.js"></script>
+    <script src="src/js/services/api_service.js"></script>
+    <script src="src/js/services/websocket_service.js"></script>
+    <script src="src/js/shared/NotificationBell.js"></script>
+    <script src="src/js/app.js"></script>
+    <script src="src/js/pages/support-page.js"></script>
+</body>
+</html>

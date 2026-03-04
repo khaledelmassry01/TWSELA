@@ -169,7 +169,15 @@ class TwselaApp {
             'merchant-labels',
             'courier-route',
             'courier-delivery',
-            'courier-pickups'
+            'courier-pickups',
+            'warehouse-zones',
+            'warehouse-receiving',
+            'warehouse-fulfillment',
+            'warehouse-pickwaves',
+            'warehouse-inventory',
+            'support',
+            'admin-support',
+            'help'
         ];
         
         return pagesWithOwnAuth.includes(pageName);
@@ -503,6 +511,20 @@ class TwselaApp {
         if (filename === 'pickups' && rolePrefix === 'courier') return 'courier-pickups';
         if (filename === 'route' && rolePrefix === 'courier') return 'courier-route';
         if (filename === 'delivery' && rolePrefix === 'courier') return 'courier-delivery';
+
+        // Warehouse pages
+        if (filename === 'zones' && rolePrefix === 'warehouse') return 'warehouse-zones';
+        if (filename === 'receiving' && rolePrefix === 'warehouse') return 'warehouse-receiving';
+        if (filename === 'fulfillment' && rolePrefix === 'warehouse') return 'warehouse-fulfillment';
+        if (filename === 'pick-waves' && rolePrefix === 'warehouse') return 'warehouse-pickwaves';
+        if (filename === 'inventory' && rolePrefix === 'warehouse') return 'warehouse-inventory';
+
+        // Admin pages
+        if (filename === 'support' && rolePrefix === 'admin') return 'admin-support';
+
+        // Shared pages
+        if (filename === 'support') return 'support';
+        if (filename === 'help') return 'help';
         
         return pageMap[filename] || 'dashboard';
     }

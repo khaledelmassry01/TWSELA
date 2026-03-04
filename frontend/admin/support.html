@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>إدارة الدعم الفني - Twsela</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../src/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Twsela</span>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/admin/dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="#" class="nav-link disabled opacity-50 pointer-events-none" aria-disabled="true" title="قريباً">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>الشحنات <small class="badge bg-secondary">قريباً</small></span>
+                </a>
+                <a href="#" class="nav-link disabled opacity-50 pointer-events-none" aria-disabled="true" title="قريباً">
+                    <i class="fas fa-users"></i>
+                    <span>المستخدمين <small class="badge bg-secondary">قريباً</small></span>
+                </a>
+                <a href="/admin/support.html" class="nav-link active">
+                    <i class="fas fa-headset"></i>
+                    <span>الدعم الفني</span>
+                </a>
+                <a href="/wallet.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>المحفظة</span>
+                </a>
+                <a href="/notifications.html" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات</span>
+                </a>
+                <a href="/support.html" class="nav-link">
+                    <i class="fas fa-life-ring"></i>
+                    <span>الدعم</span>
+                </a>
+                <a href="/help.html" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>المساعدة</span>
+                </a>
+                <a href="/profile.html" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>الملف الشخصي</span>
+                </a>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-link logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">إدارة الدعم الفني</h1>
+                </div>
+                <div class="header-right">
+                    <div class="profile-dropdown">
+                        <button class="profile-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name">المدير</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown-menu">
+                            <a href="/profile.html" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>الملف الشخصي</span>
+                            </a>
+                            <a href="/settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>الإعدادات</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="fas fa-envelope-open"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="openCount">0</h3>
+                                    <p>تذاكر مفتوحة</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                                    <i class="fas fa-spinner"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="inProgressCount">0</h3>
+                                    <p>قيد المعالجة</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="resolvedCount">0</h3>
+                                    <p>تم الحل</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="stat-card">
+                            <div class="stat-card-body">
+                                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="avgResponseTime">-</h3>
+                                    <p>متوسط وقت الرد</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="content-card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">الحالة</label>
+                                <select class="form-select" id="filterStatus">
+                                    <option value="">الكل</option>
+                                    <option value="OPEN">مفتوحة</option>
+                                    <option value="IN_PROGRESS">قيد المعالجة</option>
+                                    <option value="WAITING_CUSTOMER">بانتظار العميل</option>
+                                    <option value="WAITING_AGENT">بانتظار الموظف</option>
+                                    <option value="RESOLVED">تم الحل</option>
+                                    <option value="CLOSED">مغلقة</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">الأولوية</label>
+                                <select class="form-select" id="filterPriority">
+                                    <option value="">الكل</option>
+                                    <option value="LOW">منخفضة</option>
+                                    <option value="MEDIUM">متوسطة</option>
+                                    <option value="HIGH">عالية</option>
+                                    <option value="URGENT">عاجلة</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">التصنيف</label>
+                                <select class="form-select" id="filterCategory">
+                                    <option value="">الكل</option>
+                                    <option value="SHIPMENT_ISSUE">مشكلة شحنة</option>
+                                    <option value="PAYMENT_ISSUE">مشكلة دفع</option>
+                                    <option value="ACCOUNT_ISSUE">مشكلة حساب</option>
+                                    <option value="TECHNICAL_ISSUE">مشكلة تقنية</option>
+                                    <option value="PICKUP_ISSUE">مشكلة استلام</option>
+                                    <option value="DELIVERY_ISSUE">مشكلة توصيل</option>
+                                    <option value="BILLING_ISSUE">مشكلة فواتير</option>
+                                    <option value="OTHER">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">بحث</label>
+                                <input type="text" class="form-control" id="filterSearch" placeholder="رقم التذكرة أو الموضوع...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets Table -->
+                <div class="content-card mb-4" id="ticketsListSection">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>جميع التذاكر</h5>
+                        <span class="badge bg-primary" id="totalTicketsCount">0</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>الموضوع</th>
+                                        <th>المستخدم</th>
+                                        <th>التصنيف</th>
+                                        <th>الأولوية</th>
+                                        <th>الحالة</th>
+                                        <th>الموظف</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticketsTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4 text-muted">
+                                            <i class="fas fa-spinner fa-spin"></i> جاري التحميل...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Detail Section (Hidden by default) -->
+                <div class="d-none" id="ticketDetailSection">
+                    <div class="d-flex align-items-center mb-3">
+                        <button class="btn btn-outline-secondary btn-sm me-2" id="backToListBtn">
+                            <i class="fas fa-arrow-right me-1"></i>العودة
+                        </button>
+                        <h5 class="mb-0" id="detailSubject"></h5>
+                        <span class="badge ms-2" id="detailStatusBadge"></span>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Ticket Info -->
+                        <div class="col-md-4">
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">معلومات التذكرة</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">المستخدم</small>
+                                        <p class="mb-1" id="detailUser">-</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">التصنيف</small>
+                                        <p class="mb-1" id="detailCategory">-</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">الأولوية</small>
+                                        <p class="mb-1" id="detailPriority">-</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">تاريخ الإنشاء</small>
+                                        <p class="mb-1" id="detailDate">-</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">الموظف المعين</small>
+                                        <p class="mb-1" id="detailAgent">غير معين</p>
+                                    </div>
+                                    <hr>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-primary btn-sm" id="assignToMeBtn">
+                                            <i class="fas fa-hand-point-up me-1"></i>تعيين لي
+                                        </button>
+                                        <button class="btn btn-success btn-sm" id="resolveTicketBtn">
+                                            <i class="fas fa-check me-1"></i>تم الحل
+                                        </button>
+                                        <button class="btn btn-dark btn-sm" id="closeTicketBtn">
+                                            <i class="fas fa-times me-1"></i>إغلاق
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages -->
+                        <div class="col-md-8">
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-comments me-2"></i>المحادثة</h6>
+                                </div>
+                                <div class="card-body" id="detailMessages" style="max-height: 400px; overflow-y: auto;">
+                                    <!-- Messages loaded dynamically -->
+                                </div>
+                                <div class="card-footer" id="adminReplySection">
+                                    <form id="adminReplyForm">
+                                        <div class="input-group">
+                                            <textarea class="form-control" id="adminReplyMessage" rows="2" placeholder="اكتب ردك هنا..." required></textarea>
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assign Modal -->
+                <div class="modal fade" id="assignModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">تعيين موظف</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="assignForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">الموظف</label>
+                                        <select class="form-select" id="assignAgent" required>
+                                            <option value="">اختر موظف...</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                <button type="button" class="btn btn-primary" id="confirmAssignBtn">تعيين</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../src/js/services/config.js"></script>
+    <script src="../src/js/shared/SharedDataUtils.js"></script>
+    <script src="../src/js/shared/GlobalUIHandler.js"></script>
+    <script src="../src/js/services/NotificationService.js"></script>
+    <script src="../src/js/services/auth_service.js"></script>
+    <script src="../src/js/services/api_service.js"></script>
+    <script src="../src/js/services/websocket_service.js"></script>
+    <script src="../src/js/shared/NotificationBell.js"></script>
+    <script src="../src/js/app.js"></script>
+    <script src="../src/js/pages/admin-support-page.js"></script>
+</body>
+</html>
